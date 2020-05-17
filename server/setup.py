@@ -4,8 +4,8 @@ from setuptools import find_packages
 
 install_requires = [
 	'eventlet',
-	'joycontrol @ git+ssh://git@github.com/juharris/joycontrol.git@e90499393be4d829015785f7949566d6dc1561ba',
-	'python-socketio',
+	# 'joycontrol @ git+ssh://git@github.com/juharris/joycontrol.git@e90499393be4d829015785f7949566d6dc1561ba',
+	'flask-socketio',
 ]
 
 test_deps = [
@@ -24,6 +24,6 @@ setup(
 	install_requires=install_requires,
 	tests_require=test_deps,
 	extras_require=dict(
-		test=test_deps,
+			test=test_deps,
 	),
 )

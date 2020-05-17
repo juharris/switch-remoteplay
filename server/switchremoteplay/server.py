@@ -1,32 +1,37 @@
-import eventlet
-import socketio
+import os
 
-sio = socketio.Server()
-app = socketio.WSGIApp(sio,
-                       # static_files={
-    # '/': {'content_type': 'text/html', 'filename': 'index.html'}
-# }
-                       )
-@sio.event
-def accepted(sid, data):
-    print("accepted")
+from flask import Flask, render_template
+from flask_socketio import SocketIO, send, emit
 
-@sio.event
-def handshake(sid, data):
-    print("handshake")
+# Follow the example at https://flask-socketio.readthedocs.io/en/latest/
 
-@sio.event
-def connect(sid, environ):
-    print('connect ', sid)
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+socketio = SocketIO(app)
 
-@sio.event
-def my_message(sid, data):
-    print('message ', data)
-    return "OK", 123
 
-@sio.event
-def disconnect(sid):
-    print('disconnect ', sid)
+@socketio.on('connect')
+def test_connect():
+	print("Connected")
+	emit('my response', {'data': 'Connected'})
+
+@socketio.on('disconnect')
+def test_disconnect():
+	print('Client disconnected')
+
+# Handle unnamed events.
+@socketio.on('message')
+def handle_message(message):
+	print('received message: ' + message)
+
+# Handle unnamed events with JSON.
+@socketio.on('json')
+def handle_json(json):
+	print('received json: ' + str(json))
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	print('received json: ' + str(json))
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 8888)), app)
+	socketio.run(app)
