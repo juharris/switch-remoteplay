@@ -11,6 +11,11 @@ conda activate switch-remoteplay-server
 pip install -e .
 ```
 
+# Start
+```bash
+SECRET_KEY='something random-ish' python3 switchremoteplay/server.py
+```
+
 # Testing
 ```bash
 pip install -e .[test]

@@ -4,18 +4,23 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Switch Remoteplay</title>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
 		integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 	<script type="text/javascript" charset="utf-8">
-		const socket = io();
-		socket.on('connect', function () {
-			socket.emit('my event', { data: 'I\'m connected!' });
-		});
+		const socket = io('http://127.0.0.1:5000');
+		socket.on('connect', function (data) {
+			console.log("Connected")
+			console.log(data)
+		})
+		
+		socket.on('disconnect', function () {
+			console.log("Disconnected")
+		})
 
 		function my_message() {
-			console.log("my_message")
-			socket.emit('my_message', (data) => {
-				console.log("my_message responded")
+			console.log("emit to p")
+			socket.emit('p', "aab", (data) => {
+				console.log("p responded:")
 				console.log(data)
 			})
 		}
