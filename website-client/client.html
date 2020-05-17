@@ -13,6 +13,10 @@
 			background: #333;
 			color: #ddd;
 		}
+
+		div.connection-status, div.status {
+			min-height: 30px;
+		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
 		let socket
@@ -26,12 +30,12 @@
 			socket = io(address)
 
 			socket.on('connect', function (data) {
-				$('#connection-status').text("Connected ✅")
+				$('#connection-status').text("✅ Connected")
 				console.log(data)
 			})
 
 			socket.on('disconnect', function () {
-				$('#connection-status').text("Disconnect ❌")
+				$('#connection-status').text("❌ Disconnected")
 				console.log("Disconnected")
 			})
 		})
@@ -39,7 +43,7 @@
 		function my_message() {
 			console.log("emitting to p")
 			$('#status').text("emitting to p")
-			socket.emit('p', "aab", (data) => {
+			socket.emit('p', "left", (data) => {
 				$('#status').text("p responded: " + data)
 				console.log("p responded:")
 				console.log(data)
@@ -49,8 +53,12 @@
 </head>
 
 <body>
-	<div id="connection-status" style="min-height: 30px;"></div>
-	<div id="status" style="min-height: 30px;"></div>
+	<div class="connection-status">
+		Connection status: <span id="connection-status"></span>
+	</div>
+	<div class="status">
+		Status: <span id="status"></span>
+	</div>
 	<div>
 		<button onclick="my_message()">my_message</button>
 	</div>
