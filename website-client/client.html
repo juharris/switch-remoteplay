@@ -14,7 +14,8 @@
 			color: #ddd;
 		}
 
-		div.connection-status, div.status {
+		div.connection-status,
+		div.status {
 			min-height: 30px;
 		}
 	</style>
@@ -36,18 +37,77 @@
 
 			socket.on('disconnect', function () {
 				$('#connection-status').text("❌ Disconnected")
-				console.log("Disconnected")
+				console.warn("Disconnected")
 			})
 		})
 
-		function my_message() {
-			console.log("emitting to p")
-			$('#status').text("emitting to p")
-			socket.emit('p', "left", (data) => {
+		function sendCommand(command) {
+			$('#status').text(`emitting ${command}`)
+			socket.emit('p', command, (data) => {
 				$('#status').text("p responded: " + data)
-				console.log("p responded:")
-				console.log(data)
 			})
+		}
+
+		const keyMappingOnDown = {
+			ArrowLeft: 'left d',
+			ArrowRight: 'right d',
+			ArrowUp: 'up d',
+			ArrowDown: 'down d',
+			KeyA: 's l left',
+			KeyD: 's l right',
+			KeyS: 's l down',
+			KeyW: 's l up',
+			Space: 'b d',
+			KeyE: 'x d',
+			KeyQ: 'y d',
+		}
+
+		const keyMappingOnUp = {
+			ArrowLeft: 'left u',
+			ArrowRight: 'right u',
+			ArrowUp: 'up u',
+			ArrowDown: 'down u',
+			KeyA: 's l center',
+			KeyD: 's l center',
+			KeyS: 's l center',
+			KeyW: 's l center',
+			Space: 'b u',
+			KeyE: 'x u',
+			KeyQ: 'y u',
+		}
+
+		const keyMappingPress = {
+			
+		}
+
+		document.addEventListener('keydown', function (e) {
+			const command = keyMappingOnDown[e.code]
+			if (command) {
+				sendCommand(command)
+			} else if(!(e.code in keyMappingPress) && !(e.code in keyMappingOnUp)) {
+				console.warn(`keydown: Unknown command: ${e.code}`)
+			}
+		})
+		document.addEventListener('keyup', function (e) {
+			const command = keyMappingOnUp[e.code]
+			if (command) {
+				sendCommand(command)
+			} else if (!(e.code in keyMappingOnDown) && !(e.code in keyMappingPress)) {
+				console.warn(`keyup: Unknown command: ${e.code}`)
+			}
+		})
+
+		document.addEventListener('keypress', function (e) {
+			const command = keyMappingPress[e.code]
+			if (command) {
+				sendCommand(command)
+			} else if (!(e.code in keyMappingOnDown) && !(e.code in keyMappingOnUp)) {
+				console.warn(`keypress: Unknown command: ${e.code}`)
+			}
+		})
+
+		document.onclick = function (e) {
+			sendCommand('a')
 		}
 	</script>
 </head>
@@ -60,7 +120,7 @@
 		Status: <span id="status"></span>
 	</div>
 	<div>
-		<button onclick="my_message()">my_message</button>
+		<!-- <button onclick="my_message()">my_message</button> -->
 	</div>
 </body>
 
