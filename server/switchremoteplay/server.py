@@ -7,7 +7,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 #from flask_socketio import emit, send
 
-from controller import get_controller, push_button
+from controller import get_controller, push_button, utils
 
 # Follow the example at https://flask-socketio.readthedocs.io/en/latest/
 
@@ -52,19 +52,28 @@ async def _main():
     print("Setting up with bluetooth address: {}".format(bluetooth_address))
 
     global controller
-    controller = await get_controller(bluetooth_address)
-    print(controller)
-    import time
-    while True: time.sleep(1)
+    with utils.get_output(path=None, default=None) as capture_file:
+        controller = await get_controller(bluetooth_address, capture_file=capture_file)
+        print(controller)
+        #import time
+        #while True: time.sleep(1)
 
+        await asyncio.create_task(start_server())
 
+async def start_server():
     host = '0.0.0.0'
     # 5000 is the default port.
     port = 5000
     #port = 48668
-    #print("Running at {}:{}".format(host, port))
-    #socketio.run(app, host, port)
+    print("Running at {}:{}".format(host, port))
+    socketio.run(app, host, port)
+    print(controller)
 
+
+async def other():
+    import time
+    while True:
+        time.sleep(1)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
