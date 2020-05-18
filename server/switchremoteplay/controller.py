@@ -8,11 +8,6 @@ from joycontrol.server import create_hid_server
 
 log.configure()
 
-
-# Might need to be async
-async def push_button(*args, **kwargs):
-    return await button_push(*args, **kwargs)
-
 async def get_controller(reconnect_bt_addr=None, spi_flash=None, controller='PRO_CONTROLLER', capture_file=None, device_id=None):
     # parse the spi flash
     if spi_flash:
@@ -38,4 +33,3 @@ async def get_controller(reconnect_bt_addr=None, spi_flash=None, controller='PRO
     # Create command line interface and add some extra commands
     #cli = ControllerCLI(controller_state)
     return controller_state
-

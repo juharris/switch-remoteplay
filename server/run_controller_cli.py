@@ -245,23 +245,14 @@ async def _main(args):
         cli.add_command('amiibo', amiibo)
 
         try:
-            #await asyncio.sleep(10)
-            #loop = asyncio.new_event_loop()
-            #def f(loop):
-            #    asyncio.set_event_loop(loop)
-            #    loop.run_forever()
-            #t = Thread(target=f, args=(loop,))
-            #t.start()
             l = asyncio.get_running_loop()
             def f():
-                #asyncio.set_event_loop(l)
                 start_socket_server(controller_state, l)
 
             l.run_in_executor(None, f)
 
             print("Calling cli.run()")
             await cli.run()
-            #await loop_forever()
         finally:
             logger.info('Stopping communication...')
             await transport.close()
@@ -273,16 +264,6 @@ def start_socket_server(controller, loop):
     # print(app.config['SECRET_KEY'])
     socketio = SocketIO(app, cors_allowed_origins='*')
     asyncio.set_event_loop(loop)
-    #l = asyncio.new_event_loop()
-    #asyncio.set_event_loop(l)
-    #print(f"loop id: {id(l)}")
-    def f(loop):
-        print("Started thread")
-        print(f"loop id: {id(loop)}")
-        loop.run_forever()
-        print("Ending thread")
-    #t = Thread(target=f, args=(l,))
-    #t.start()
 
     @socketio.on('connect')
     def test_connect():
@@ -302,23 +283,76 @@ def start_socket_server(controller, loop):
     def handle_json(json):
         print('received json: ' + str(json))
 
+    def _set_stick(stick, direction, value):
+        if direction == 'center':
+            stick.set_center()
+        elif direction == 'up':
+            stick.set_up()
+        elif direction == 'down':
+            stick.set_down()
+        elif direction == 'left':
+            stick.set_left()
+        elif direction == 'right':
+            stick.set_right()
+        elif direction in ('h', 'horizontal'):
+            if value is None:
+                raise ValueError(f'Missing value')
+            try:
+                val = int(value)
+            except ValueError:
+                raise ValueError(f'Unexpected stick value "{value}"')
+            stick.set_h(val)
+        elif direction in ('v', 'vertical'):
+            if value is None:
+                raise ValueError(f'Missing value')
+            try:
+                val = int(value)
+            except ValueError:
+                raise ValueError(f'Unexpected stick value "{value}"')
+            stick.set_v(val)
+        else:
+            raise ValueError(f'Unexpected argument "{direction}"')
+
+        return f'{stick.__class__.__name__} was set to ({stick.get_h()}, {stick.get_v()}).'
+
+
     @socketio.on('p')
-    def handle_press(button):
-        print("will press: {}".format(button))
-        asyncio.ensure_future(button_push(controller, button))
-        return "PRESSED {}".format(button)
+    def handle_press(command: str):
+        logger.debug(command)
+        if command in 'lrudabxy':
+            asyncio.ensure_future(button_push(controller, command))
+        elif command.startswith('s'):
+            command = command.split(' ')
+            assert len(command) >= 3
+            if command[1] == 'l':
+                stick = controller.l_stick_state
+            else:
+                stick = controller.r_stick_state
+            direction = command[2]
+            if len(command) > 3:
+                value = command[3]
+            else:
+                value = None
+            s = _set_stick(stick, direction, value)
+            logger.debug(s)
+            asyncio.ensure_future(controller.send())
+        else:
+            command = command.split(' ')
+            assert len(command) >= 2
+            button = command[0]
+            pushed = command[1] == 'd'
+            controller.button_state.set_button(button, pushed)
+
+
+        return "DONE {}".format(command)
 
 
     host = '0.0.0.0'
     # 5000 is the default port.
     port = 5000
-    #port = 48668
     print("Running at {}:{}".format(host, port))
 
     socketio.run(app, host, port)
-    print(controller)
-
-
 
 if __name__ == '__main__':
     # check if root
