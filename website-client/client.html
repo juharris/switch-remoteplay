@@ -21,43 +21,79 @@
 		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
+        <!-- Settings to make confiruable later. -->
+        /** Size of the delta must be at least  this to send the change. */
+        const mouseSensitivity = 1
+
         let socket
         let isInSendMode = false
+        const currentMousePos = {x: undefined, y: undefined}
 
         function updateConnectionStatus(status) {
-            $('#connection-status').text(status)
+            document.getElementById('connection-status').innerText = status
             console.debug(status)
+        }
+
+        function connect() {
+            if (socket !== undefined) {
+            	socket.disconnect()
+				updateConnectionStatus("")
+                document.getElementById('connect').innerText = "Connect"
+                socket = undefined
+				return
+			}
+			const address = document.getElementById('server-address').value
+            const status = `Attempting to connect to "${address}"...`
+            updateConnectionStatus(status)
+            socket = io(address)
+			document.getElementById('connect').innerText = "Disconnect"
+
+            socket.on('connect', function (data) {
+                updateConnectionStatus("✅ Connected")
+                console.log(data)
+            })
+
+            socket.on('disconnect', function () {
+                updateConnectionStatus("❌ Disconnected")
+            })
         }
 
         $(document).ready(function () {
             const queryString = window.location.search
             const urlParams = new URLSearchParams(queryString)
             const address = urlParams.get('a') || 'http://127.0.0.1:5000'
-            const status = `Connecting to "${address}"...`
-            updateConnectionStatus(status)
-            socket = io(address)
+            document.getElementById('server-address').value = address
+
+            const connectNow = urlParams.get('c') === 'true'
+            if (connectNow) {
+                connect()
+            }
 
             isInSendMode = urlParams.get('s') === 'true'
             checkSendMode()
-
-            socket.on('connect', function (data) {
-                $('#connection-status').text("✅ Connected")
-                console.log(data)
-            })
-
-            socket.on('disconnect', function () {
-                $('#connection-status').text("❌ Disconnected")
-                console.warn("Disconnected")
-            })
         })
 
         function sendCommand(command) {
-            $('#status').text(`emitting ${command}`)
+            document.getElementById('status').innerText = `emitting ${command}`
             socket.emit('p', command, (data) => {
-                $('#status').text("p responded: " + data)
+                document.getElementById('status').innerText = "p responded: " + data
             })
         }
 
+        function toggleSendMode() {
+            isInSendMode = !isInSendMode
+            checkSendMode()
+        }
+
+        function checkSendMode() {
+            if (isInSendMode) {
+                document.getElementById('send-mode-status').innerText = "✅ Enabled"
+                document.getElementById('send-mode-toggle').innerText = "Disable Sending Commands"
+            } else {
+                document.getElementById('send-mode-status').innerText = "❌ Disabled"
+                document.getElementById('send-mode-toggle').innerText = "Start Sending Commands"
+            }
+        }
 
         const keyMap = {
             ArrowLeft: {
@@ -104,73 +140,76 @@
                 down: 'y d',
                 up: 'y u',
             },
+            LeftClick: {
+                down: 'a d',
+                up: 'a u',
+            }
+        }
+
+        function handleKey(e, keyName, keyDirection) {
+            if (!isInSendMode) {
+                return
+            }
+
+            const command = keyMap[keyName]
+            if (command) {
+                sendCommand(command[keyDirection])
+                e.preventDefault()
+            }
         }
 
         document.addEventListener('keydown', function (e) {
-            if (!isInSendMode) {
-                return
-            }
-            const command = keyMap[e.code]
-            if (command) {
-                sendCommand(command.down)
-                e.preventDefault()
-            } else if (!(e.code in keyMappingPress) && !(e.code in keyMappingOnUp)) {
-                console.warn(`keydown: Unknown command: ${e.code}`)
-            }
-
+            handleKey(e, e.code, 'down')
         })
         document.addEventListener('keyup', function (e) {
-            if (!isInSendMode) {
-                return
-            }
-            const command = keyMap[e.code]
-            if (command) {
-                sendCommand(command.up)
-                e.preventDefault()
-            } else if (!(e.code in keyMappingOnDown) && !(e.code in keyMappingPress)) {
-                console.warn(`keyup: Unknown command: ${e.code}`)
-            }
+            handleKey(e, e.code, 'up')
         })
 
         document.addEventListener('keypress', function (e) {
         })
 
-        document.onclick = function (e) {
+        document.addEventListener('mousedown', function (e) {
             if (e.target.id === 'send-mode-toggle') {
                 return
             }
-            if (!isInSendMode) {
+            handleKey(e, 'LeftClick', 'down')
+        })
+
+        document.addEventListener('mouseup', function (e) {
+            if (e.target.id === 'send-mode-toggle') {
                 return
             }
-            sendCommand('a')
-            e.preventDefault()
-        }
+            handleKey(e, 'LeftClick', 'up')
+        })
 
-        function toggleSendMode() {
-            isInSendMode = !isInSendMode
-            checkSendMode()
-        }
+        document.addEventListener('mousemove', function (e) {
+            const newX = e.pageX
+            const newY = e.pageY
+            if (currentMousePos.x !== undefined) {
+                const dX = newX - currentMousePos.x
+                const dY = newY - currentMousePos.y
+                // console.debug(dX, dY)
+                if (dX >= mouseSensitivity) {
 
-        function checkSendMode() {
-            if (isInSendMode) {
-                $('#send-mode-status').text("✅ Enabled")
-                $('#send-mode-toggle').text("Disable Sending Commands")
-            } else {
-                $('#send-mode-status').text("❌ Disabled")
-                $('#send-mode-toggle').text("Start Sending Commands")
+                }
             }
-        }
+            currentMousePos.x = newX
+            currentMousePos.y = newY
+        })
 	</script>
 </head>
 
 <body>
+<div>
+	<label for="server-address">Server Address:</label>
+	<input id="server-address"/>
+	<button id="connect" onclick="connect()">Connect</button>
+</div>
 <div class="connection-status">
 	Connection status: <span id="connection-status"></span>
 </div>
 <div class="send-mode-status">
 	Send mode: <span id="send-mode-status"></span>
-<!--</div>-->
-<!--<div>-->
 	<button id="send-mode-toggle" onclick="toggleSendMode()">Start Sending Commands</button>
 </div>
 <div class="status">
