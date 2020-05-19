@@ -1,19 +1,17 @@
 # Server
 
 # Setup
+Follow the setup instructions for https://github.com/mart1nro/joycontrol
+
 ```bash
-conda create --name switch-remoteplay-server 'python>=3.7'
-conda activate switch-remoteplay-server
-
-# Follow the setup instructions for https://github.com/mart1nro/joycontrol
-
-# Now back the setup for this code:
 pip install -e .
 ```
 
 # Start
+Ideally we'll use server.py to start it but for now:
 ```bash
-SECRET_KEY='something random-ish' python3 switchremoteplay/server.py
+# Append '-r <Switch MAC address>' to reconnect to an already paired Switch.
+SECRET_KEY='something random-ish' sudo python3 switchremoteplay/run_controller_cli.py PRO_CONTROLLER
 ```
 
 # Testing

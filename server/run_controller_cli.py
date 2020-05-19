@@ -180,7 +180,6 @@ async def _main(args):
 	controller = Controller.from_arg(args.controller)
 
 	with utils.get_output(path=args.log, default=None) as capture_file:
-		print(f"capture_file: {capture_file}")
 		factory = controller_protocol_factory(controller, spi_flash=spi_flash)
 		ctl_psm, itr_psm = 17, 19
 		transport, protocol = await create_hid_server(factory, reconnect_bt_addr=args.reconnect_bt_addr,

@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 class SwitchController():
 	def __init__(self, controller_state: ControllerState):
 		self._controller_state = controller_state
+		print("L CALIBRATION:")
+		print(controller_state.l_stick_state.get_calibration())
 
 	@staticmethod
 	async def get_controller(reconnect_bt_addr=None, spi_flash=None, controller='PRO_CONTROLLER', capture_file=None,
-	                         device_id=None):
+							 device_id=None):
 		# parse the spi flash
 		if spi_flash:
 			with open(spi_flash, 'rb') as spi_flash_file:
@@ -27,16 +29,14 @@ class SwitchController():
 
 		# Get controller name to emulate from arguments
 		controller = Controller.from_arg(controller)
-		print(f"controller: {controller}")
-		print(f"capture_file: {capture_file}")
 		factory = controller_protocol_factory(controller, spi_flash=spi_flash)
 		ctl_psm, itr_psm = 17, 19
 		transport, protocol = await create_hid_server(factory, reconnect_bt_addr=reconnect_bt_addr,
-		                                              ctl_psm=ctl_psm,
-		                                              itr_psm=itr_psm, capture_file=capture_file,
-		                                              device_id=device_id)
+													  ctl_psm=ctl_psm,
+													  itr_psm=itr_psm, capture_file=capture_file,
+													  device_id=device_id)
 
-		controller_state = protocol.get_controller_state()
+		controller_state: ControllerState = protocol.get_controller_state()
 
 		return SwitchController(controller_state)
 
@@ -55,18 +55,32 @@ class SwitchController():
 		elif direction in ('h', 'horizontal'):
 			if value is None:
 				raise ValueError(f'Missing value')
-			try:
-				val = int(value)
-			except ValueError:
-				raise ValueError(f'Unexpected stick value "{value}"')
+			if value == 'max':
+				val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
+			elif value == 'min':
+				val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
+			elif value == 'center':
+				val = stick.get_calibration().h_center
+			else:
+				try:
+					val = int(value)
+				except ValueError:
+					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_h(val)
 		elif direction in ('v', 'vertical'):
 			if value is None:
 				raise ValueError(f'Missing value')
-			try:
-				val = int(value)
-			except ValueError:
-				raise ValueError(f'Unexpected stick value "{value}"')
+			if value == 'max':
+				val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
+			elif value == 'min':
+				val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
+			elif value == 'center':
+				val = stick.get_calibration().v_center
+			else:
+				try:
+					val = int(value)
+				except ValueError:
+					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_v(val)
 		else:
 			raise ValueError(f'Unexpected argument "{direction}"')
@@ -89,7 +103,6 @@ class SwitchController():
 				value = command[3]
 			else:
 				value = None
-			# TODO Check if stick is already not in center state and interpolate if needed.
 			s = SwitchController._set_stick(stick, direction, value)
 			logger.debug(s)
 			asyncio.ensure_future(self._controller_state.send())

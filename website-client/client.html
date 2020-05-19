@@ -16,14 +16,22 @@
 
 		div.connection-status,
 		div.send-mode-status,
+		div.server-options,
 		div.status {
 			min-height: 30px;
+		}
+
+		.controller-left-col {
+			padding-left: 180px
+		}
+		.controller-right-col {
+			padding-left: 220px
 		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
         <!-- Settings to make confiruable later. -->
         /** Size of the delta must be at least  this to send the change. */
-        const mouseSensitivity = 1
+        const mouseSensitivityX = mouseSensitivityY = 1
 
         let socket
         let isInSendMode = false
@@ -36,20 +44,21 @@
 
         function connect() {
             if (socket !== undefined) {
-            	socket.disconnect()
-				updateConnectionStatus("")
+                socket.disconnect()
+                updateConnectionStatus("")
                 document.getElementById('connect').innerText = "Connect"
                 socket = undefined
-				return
-			}
-			const address = document.getElementById('server-address').value
+                return
+            }
+            const address = document.getElementById('server-address').value
             const status = `Attempting to connect to "${address}"...`
             updateConnectionStatus(status)
             socket = io(address)
-			document.getElementById('connect').innerText = "Disconnect"
+            document.getElementById('connect').innerText = "Disconnect"
 
             socket.on('connect', function (data) {
                 updateConnectionStatus("✅ Connected")
+                document.getElementById('send-mode-toggle').disabled = false
                 console.log(data)
             })
 
@@ -61,8 +70,7 @@
         $(document).ready(function () {
             const queryString = window.location.search
             const urlParams = new URLSearchParams(queryString)
-            const address = urlParams.get('a') || 'http://127.0.0.1:5000'
-            document.getElementById('server-address').value = address
+            document.getElementById('server-address').value = urlParams.get('a') || 'http://127.0.0.1:5000'
 
             const connectNow = urlParams.get('c') === 'true'
             if (connectNow) {
@@ -74,6 +82,9 @@
         })
 
         function sendCommand(command) {
+            if (!command) {
+                return
+            }
             document.getElementById('status').innerText = `emitting ${command}`
             socket.emit('p', command, (data) => {
                 document.getElementById('status').innerText = "p responded: " + data
@@ -88,46 +99,100 @@
         function checkSendMode() {
             if (isInSendMode) {
                 document.getElementById('send-mode-status').innerText = "✅ Enabled"
-                document.getElementById('send-mode-toggle').innerText = "Disable Sending Commands"
+                document.getElementById('send-mode-toggle').innerText = "Stop Sending Commands"
             } else {
                 document.getElementById('send-mode-status').innerText = "❌ Disabled"
                 document.getElementById('send-mode-toggle').innerText = "Start Sending Commands"
             }
         }
 
-        const keyMap = {
-            ArrowLeft: {
+        const maxStick = 'max'
+        const minStick = 'min'
+        const centerStick = 'center'
+        const actions = {
+            // Left Stick
+            leftStickFullLeft: {
+                down: `s l h ${minStick}`,
+                up: `s l h ${centerStick}`,
+            },
+            leftStickFullRight: {
+                down: `s l h ${maxStick}`,
+                up: `s l h ${centerStick}`,
+            },
+            leftStickFullUp: {
+                down: `s l v ${maxStick}`,
+                up: `s l v ${centerStick}`,
+            },
+            leftStickFullDown: {
+                down: `s l v ${minStick}`,
+                up: `s l v ${centerStick}`,
+            },
+
+            // Right Stick
+            rightStickFullLeft: {
+                down: `s r h ${minStick}`,
+                up: `s r h ${centerStick}`,
+            },
+            rightStickFullRight: {
+                down: `s r h ${maxStick}`,
+                up: `s r h ${centerStick}`,
+            },
+            rightStickFullUp: {
+                down: `s r v ${maxStick}`,
+                up: `s r v ${centerStick}`,
+            },
+            rightStickFullDown: {
+                down: `s r v ${minStick}`,
+                up: `s r v ${centerStick}`,
+            },
+
+            // Arrows
+            arrowLeft: {
                 down: 'left d',
                 up: 'left u',
             },
-            ArrowRight: {
+            arrowRight: {
                 down: 'right d',
                 up: 'right u',
             },
-            ArrowUp: {
+            arrowUp: {
                 down: 'up d',
                 up: 'up u',
             },
-            ArrowDown: {
+            arrowDown: {
                 down: 'down d',
                 up: 'down u',
             },
-            KeyA: {
-                down: 's l left',
-                up: 's l center',
+
+            b: {
+                down: 'b d',
+                up: 'b u',
             },
-            KeyD: {
-                down: 's l right',
-                up: 's l center',
+            x: {
+                down: 'x d',
+                up: 'x u',
             },
-            KeyS: {
-                down: 's l down',
-                up: 's l center',
+            y: {
+                down: 'y d',
+                up: 'y u',
             },
-            KeyW: {
-                down: 's l up',
-                up: 's l center',
+            a: {
+                down: 'a d',
+                up: 'a u',
             },
+        }
+
+        const keyMap = {
+            KeyW: actions.leftStickFullUp,
+            KeyS: actions.leftStickFullDown,
+            KeyA: actions.leftStickFullLeft,
+            KeyD: actions.leftStickFullRight,
+
+            ArrowLeft: actions.y,
+            ArrowRight: actions.a,
+            ArrowUp: actions.x,
+            ArrowDown: actions.b,
+
             Space: {
                 down: 'b d',
                 up: 'b u',
@@ -143,7 +208,27 @@
             LeftClick: {
                 down: 'a d',
                 up: 'a u',
-            }
+            },
+            ShiftLeft: {
+                isDown: false
+            },
+            ControlRight: {
+                isDown: false
+            },
+        }
+
+        const shiftKeyMap = {
+            KeyA: actions.arrowLeft,
+            KeyD: actions.arrowRight,
+            KeyW: actions.arrowUp,
+            KeyS: actions.arrowDown,
+        }
+
+        const ctrlKeyMap = {
+            ArrowUp: actions.rightStickFullUp,
+            ArrowDown: actions.rightStickFullDown,
+            ArrowLeft: actions.rightStickFullLeft,
+            ArrowRight: actions.rightStickFullRight,
         }
 
         function handleKey(e, keyName, keyDirection) {
@@ -151,10 +236,24 @@
                 return
             }
 
-            const command = keyMap[keyName]
+            let keyMapping = keyMap
+
+            if (keyName in keyMap) {
+                keyMap[keyName].isDown = keyDirection === 'down'
+            }
+
+            if (keyMap.ShiftLeft.isDown && keyName in shiftKeyMap) {
+                keyMapping = shiftKeyMap
+            } else if (keyMap.ControlRight.isDown && keyName in ctrlKeyMap) {
+                keyMapping = ctrlKeyMap
+            }
+
+            const command = keyMapping[keyName]
             if (command) {
                 sendCommand(command[keyDirection])
                 e.preventDefault()
+            } else {
+                console.debug(`Pressed ${e.code}.`)
             }
         }
 
@@ -163,9 +262,6 @@
         })
         document.addEventListener('keyup', function (e) {
             handleKey(e, e.code, 'up')
-        })
-
-        document.addEventListener('keypress', function (e) {
         })
 
         document.addEventListener('mousedown', function (e) {
@@ -183,24 +279,36 @@
         })
 
         document.addEventListener('mousemove', function (e) {
+            // Top left of the page is 0, 0.
             const newX = e.pageX
             const newY = e.pageY
             if (currentMousePos.x !== undefined) {
-                const dX = newX - currentMousePos.x
-                const dY = newY - currentMousePos.y
-                // console.debug(dX, dY)
-                if (dX >= mouseSensitivity) {
+                let dX = newX - currentMousePos.x
+                let dY = currentMousePos.y - newY
 
+                if (Math.abs(dX) >= mouseSensitivityX) {
+                    currentMousePos.x = newX
+                } else {
+                    dX = 0
                 }
+                if (Math.abs(dY) >= mouseSensitivityY) {
+                    currentMousePos.y = newY
+                } else {
+                    dY = 0
+                }
+                if (Math.abs(dX) > 0 && Math.abs(dY) > 0) {
+                    // console.debug(dX,dY)
+                }
+            } else {
+                currentMousePos.x = newX
+                currentMousePos.y = newY
             }
-            currentMousePos.x = newX
-            currentMousePos.y = newY
         })
 	</script>
 </head>
 
 <body>
-<div>
+<div class="server-options">
 	<label for="server-address">Server Address:</label>
 	<input id="server-address"/>
 	<button id="connect" onclick="connect()">Connect</button>
@@ -210,10 +318,28 @@
 </div>
 <div class="send-mode-status">
 	Send mode: <span id="send-mode-status"></span>
-	<button id="send-mode-toggle" onclick="toggleSendMode()">Start Sending Commands</button>
+	<button id="send-mode-toggle" onclick="toggleSendMode()" disabled>
+		Start Sending Commands
+	</button>
 </div>
 <div class="status">
 	Status: <span id="status"></span>
+</div>
+
+<div>
+	<table>
+		<tr>
+			<td class="controller-left-col">Left Control Stick: WASD</td>
+			<td class="controller-right-col">X:▲, Y: ◀, B:▼, A:▶</td>
+		</tr>
+		<tr>
+			<td class="controller-left-col">Arrows: Shift+WASD</td>
+			<td class="controller-right-col">Right Stick: Shift+▲◀▼▶</td>
+		</tr>
+	</table>
+
+
+		<img height="800px" src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png" alt="Nintendo Switch Controller"/>
 </div>
 </body>
 
