@@ -23,6 +23,14 @@ One keyboard layout is supported to map keys on a keyboard to control the contro
 * Support custom keyboard layouts.
 * Show the video in the client.
 * Support recording and running macros.
+* Phone apps to talk to the Switch and host the service instead of the a Linux machine.
+
+# Looking for Help
+I'm looking for help with implementing the above plans. Some more specific things:
+* Porting client.html to React/TypeScript (I'll probably do this myself)
+* Add security options to the service: auth, allowed origins, disabling buttons like Home and screen capture, limiting the number of clients connected.
+* Getting the service to run on Windows (hard since the libraries I'm relying on require Linux)
+* Improving the client UX (this can wait until it's refactored)
 
 # Issues
 * Be careful not to press Ctrl+W (LStick Up + A) while playing! (will get addressed eventually)
