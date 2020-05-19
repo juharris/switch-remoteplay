@@ -1,3 +1,7 @@
+NOT OFFICALLY SUPPORTED OR INVOLVED WITH NINTENDO IN ANY WAY
+
+This is an independent project.
+
 # switch-remoteplay
 
 The goal of this project is to support playing your Nintendo Switch remotely or locally via your PC keyboard/mouse/controller.
@@ -5,7 +9,7 @@ The goal of this project is to support playing your Nintendo Switch remotely or 
 Example [video](https://www.youtube.com/watch?v=TBqZRA1OZPU).
 
 # Status
-One keyboard layout is supported to map keys on a keyboard to control the control sticks and some of the keys on a Nintendo Switch. I've mainly tested this with Animal Crossing. 
+One keyboard layout is supported to map keys on a keyboard to control the control sticks and some of the keys on a Nintendo Switch. I've mainly tested this with Animal Crossing. This is very much a messy work in progress right now but you can indeed play your Switch remotely with support for a few buttons.
 
 # Requirements
 * Nintendo Switch
