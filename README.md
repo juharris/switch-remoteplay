@@ -20,3 +20,6 @@ One keyboard layout is supported to map keys on a keyboard to control the contro
 
 # Issues
 * Be careful not to press Ctrl+W while playing! (will get address eventually)
+
+# Acknowledgements
+A very special thank you to https://github.com/mart1nro/joycontrol for the very conveninent and full API and the acknowledgements there as well for so much of the great research into how to communicate with the Switch.
