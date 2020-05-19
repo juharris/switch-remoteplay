@@ -10,7 +10,9 @@ One keyboard layout is supported to map keys on a keyboard to control the contro
 # Requirements
 * Nintendo Switch
 * Linux machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B)
-* (optional) video capture card to see the video (or just have bad quality in a video chat app) 
+* A web browser to open the client and send commands
+* A normal keyboard
+* (optional) video capture card to see the video (or just have bad quality in a video chat app)
 
 # Plans
 * Support gaming controllers.
@@ -19,7 +21,7 @@ One keyboard layout is supported to map keys on a keyboard to control the contro
 * Support recording and running macros.
 
 # Issues
-* Be careful not to press Ctrl+W while playing! (will get address eventually)
+* Be careful not to press Ctrl+W (LStick Up + A) while playing! (will get addressed eventually)
 
 # Acknowledgements
 A very special thank you to https://github.com/mart1nro/joycontrol for the very conveninent and full API and the acknowledgements there as well for so much of the great research into how to communicate with the Switch.
