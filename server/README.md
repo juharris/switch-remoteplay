@@ -69,7 +69,7 @@ For moving the sticks: `s <stick> <direction> <amount>`
 
 Examples:
 * Push the left stick up all the way: `s l v max`, then let go of it and set it back to it's center position with: `s l v center`.
-* (not supported yet) Push the right stick halfway to the right: `s r h -0.5`.
+* (not supported yet) Push the right stick halfway to the right: `s r h 0.5`.
 
 Angling the sticks (not supported yet): `s <stick> hv <h amount> <v amount>`
 Example: Push the right stick up and to the right: `s r hv 0.5 0.5`.
