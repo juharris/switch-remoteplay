@@ -63,6 +63,7 @@ class SwitchController():
 				val = stick.get_calibration().h_center
 			else:
 				try:
+					# TODO Convert -1 to +1 to the calibrated values.
 					val = int(value)
 				except ValueError:
 					raise ValueError(f'Unexpected stick value "{value}"')
@@ -79,6 +80,7 @@ class SwitchController():
 			else:
 				try:
 					val = int(value)
+					# TODO Convert -1 to +1 to the calibrated values.
 				except ValueError:
 					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_v(val)
@@ -89,10 +91,11 @@ class SwitchController():
 
 	def run(self, command: str):
 		logger.debug(command)
-		if command in 'lrudabxy':
+		if command in 'lrabxy':
 			asyncio.ensure_future(button_push(self._controller_state, command))
 		elif command.startswith('s'):
 			command = command.split(' ')
+			# TODO Support 's <stick> hv <h amount> <v amount>'
 			assert len(command) >= 3
 			if command[1] == 'l':
 				stick = self._controller_state.l_stick_state
