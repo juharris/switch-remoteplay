@@ -59,7 +59,7 @@ I'm looking for help with implementing the above plans. Some more specific thing
 
 # Setup
 See:
-* [server](/server): a service to run on a device near your Switch
+* [server](/server): a service to run on a device near your Switch (full API docs are there)
 * [client](/website-client): a website for your friends to "connect" to your Switch
 
 # Issues
