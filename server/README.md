@@ -5,7 +5,7 @@ Follow the setup instructions for [joycontrol][joycontrol].
 
 For this code, in this server folder:
 
-Note that `sudo` is to run the server and so it needs to be used to install the dependencies.
+Note that `sudo` is used to run the server and so it needs to be used to install the dependencies.
 I believe it's needed by joycontrol for using Bluetooth because it restarts the Bluetooth service if there are issues connecting.
 ```bash
 sudo pip3 install -e .
@@ -73,6 +73,22 @@ Examples:
 
 Angling the sticks (not supported yet): `s <stick> hv <h amount> <v amount>`
 Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0.5`.
+
+# Wait
+(not supported yet)
+
+Format: `wait <time in milliseconds>`
+
+# Sending Multiple Commands
+(not supported yet)
+
+At the same time: join commands with `&`
+
+Example: Press A and B down: `'a d&b d'`
+
+* In sequence: join commands with `,`
+
+Example: Press A, then wait, then B, then wait, let them both go: `'a d,wait 200,b d,wait 200,a u&b u'`.
 
 # Testing
 (there are no tests yet)
