@@ -24,7 +24,7 @@
         const currentMousePos = {x: undefined, y: undefined}
 
         function updateConnectionStatus(status) {
-            document.getElementById('connection-status').innerText = status
+            document.getElementById('connection-status').innerText = "Connection status: " + status
             console.debug(status)
         }
 
@@ -73,9 +73,9 @@
             if (!command) {
                 return
             }
-            document.getElementById('status').innerText = `emitting ${command}`
+            document.getElementById('status').innerText = "Status: " + `emitting ${command}`
             socket.emit('p', command, (data) => {
-                document.getElementById('status').innerText = "p responded: " + data
+                document.getElementById('status').innerText = "Status: " + "p responded: " + data
             })
         }
 
@@ -86,11 +86,11 @@
 
         function checkSendMode() {
             if (isInSendMode) {
-                document.getElementById('send-mode-status').innerText = "✅ Enabled"
+                document.getElementById('send-mode-status').innerText = "Send mode: ✅ Enabled"
                 document.getElementById('send-mode-toggle').innerText = "Stop Sending Commands"
                 document.getElementById('send-mode-toggle').className = "button is-danger"
             } else {
-                document.getElementById('send-mode-status').innerText = "❌ Disabled"
+                document.getElementById('send-mode-status').innerText = "Send mode: ❌ Disabled"
                 document.getElementById('send-mode-toggle').innerText = "Start Sending Commands"
                 document.getElementById('send-mode-toggle').className = "button is-success"
             }
@@ -298,32 +298,32 @@
 </head>
 
 <body>
-<div class="columns has-background-dark">
-    <div class="column is-one-quarter">
-    <label class="has-text-white" for="server-address">Server Address:</label>
-    <input class="input" id="server-address"/>
-    <button class="button is-success" id="connect" onclick="connect()">Connect</button>
-    Connection status: <span class="has-text-white" id="connection-status"></span>
+    <section class="section">
+        <div class="columns has-background-dark">
+            <div class="column is-one-quarter">
+                <label class="has-text-white" for="server-address">Server Address:</label>
+                <input class="input" id="server-address"/>
+                <br><br>
+                <p class="has-text-white">Left Control Stick: WASD</p>
+                <p class="has-text-white">X:▲, Y: ◀, B:▼, A:▶</p>
+                <p class="has-text-white">Arrows: Shift+WASD</p>
+                <p class="has-text-white">Right Stick: Shift+▲◀▼▶</p>
+                <img width="941px" height="800px" src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png" alt="Nintendo Switch Controller"/>
+            </div>
 
-
-	Send mode: <span id="send-mode-status"></span>
-	<button class="button is-success" id="send-mode-toggle" onclick="toggleSendMode()" disabled>
-		Start Sending Commands
-	</button>
-
-
-	Status: <span id="status"></span>
-
-
-
-	<td class="has-text-white">Left Control Stick: WASD</td>
-	<td class="has-text-white">X:▲, Y: ◀, B:▼, A:▶</td>
-	<td class="has-text-white">Arrows: Shift+WASD</td>
-	<td class="has-text-white">Right Stick: Shift+▲◀▼▶</td>
-
-
-
-	<img width="941px" height="800px" src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png" alt="Nintendo Switch Controller"/>
-</div>
+            <div class="column is-one-quarter">
+                <br>
+                <button class="button is-success" id="connect" onclick="connect()">Connect</button>
+                <br><br>
+                <p class="has-text-white" id="send-mode-status">Send mode: </p>
+                <p class="has-text-white" id="connection-status">Connection status: </p>
+                <p class="has-text-white" id="status">Status: </p>
+                <br>
+                <button class="button is-success" id="send-mode-toggle" onclick="toggleSendMode()" disabled>
+                    Start Sending Commands
+                </button>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
