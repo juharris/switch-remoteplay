@@ -75,12 +75,12 @@ For moving by a specific amount: `s <stick> <direction> <amount>`
 * amount: `max`, `min`, `center`, or a decimal number between `-1.0` and `1.0` (down to up or left to right - set up to match the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/))
 
 Examples:
-* Push the left stick up all the way: `s l v max`, then let go of it and set it back to it's center position with: `s l v center`.
-* Push the right stick halfway to the right: `s r h 0.5`.
+* Push the left stick up all the way: `'s l v max'`, then let go of it and set it back to it's center position with: `'s l v center'`.
+* Push the right stick halfway to the right: `'s r h 0.5'`.
 
 Angling the sticks: `s <stick> hv <horizontal amount> <vertical amount>`
 
-Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0.5`.
+Example: Push the right stick halfway up and halfway to the right: `'s r hv 0.5 0.5'`.
 
 # Wait
 (not supported yet)
@@ -88,7 +88,7 @@ This is mainly for macros. It might only be supported by the client and not the 
 
 Format: `wait <time in milliseconds>`
 
-Example: Do not send any input for 300ms: `wait 300`.
+Example: Do not send any input for 300ms: `'wait 300'`.
 
 The amount of time must be an integer.
 
