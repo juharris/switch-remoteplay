@@ -15,7 +15,7 @@ sudo pip3 install -e .
 Ideally we'll use server.py to start it but for now:
 ```bash
 # Append '-r <Switch MAC address>' to reconnect to an already paired Switch.
-SECRET_KEY='something random-ish' sudo python3 switchremoteplay/run_controller_cli.py PRO_CONTROLLER
+SECRET_KEY='something random-ish' PYTHONPATH=".:${PYTHONPATH}" sudo python3 switchremoteplay/server.py
 ```
 
 # API
@@ -59,39 +59,56 @@ All buttons are supported:
 ```
 
 ## Sticks
-You can press the control sticks for the button functions as explained above.
-Example: push the left stick down with `'l_stick d'` and stop with `'l_stick u'`.
+You can press in the control sticks for the button functions as explained above.
 
-For moving the sticks: `s <stick> <direction> <amount>`
-* stick: `l` or `r`
+Example: push the left stick in with `'l_stick d'` and stop with `'l_stick u'`.
+
+### Moving the sticks
+For convenience with macros: `s <stick> <direction>`
+* stick: left: `l` or right: `r`
+* direction: `up`, `down`, `left`, `right`, or `center`
+
+Example: move the right stick to the left with `'s r left'` and then set it back to center with `'s r center'`. 
+
+For moving by a specific amount: `s <stick> <direction> <amount>`
+* stick: left: `l` or right: `r`
 * direction: horizontal: `h` or vertical: `v`
-* amount: `max`, `min`, `center` (planned support for a decimal number between `-1.0` and `1.0`, down to up or left to right)
+* amount: `max`, `min`, `center`, a decimal number between `-1.0` and `1.0` (down to up or left to right - set up to match the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/))
 
 Examples:
 * Push the left stick up all the way: `s l v max`, then let go of it and set it back to it's center position with: `s l v center`.
-* (not supported yet) Push the right stick halfway to the right: `s r h 0.5`.
+* Push the right stick halfway to the right: `s r h 0.5`.
 
-Angling the sticks (not supported yet): `s <stick> hv <h amount> <v amount>`
+Angling the sticks: `s <stick> hv <h amount> <v amount>`
+
 Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0.5`.
 
 # Wait
 (not supported yet)
+This is mainly for macros. It might only be supported by the client and not the server.
 
 Format: `wait <time in milliseconds>`
 
-# Sending Multiple Commands
-(not supported yet)
+Example: Do not send any input for 300ms: `wait 300`.
 
-At the same time: join commands with `&`
+The amount of time must be an integer.
+
+# Sending Multiple Commands
+
+## Simultaneous
+To run multiple commands at the same time: join commands with `&`
 
 Example: Press A and B down: `'a d&b d'`
 
-* In sequence: join commands with `,`
+Do **not** use single press command like just `'a'`. 
+It might seems like it works but the behavior is not guaranteed.
+
+## Sequence
+Run one command after another: join commands with `,`
 
 Example: Press A, then wait, then B, then wait, let them both go: `'a d,wait 200,b d,wait 200,a u&b u'`.
 
 # Testing
-(there are no tests yet)
 ```bash
 sudo pip3 install -e .[test]
 sudo pytest
