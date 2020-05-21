@@ -12,7 +12,7 @@ from switchremoteplay.controller import SwitchController
 
 # Follow the example at https://flask-socketio.readthedocs.io/en/latest/
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('switchremoteplay')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'asdasdasdf'
@@ -46,7 +46,7 @@ def handle_json(json):
 
 @socketio.on('p')
 def handle_press(command):
-	logger.info("Got command: `%s`", command)
+	logger.debug("Got command: `%s`", command)
 	controller.run(command)
 	return "DONE `{}`".format(command)
 
@@ -64,7 +64,7 @@ async def _main():
 
 	global controller
 	try:
-		controller = await SwitchController.get_controller(switch_mac_address)
+		controller = await SwitchController.get_controller(logger, switch_mac_address)
 		start_server()
 		# Keep the server running.
 		# There must be a better way to do this but this seems to work fine for now.
@@ -91,6 +91,7 @@ def start_server():
 
 
 if __name__ == '__main__':
+	logger.setLevel(logging.INFO)
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(
 		_main()

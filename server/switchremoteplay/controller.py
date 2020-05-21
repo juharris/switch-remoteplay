@@ -1,25 +1,27 @@
 import asyncio
-import logging
+from logging import Logger
 
+from joycontrol import logging_default as log
 from joycontrol.controller import Controller
 from joycontrol.controller_state import ControllerState, button_push
 from joycontrol.memory import FlashMemory
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 
-logger = logging.getLogger(__name__)
-
 
 class SwitchController():
-	def __init__(self, controller_state: ControllerState):
+	def __init__(self, logger: Logger, controller_state: ControllerState):
 		self._controller_state: ControllerState = controller_state
+		self._logger = logger
 		print("L CALIBRATION:")
 		print(controller_state.l_stick_state.get_calibration())
 
 	@staticmethod
-	async def get_controller(reconnect_bt_addr=None, spi_flash=None, controller='PRO_CONTROLLER', capture_file=None,
+	async def get_controller(logger: Logger, reconnect_bt_addr=None, spi_flash=None, controller='PRO_CONTROLLER',
+							 capture_file=None,
 							 device_id=None):
-		# parse the spi flash
+
+		log.configure(logger.level, logger.level)
 		if spi_flash:
 			with open(spi_flash, 'rb') as spi_flash_file:
 				spi_flash = FlashMemory(spi_flash_file.read())
@@ -38,7 +40,7 @@ class SwitchController():
 
 		controller_state: ControllerState = protocol.get_controller_state()
 
-		return SwitchController(controller_state)
+		return SwitchController(logger, controller_state)
 
 	def __del__(self):
 		self._controller_state._protocol.connection_lost()
@@ -93,7 +95,7 @@ class SwitchController():
 		return f'{stick.__class__.__name__} was set to ({stick.get_h()}, {stick.get_v()}).'
 
 	def run(self, command: str):
-		logger.debug(command)
+		self._logger.debug(command)
 		if command in 'lrabxy':
 			asyncio.ensure_future(button_push(self._controller_state, command))
 		elif command.startswith('s'):
@@ -110,7 +112,7 @@ class SwitchController():
 			else:
 				value = None
 			s = SwitchController._set_stick(stick, direction, value)
-			logger.debug(s)
+			self._logger.debug(s)
 			asyncio.ensure_future(self._controller_state.send())
 		else:
 			command = command.split(' ')

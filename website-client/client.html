@@ -32,6 +32,12 @@
             updateConnectionStatus("❌ Disconnected")
             document.getElementById('connect').innerText = "Connect"
             document.getElementById('connect').className = "button is-success"
+            if (socket) {
+                // Stop sockets from being kept around and attempting to reconnect when they get disconnected.
+				// If we want automatic reconnection then we can just call `toggleConnect` once to start attempting to connect.
+				// Once the server has logic to kick clients off after some time, we don't want them to keep attempting to connect by default.
+                socket.destroy()
+            }
             socket = undefined
         }
 
@@ -47,20 +53,20 @@
             const status = `Attempting to connect to "${address}"...`
             updateConnectionStatus(status)
             socket = io(address)
-            document.getElementById('connect').innerText = "Disconnect"
+            document.getElementById('connect').innerText = "Cancel connection attempt"
             document.getElementById('connect').className = "button is-danger"
 
             socket.on('connect', function () {
                 updateConnectionStatus("✅ Connected")
+                document.getElementById('connect').innerText = "Disconnect"
+                document.getElementById('connect').className = "button is-danger"
+
                 document.getElementById('send-mode-toggle').disabled = false
             })
 
-            socket.on('disconnect', function () {
-                onDisconnect()
-            })
+            socket.on('disconnect', onDisconnect)
 
-			socket.on('json', function (data) {
-                console.debug('json')
+            socket.on('json', function (data) {
                 console.debug(data)
             })
         }
