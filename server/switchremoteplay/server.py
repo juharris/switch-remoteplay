@@ -52,15 +52,13 @@ def handle_press(command):
 
 
 async def _main():
-	print("Starting")
+	logger.info("Starting")
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-r', '--switch_mac_address', type=str, default=None,
 						help="The Switch console's MAC address. Specify this if you've already paired a Switch console to your server device.")
 
 	args = parser.parse_args()
 	switch_mac_address = args.switch_mac_address
-
-	print("Setting up with Switch Bluetooth address: {}".format(switch_mac_address))
 
 	global controller
 	try:
@@ -71,7 +69,7 @@ async def _main():
 		while True:
 			await asyncio.sleep(60)
 	finally:
-		logger.info('Stopping communication...')
+		logger.info('Stopping the service...')
 
 
 def start_server():

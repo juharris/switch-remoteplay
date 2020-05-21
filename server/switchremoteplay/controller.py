@@ -3,7 +3,7 @@ from logging import Logger
 
 from joycontrol import logging_default as log
 from joycontrol.controller import Controller
-from joycontrol.controller_state import ControllerState, button_push
+from joycontrol.controller_state import ControllerState, button_push, StickState
 from joycontrol.memory import FlashMemory
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
@@ -17,7 +17,7 @@ class SwitchController():
 		print(controller_state.l_stick_state.get_calibration())
 
 	@staticmethod
-	async def get_controller(logger: Logger, reconnect_bt_addr=None, spi_flash=None, controller='PRO_CONTROLLER',
+	async def get_controller(logger: Logger, switch_mac_address=None, spi_flash=None, controller='PRO_CONTROLLER',
 							 capture_file=None,
 							 device_id=None):
 
@@ -33,7 +33,9 @@ class SwitchController():
 		controller = Controller.from_arg(controller)
 		factory = controller_protocol_factory(controller, spi_flash=spi_flash)
 		ctl_psm, itr_psm = 17, 19
-		transport, protocol = await create_hid_server(factory, reconnect_bt_addr=reconnect_bt_addr,
+		if switch_mac_address:
+			logger.info("Pairing up with Switch MAC address: %s", switch_mac_address)
+		transport, protocol = await create_hid_server(factory, reconnect_bt_addr=switch_mac_address,
 													  ctl_psm=ctl_psm,
 													  itr_psm=itr_psm, capture_file=capture_file,
 													  device_id=device_id)
@@ -45,8 +47,24 @@ class SwitchController():
 	def __del__(self):
 		self._controller_state._protocol.connection_lost()
 
-	@staticmethod
-	def _set_stick(stick, direction, value):
+	def _map_val(self, val: float, min_val: float, max_val: float) -> float:
+		"""
+		:param val: A value in [-1, +1]
+		:param min_val:
+		:param max_val:
+		:return: A mapped value linearly within [min_val, max_val]
+		"""
+		# y = a*x + b
+		# min = a * (-1) + b
+		# max = a * (+1) + b
+		# a = (max - min)/2
+		# b = (max + min)/2
+		# y = (max - min)/2 * x + (max + min)/2
+		# y = (x * (max - min) + (max + min))/2
+		# Simplify to reduce the number of multiplications and divisions.
+		return (val * (max_val - min_val) + max_val + min_val) / 2
+
+	def _set_stick(self, stick: StickState, direction: str, value: str):
 		if direction == 'center':
 			stick.set_center()
 		elif direction == 'up':
@@ -68,8 +86,9 @@ class SwitchController():
 				val = stick.get_calibration().h_center
 			else:
 				try:
-					# TODO Convert -1 to +1 to the calibrated values.
-					val = int(value)
+					min_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
+					max_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
+					val = self._map_val(int(value), min_val, max_val)
 				except ValueError:
 					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_h(val)
@@ -84,8 +103,9 @@ class SwitchController():
 				val = stick.get_calibration().v_center
 			else:
 				try:
-					val = int(value)
-				# TODO Convert -1 to +1 to the calibrated values.
+					min_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
+					max_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
+					val = self._map_val(int(value), min_val, max_val)
 				except ValueError:
 					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_v(val)
@@ -111,7 +131,7 @@ class SwitchController():
 				value = command[3]
 			else:
 				value = None
-			s = SwitchController._set_stick(stick, direction, value)
+			s = self._set_stick(stick, direction, value)
 			self._logger.debug(s)
 			asyncio.ensure_future(self._controller_state.send())
 		else:

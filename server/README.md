@@ -59,17 +59,18 @@ All buttons are supported:
 ```
 
 ## Sticks
-You can press the control sticks for the button functions as explained above.
-Example: push the left stick down with `'l_stick d'` and stop with `'l_stick u'`.
+You can press in the control sticks for the button functions as explained above.
+
+Example: push the left stick in with `'l_stick d'` and stop with `'l_stick u'`.
 
 For moving the sticks: `s <stick> <direction> <amount>`
 * stick: `l` or `r`
 * direction: horizontal: `h` or vertical: `v`
-* amount: `max`, `min`, `center` (planned support for a decimal number between `-1.0` and `1.0`, down to up or left to right)
+* amount: `max`, `min`, `center`, a decimal number between `-1.0` and `1.0` (down to up or left to right - set up to match the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/))
 
 Examples:
 * Push the left stick up all the way: `s l v max`, then let go of it and set it back to it's center position with: `s l v center`.
-* (not supported yet) Push the right stick halfway to the right: `s r h 0.5`.
+* Push the right stick halfway to the right: `s r h 0.5`.
 
 Angling the sticks (not supported yet): `s <stick> hv <h amount> <v amount>`
 Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0.5`.
