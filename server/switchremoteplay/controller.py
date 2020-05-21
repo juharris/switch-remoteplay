@@ -13,8 +13,6 @@ class SwitchController():
 	def __init__(self, logger: Logger, controller_state: ControllerState):
 		self._controller_state: ControllerState = controller_state
 		self._logger = logger
-		print("L CALIBRATION:")
-		print(controller_state.l_stick_state.get_calibration())
 
 	@staticmethod
 	async def get_controller(logger: Logger, switch_mac_address=None, spi_flash=None, controller='PRO_CONTROLLER',
@@ -84,7 +82,7 @@ class SwitchController():
 		return val
 
 	@staticmethod
-	def _map_val(val: float, min_val: float, max_val: float) -> float:
+	def _map_val(val: float, min_val: float, max_val: float) -> int:
 		"""
 		:param val: A value in [-1, +1]
 		:param min_val:
@@ -99,7 +97,7 @@ class SwitchController():
 		# y = (max - min)/2 * x + (max + min)/2
 		# y = (x * (max - min) + (max + min))/2
 		# Simplify to reduce the number of multiplications and divisions.
-		return (val * (max_val - min_val) + max_val + min_val) / 2
+		return int((val * (max_val - min_val) + max_val + min_val) / 2)
 
 	def _set_stick(self, stick: StickState, direction: str, value: str, vertical_value: str = None):
 		if direction == 'hv':
