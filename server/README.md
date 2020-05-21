@@ -12,7 +12,6 @@ sudo pip3 install -e .
 ```
 
 # Start
-Ideally we'll use server.py to start it but for now:
 ```bash
 # Append '-r <Switch MAC address>' to reconnect to an already paired Switch.
 SECRET_KEY='something random-ish' PYTHONPATH=".:${PYTHONPATH}" sudo python3 switchremoteplay/server.py
@@ -20,10 +19,10 @@ SECRET_KEY='something random-ish' PYTHONPATH=".:${PYTHONPATH}" sudo python3 swit
 
 # API
 The service uses a socket to connect to the client.
-Events are emitted as strings to `'p'` (Press).
-I recommend starting the server as a `PRO_CONTROLLER` as shown above for the start command but you can look at [joycontrol][joycontrol] and experiment with other options.
+Events are emitted as strings to the `'p'` (Press) handler.
 
 Normally I like very clear APIs with verbose objects but I haven't worked directly with sockets much and I think you're supposed to keep requests very short so I've set up requests to be very short.
+It will also be easier this way for people to write macros.
 
 Here are the events as strings that the API handles: 
 ## Buttons
@@ -73,13 +72,13 @@ Example: move the right stick to the left with `'s r left'` and then set it back
 For moving by a specific amount: `s <stick> <direction> <amount>`
 * stick: left: `l` or right: `r`
 * direction: horizontal: `h` or vertical: `v`
-* amount: `max`, `min`, `center`, a decimal number between `-1.0` and `1.0` (down to up or left to right - set up to match the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/))
+* amount: `max`, `min`, `center`, or a decimal number between `-1.0` and `1.0` (down to up or left to right - set up to match the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/))
 
 Examples:
 * Push the left stick up all the way: `s l v max`, then let go of it and set it back to it's center position with: `s l v center`.
 * Push the right stick halfway to the right: `s r h 0.5`.
 
-Angling the sticks: `s <stick> hv <h amount> <v amount>`
+Angling the sticks: `s <stick> hv <horizontal amount> <vertical amount>`
 
 Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0.5`.
 
