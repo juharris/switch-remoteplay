@@ -15,7 +15,7 @@ sudo pip3 install -e .
 Ideally we'll use server.py to start it but for now:
 ```bash
 # Append '-r <Switch MAC address>' to reconnect to an already paired Switch.
-SECRET_KEY='something random-ish' sudo python3 switchremoteplay/run_controller_cli.py PRO_CONTROLLER
+SECRET_KEY='something random-ish' PYTHONPATH=".:${PYTHONPATH}" sudo python3 switchremoteplay/server.py
 ```
 
 # API

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class SwitchController():
 	def __init__(self, controller_state: ControllerState):
-		self._controller_state = controller_state
+		self._controller_state: ControllerState = controller_state
 		print("L CALIBRATION:")
 		print(controller_state.l_stick_state.get_calibration())
 
@@ -39,6 +39,9 @@ class SwitchController():
 		controller_state: ControllerState = protocol.get_controller_state()
 
 		return SwitchController(controller_state)
+
+	def __del__(self):
+		self._controller_state._protocol.connection_lost()
 
 	@staticmethod
 	def _set_stick(stick, direction, value):
@@ -80,7 +83,7 @@ class SwitchController():
 			else:
 				try:
 					val = int(value)
-					# TODO Convert -1 to +1 to the calibrated values.
+				# TODO Convert -1 to +1 to the calibrated values.
 				except ValueError:
 					raise ValueError(f'Unexpected stick value "{value}"')
 			stick.set_v(val)
