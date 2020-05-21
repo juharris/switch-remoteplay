@@ -47,6 +47,42 @@ class SwitchController():
 	def __del__(self):
 		self._controller_state._protocol.connection_lost()
 
+	def _map_h_val(self, stick, value):
+		if value is None:
+			raise ValueError(f'Missing value')
+		if value == 'max':
+			val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
+		elif value == 'min':
+			val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
+		elif value == 'center':
+			val = stick.get_calibration().h_center
+		else:
+			try:
+				min_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
+				max_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
+				val = self._map_val(int(value), min_val, max_val)
+			except ValueError:
+				raise ValueError(f'Unexpected stick value "{value}"')
+		return val
+
+	def _map_v_val(self, stick, value):
+		if value is None:
+			raise ValueError(f'Missing value')
+		if value == 'max':
+			val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
+		elif value == 'min':
+			val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
+		elif value == 'center':
+			val = stick.get_calibration().v_center
+		else:
+			try:
+				min_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
+				max_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
+				val = self._map_val(int(value), min_val, max_val)
+			except ValueError:
+				raise ValueError(f'Unexpected stick value "{value}"')
+		return val
+
 	def _map_val(self, val: float, min_val: float, max_val: float) -> float:
 		"""
 		:param val: A value in [-1, +1]
@@ -64,8 +100,19 @@ class SwitchController():
 		# Simplify to reduce the number of multiplications and divisions.
 		return (val * (max_val - min_val) + max_val + min_val) / 2
 
-	def _set_stick(self, stick: StickState, direction: str, value: str):
-		if direction == 'center':
+	def _set_stick(self, stick: StickState, direction: str, value: str, vertical_value: str = None):
+		if direction == 'hv':
+			val = self._map_h_val(stick, value)
+			stick.set_h(val)
+			val = self._map_v_val(stick, vertical_value)
+			stick.set_v(val)
+		elif direction in ('h', 'horizontal'):
+			val = self._map_h_val(stick, value)
+			stick.set_h(val)
+		elif direction in ('v', 'vertical'):
+			val = self._map_v_val(stick, value)
+			stick.set_v(val)
+		elif direction == 'center':
 			stick.set_center()
 		elif direction == 'up':
 			stick.set_up()
@@ -75,65 +122,35 @@ class SwitchController():
 			stick.set_left()
 		elif direction == 'right':
 			stick.set_right()
-		elif direction in ('h', 'horizontal'):
-			if value is None:
-				raise ValueError(f'Missing value')
-			if value == 'max':
-				val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
-			elif value == 'min':
-				val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
-			elif value == 'center':
-				val = stick.get_calibration().h_center
-			else:
-				try:
-					min_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
-					max_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
-					val = self._map_val(int(value), min_val, max_val)
-				except ValueError:
-					raise ValueError(f'Unexpected stick value "{value}"')
-			stick.set_h(val)
-		elif direction in ('v', 'vertical'):
-			if value is None:
-				raise ValueError(f'Missing value')
-			if value == 'max':
-				val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
-			elif value == 'min':
-				val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
-			elif value == 'center':
-				val = stick.get_calibration().v_center
-			else:
-				try:
-					min_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
-					max_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
-					val = self._map_val(int(value), min_val, max_val)
-				except ValueError:
-					raise ValueError(f'Unexpected stick value "{value}"')
-			stick.set_v(val)
 		else:
 			raise ValueError(f'Unexpected argument "{direction}"')
+
+		asyncio.ensure_future(self._controller_state.send())
 
 		return f'{stick.__class__.__name__} was set to ({stick.get_h()}, {stick.get_v()}).'
 
 	def run(self, command: str):
 		self._logger.debug(command)
-		if command in 'lrabxy':
-			asyncio.ensure_future(button_push(self._controller_state, command))
-		elif command.startswith('s'):
+		if command.startswith('s'):
 			command = command.split(' ')
-			# TODO Support 's <stick> hv <h amount> <v amount>'
-			assert len(command) >= 3
+			assert len(command) >= 3, "Command must have at least 3 tokens."
 			if command[1] == 'l':
 				stick = self._controller_state.l_stick_state
 			else:
 				stick = self._controller_state.r_stick_state
 			direction = command[2]
-			if len(command) > 3:
+			if len(command) > 4:
 				value = command[3]
+				vertical_value = command[4]
+			elif len(command) > 3:
+				value = command[3]
+				vertical_value = None
 			else:
-				value = None
-			s = self._set_stick(stick, direction, value)
+				value = vertical_value = None
+			s = self._set_stick(stick, direction, value, vertical_value)
 			self._logger.debug(s)
-			asyncio.ensure_future(self._controller_state.send())
+		elif command in 'lrabxy':
+			asyncio.ensure_future(button_push(self._controller_state, command))
 		else:
 			command = command.split(' ')
 			assert len(command) >= 2
