@@ -109,7 +109,6 @@ Run one command after another: join commands with `,`
 Example: Press A, then wait, then B, then wait, let them both go: `'a d,wait 200,b d,wait 200,a u&b u'`.
 
 # Testing
-(there are no automated tests yet)
 ```bash
 sudo pip3 install -e .[test]
 sudo pytest

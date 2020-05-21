@@ -60,7 +60,7 @@ class SwitchController():
 			try:
 				min_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
 				max_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
-				val = self._map_val(int(value), min_val, max_val)
+				val = SwitchController._map_val(int(value), min_val, max_val)
 			except ValueError:
 				raise ValueError(f'Unexpected stick value "{value}"')
 		return val
@@ -78,12 +78,13 @@ class SwitchController():
 			try:
 				min_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
 				max_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
-				val = self._map_val(int(value), min_val, max_val)
+				val = SwitchController._map_val(int(value), min_val, max_val)
 			except ValueError:
 				raise ValueError(f'Unexpected stick value "{value}"')
 		return val
 
-	def _map_val(self, val: float, min_val: float, max_val: float) -> float:
+	@staticmethod
+	def _map_val(val: float, min_val: float, max_val: float) -> float:
 		"""
 		:param val: A value in [-1, +1]
 		:param min_val:
