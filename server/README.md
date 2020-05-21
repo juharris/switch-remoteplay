@@ -85,22 +85,31 @@ Example: Push the right stick halfway up and halfway to the right: `s r hv 0.5 0
 
 # Wait
 (not supported yet)
+This is mainly for macros. It might only be supported by the client and not the server.
 
 Format: `wait <time in milliseconds>`
 
-# Sending Multiple Commands
-(not supported yet)
+Example: Do not send any input for 300ms: `wait 300`.
 
-At the same time: join commands with `&`
+The amount of time must be an integer.
+
+# Sending Multiple Commands
+
+## Simultaneous
+To run multiple commands at the same time: join commands with `&`
 
 Example: Press A and B down: `'a d&b d'`
 
-* In sequence: join commands with `,`
+Do **not** use single press command like just `'a'`. 
+It might seems like it works but the behavior is not guaranteed.
+
+## Sequence
+Run one command after another: join commands with `,`
 
 Example: Press A, then wait, then B, then wait, let them both go: `'a d,wait 200,b d,wait 200,a u&b u'`.
 
 # Testing
-(there are no tests yet)
+(there are no automated tests yet)
 ```bash
 sudo pip3 install -e .[test]
 sudo pytest

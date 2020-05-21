@@ -125,12 +125,16 @@ class SwitchController():
 		else:
 			raise ValueError(f'Unexpected argument "{direction}"')
 
-		asyncio.ensure_future(self._controller_state.send())
-
 		return f'{stick.__class__.__name__} was set to ({stick.get_h()}, {stick.get_v()}).'
 
-	def run(self, command: str):
-		self._logger.debug(command)
+	def run(self, command_input: str):
+		self._logger.debug(command_input)
+		for command_in_list in command_input.split(','):
+			for command in command_in_list.split('&'):
+				self.run_single_command(command)
+			asyncio.ensure_future(self._controller_state.send())
+
+	def run_single_command(self, command: str):
 		if command.startswith('s'):
 			command = command.split(' ')
 			assert len(command) >= 3, "Command must have at least 3 tokens."
@@ -150,12 +154,17 @@ class SwitchController():
 			s = self._set_stick(stick, direction, value, vertical_value)
 			self._logger.debug(s)
 		elif command in 'lrabxy':
+			# `button_push` sends the controller's state which could be a problem for running
+			# simultaneous commands but it's documented in the API that it might not work well.
 			asyncio.ensure_future(button_push(self._controller_state, command))
 		else:
 			command = command.split(' ')
 			assert len(command) >= 2
-			button = command[0]
-			pushed = command[1] == 'd'
-			self._controller_state.button_state.set_button(button, pushed)
-			# Not sure if sending the state is needed but other methods use it.
-			asyncio.ensure_future(self._controller_state.send())
+			cmd = command[0]
+			if cmd == 'wait':
+				# TODO Don't allow any commands to be sent by this current connection.
+				pass
+			else:
+				# Button
+				pushed = command[1] == 'd'
+				self._controller_state.button_state.set_button(cmd, pushed)
