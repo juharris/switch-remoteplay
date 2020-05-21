@@ -50,14 +50,18 @@
             document.getElementById('connect').innerText = "Disconnect"
             document.getElementById('connect').className = "button is-danger"
 
-            socket.on('connect', function (data) {
+            socket.on('connect', function () {
                 updateConnectionStatus("✅ Connected")
                 document.getElementById('send-mode-toggle').disabled = false
-                console.debug(data)
             })
 
             socket.on('disconnect', function () {
                 onDisconnect()
+            })
+
+			socket.on('json', function (data) {
+                console.debug('json')
+                console.debug(data)
             })
         }
 

@@ -2,14 +2,15 @@ import argparse
 import asyncio
 import logging
 import os
+from typing import Optional
 
 from flask import Flask
 from flask_socketio import SocketIO
+from flask_socketio import send
 
 from switchremoteplay.controller import SwitchController
 
 # Follow the example at https://flask-socketio.readthedocs.io/en/latest/
-# other useful methods: from flask_socketio import emit, send
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +18,13 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'asdasdasdf'
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-controller: SwitchController = None
+controller: Optional[SwitchController] = None
 
 
 @socketio.on('connect')
 def test_connect():
 	print("Connected")
+	send({'connected': True}, json=True)
 
 
 @socketio.on('disconnect')
@@ -33,13 +35,13 @@ def test_disconnect():
 # Handle unnamed events.
 @socketio.on('message')
 def handle_message(message):
-	print('received message: ' + message)
+	print("received message: " + message)
 
 
 # Handle unnamed events with JSON.
 @socketio.on('json')
 def handle_json(json):
-	print('received json: ' + str(json))
+	print("received json: " + str(json))
 
 
 @socketio.on('p')
