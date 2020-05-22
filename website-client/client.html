@@ -13,307 +13,333 @@
 		html, section {
 			background-color: #363636;
 		}
+
+		div.mixer-stream {
+			text-align: center;
+		}
+
+		iframe.mixer-stream {
+			border: 0px;
+			overflow: hidden;
+			/* Normally the Switch has 1080p: 1920x1080 */
+			/* Need to test this with an actual Switch */
+			width: 1920px;
+			height: 1080px;
+			max-width: 100%;
+			max-height: 100%;
+		}
 	</style>
 	<script type="text/javascript" charset="utf-8">
-        /* Settings to make confiruable later. */
-        /** Size of the delta must be at least  this to send the change. */
-        const mouseSensitivityX = mouseSensitivityY = 1
+		/* Settings to make confiruable later. */
+		/** Size of the delta must be at least  this to send the change. */
+		const mouseSensitivityX = mouseSensitivityY = 1
 
-        let socket
-        let isInSendMode = false
-        const currentMousePos = {x: undefined, y: undefined}
+		let socket
+		let isInSendMode = false
+		const currentMousePos = {x: undefined, y: undefined}
 
-        function updateConnectionStatus(status) {
-            document.getElementById('connection-status').innerText = "Connection status: " + status
-            console.debug(status)
-        }
+		function updateConnectionStatus(status) {
+			document.getElementById('connection-status').innerText = "Connection status: " + status
+			console.debug(status)
+		}
 
-        function onDisconnect() {
-            updateConnectionStatus("❌ Disconnected")
-            document.getElementById('connect').innerText = "Connect"
-            document.getElementById('connect').className = "button is-success"
-            if (socket) {
-                // Stop sockets from being kept around and attempting to reconnect when they get disconnected.
+		function onDisconnect() {
+			updateConnectionStatus("❌ Disconnected")
+			document.getElementById('connect').innerText = "Connect"
+			document.getElementById('connect').className = "button is-success"
+			if (socket) {
+				// Stop sockets from being kept around and attempting to reconnect when they get disconnected.
 				// If we want automatic reconnection then we can just call `toggleConnect` once to start attempting to connect.
 				// Once the server has logic to kick clients off after some time, we don't want them to keep attempting to connect by default.
-                socket.destroy()
-            }
-            socket = undefined
-        }
+				socket.destroy()
+			}
+			socket = undefined
+		}
 
-        function toggleConnect() {
-            if (socket !== undefined) {
-                socket.disconnect()
-                // Call `onDisconnect` here even though it's called `on('disconnect')` because
-                // it might not run there if it was never connected.
-                onDisconnect()
-                return
-            }
-            const address = document.getElementById('server-address').value
-            const status = `Attempting to connect to "${address}"...`
-            updateConnectionStatus(status)
-            socket = io(address)
-            document.getElementById('connect').innerText = "Cancel connection attempt"
-            document.getElementById('connect').className = "button is-danger"
+		function toggleConnect() {
+			if (socket !== undefined) {
+				socket.disconnect()
+				// Call `onDisconnect` here even though it's called `on('disconnect')` because
+				// it might not run there if it was never connected.
+				onDisconnect()
+				return
+			}
+			const address = document.getElementById('server-address').value
+			const status = `Attempting to connect to "${address}"...`
+			updateConnectionStatus(status)
+			socket = io(address)
+			document.getElementById('connect').innerText = "Cancel connection attempt"
+			document.getElementById('connect').className = "button is-danger"
 
-            socket.on('connect', function () {
-                updateConnectionStatus("✅ Connected")
-                document.getElementById('connect').innerText = "Disconnect"
-                document.getElementById('connect').className = "button is-danger"
+			socket.on('connect', function () {
+				updateConnectionStatus("✅ Connected")
+				document.getElementById('connect').innerText = "Disconnect"
+				document.getElementById('connect').className = "button is-danger"
 
-                document.getElementById('send-mode-toggle').disabled = false
-            })
+				document.getElementById('send-mode-toggle').disabled = false
+			})
 
-            socket.on('disconnect', onDisconnect)
+			socket.on('disconnect', onDisconnect)
 
-            socket.on('json', function (data) {
-                console.debug(data)
-            })
-        }
+			socket.on('json', function (data) {
+				console.debug(data)
+			})
+		}
 
-        $(document).ready(function () {
-            const queryString = window.location.search
-            const urlParams = new URLSearchParams(queryString)
-            document.getElementById('server-address').value = urlParams.get('a') || 'http://127.0.0.1:5000'
+		$(document).ready(function () {
+			const queryString = window.location.search
+			const urlParams = new URLSearchParams(queryString)
+			document.getElementById('server-address').value = urlParams.get('a') || 'http://127.0.0.1:5000'
 
-            const connectNow = urlParams.get('c') === 'true'
-            if (connectNow) {
-                toggleConnect()
-            }
+			const connectNow = urlParams.get('c') === 'true'
+			if (connectNow) {
+				toggleConnect()
+			}
 
-            isInSendMode = urlParams.get('s') === 'true'
-            checkSendMode()
-        })
+			isInSendMode = urlParams.get('s') === 'true'
+			checkSendMode()
 
-        function sendCommand(command) {
-            if (!command || !socket) {
-                return
-            }
-            document.getElementById('status').innerText = `Status:  emitting ${command}`
-            socket.emit('p', command, (data) => {
-                document.getElementById('status').innerText = `Status: responded: ${data}`
-            })
-        }
+			const mixerStreamUrl = urlParams.get('mixerStreamUrl')
+			if (mixerStreamUrl) {
+				document.getElementById('mixer-stream').src = mixerStreamUrl
+				document.getElementById('mixer-stream').hidden = false
+			}
+		})
 
-        function toggleSendMode() {
-            isInSendMode = !isInSendMode
-            checkSendMode()
-        }
+		function sendCommand(command) {
+			if (!command || !socket) {
+				return
+			}
+			document.getElementById('status').innerText = `Status:  emitting ${command}`
+			socket.emit('p', command, (data) => {
+				document.getElementById('status').innerText = `Status: responded: ${data}`
+			})
+		}
 
-        function checkSendMode() {
-            if (isInSendMode) {
-                document.getElementById('send-mode-status').innerText = "Send mode: ✅ Enabled"
-                document.getElementById('send-mode-toggle').innerText = "Stop Sending Commands"
-                document.getElementById('send-mode-toggle').className = "button is-danger"
-            } else {
-                document.getElementById('send-mode-status').innerText = "Send mode: ❌ Disabled"
-                document.getElementById('send-mode-toggle').innerText = "Start Sending Commands"
-                document.getElementById('send-mode-toggle').className = "button is-success"
-            }
-        }
+		function toggleSendMode() {
+			isInSendMode = !isInSendMode
+			checkSendMode()
+		}
 
-        const maxStick = 'max'
-        const minStick = 'min'
-        const centerStick = 'center'
-        const actions = {
-            // Left Stick
-            leftStickFullLeft: {
-                down: `s l h ${minStick}`,
-                up: `s l h ${centerStick}`,
-            },
-            leftStickFullRight: {
-                down: `s l h ${maxStick}`,
-                up: `s l h ${centerStick}`,
-            },
-            leftStickFullUp: {
-                down: `s l v ${maxStick}`,
-                up: `s l v ${centerStick}`,
-            },
-            leftStickFullDown: {
-                down: `s l v ${minStick}`,
-                up: `s l v ${centerStick}`,
-            },
+		function checkSendMode() {
+			if (isInSendMode) {
+				document.getElementById('send-mode-status').innerText = "Send mode: ✅ Enabled"
+				document.getElementById('send-mode-toggle').innerText = "Stop Sending Commands"
+				document.getElementById('send-mode-toggle').className = "button is-danger"
+			} else {
+				document.getElementById('send-mode-status').innerText = "Send mode: ❌ Disabled"
+				document.getElementById('send-mode-toggle').innerText = "Start Sending Commands"
+				document.getElementById('send-mode-toggle').className = "button is-success"
+			}
+		}
 
-            // Right Stick
-            rightStickFullLeft: {
-                down: `s r h ${minStick}`,
-                up: `s r h ${centerStick}`,
-            },
-            rightStickFullRight: {
-                down: `s r h ${maxStick}`,
-                up: `s r h ${centerStick}`,
-            },
-            rightStickFullUp: {
-                down: `s r v ${maxStick}`,
-                up: `s r v ${centerStick}`,
-            },
-            rightStickFullDown: {
-                down: `s r v ${minStick}`,
-                up: `s r v ${centerStick}`,
-            },
+		const maxStick = 'max'
+		const minStick = 'min'
+		const centerStick = 'center'
+		const actions = {
+			// Left Stick
+			leftStickFullLeft: {
+				down: `s l h ${minStick}`,
+				up: `s l h ${centerStick}`,
+			},
+			leftStickFullRight: {
+				down: `s l h ${maxStick}`,
+				up: `s l h ${centerStick}`,
+			},
+			leftStickFullUp: {
+				down: `s l v ${maxStick}`,
+				up: `s l v ${centerStick}`,
+			},
+			leftStickFullDown: {
+				down: `s l v ${minStick}`,
+				up: `s l v ${centerStick}`,
+			},
 
-            // Arrows
-            arrowLeft: {
-                down: 'left d',
-                up: 'left u',
-            },
-            arrowRight: {
-                down: 'right d',
-                up: 'right u',
-            },
-            arrowUp: {
-                down: 'up d',
-                up: 'up u',
-            },
-            arrowDown: {
-                down: 'down d',
-                up: 'down u',
-            },
+			// Right Stick
+			rightStickFullLeft: {
+				down: `s r h ${minStick}`,
+				up: `s r h ${centerStick}`,
+			},
+			rightStickFullRight: {
+				down: `s r h ${maxStick}`,
+				up: `s r h ${centerStick}`,
+			},
+			rightStickFullUp: {
+				down: `s r v ${maxStick}`,
+				up: `s r v ${centerStick}`,
+			},
+			rightStickFullDown: {
+				down: `s r v ${minStick}`,
+				up: `s r v ${centerStick}`,
+			},
 
-            b: {
-                down: 'b d',
-                up: 'b u',
-            },
-            x: {
-                down: 'x d',
-                up: 'x u',
-            },
-            y: {
-                down: 'y d',
-                up: 'y u',
-            },
-            a: {
-                down: 'a d',
-                up: 'a u',
-            },
-        }
+			// Arrows
+			arrowLeft: {
+				down: 'left d',
+				up: 'left u',
+			},
+			arrowRight: {
+				down: 'right d',
+				up: 'right u',
+			},
+			arrowUp: {
+				down: 'up d',
+				up: 'up u',
+			},
+			arrowDown: {
+				down: 'down d',
+				up: 'down u',
+			},
 
-        const keyMap = {
-            KeyW: actions.leftStickFullUp,
-            KeyS: actions.leftStickFullDown,
-            KeyA: actions.leftStickFullLeft,
-            KeyD: actions.leftStickFullRight,
+			b: {
+				down: 'b d',
+				up: 'b u',
+			},
+			x: {
+				down: 'x d',
+				up: 'x u',
+			},
+			y: {
+				down: 'y d',
+				up: 'y u',
+			},
+			a: {
+				down: 'a d',
+				up: 'a u',
+			},
+		}
 
-            ArrowLeft: actions.y,
-            ArrowRight: actions.a,
-            ArrowUp: actions.x,
-            ArrowDown: actions.b,
+		const keyMap = {
+			KeyW: actions.leftStickFullUp,
+			KeyS: actions.leftStickFullDown,
+			KeyA: actions.leftStickFullLeft,
+			KeyD: actions.leftStickFullRight,
 
-            Space: {
-                down: 'b d',
-                up: 'b u',
-            },
-            KeyE: {
-                down: 'x d',
-                up: 'x u',
-            },
-            KeyQ: {
-                down: 'y d',
-                up: 'y u',
-            },
-            LeftClick: {
-                down: 'a d',
-                up: 'a u',
-            },
-            ShiftLeft: {
-                isDown: false
-            },
-            ControlRight: {
-                isDown: false
-            },
-        }
+			ArrowLeft: actions.y,
+			ArrowRight: actions.a,
+			ArrowUp: actions.x,
+			ArrowDown: actions.b,
 
-        const shiftKeyMap = {
-            KeyA: actions.arrowLeft,
-            KeyD: actions.arrowRight,
-            KeyW: actions.arrowUp,
-            KeyS: actions.arrowDown,
-        }
+			Space: {
+				down: 'b d',
+				up: 'b u',
+			},
+			KeyE: {
+				down: 'x d',
+				up: 'x u',
+			},
+			KeyQ: {
+				down: 'y d',
+				up: 'y u',
+			},
+			LeftClick: {
+				down: 'a d',
+				up: 'a u',
+			},
+			ShiftLeft: {
+				isDown: false
+			},
+			ControlRight: {
+				isDown: false
+			},
+		}
 
-        const ctrlKeyMap = {
-            ArrowUp: actions.rightStickFullUp,
-            ArrowDown: actions.rightStickFullDown,
-            ArrowLeft: actions.rightStickFullLeft,
-            ArrowRight: actions.rightStickFullRight,
-        }
+		const shiftKeyMap = {
+			KeyA: actions.arrowLeft,
+			KeyD: actions.arrowRight,
+			KeyW: actions.arrowUp,
+			KeyS: actions.arrowDown,
+		}
 
-        function handleKey(e, keyName, keyDirection) {
-            if (!isInSendMode) {
-                return
-            }
+		const ctrlKeyMap = {
+			ArrowUp: actions.rightStickFullUp,
+			ArrowDown: actions.rightStickFullDown,
+			ArrowLeft: actions.rightStickFullLeft,
+			ArrowRight: actions.rightStickFullRight,
+		}
 
-            let keyMapping = keyMap
+		function handleKey(e, keyName, keyDirection) {
+			if (!isInSendMode) {
+				return
+			}
 
-            if (keyName in keyMap) {
-                keyMap[keyName].isDown = keyDirection === 'down'
-            }
+			let keyMapping = keyMap
 
-            if (keyMap.ShiftLeft.isDown && keyName in shiftKeyMap) {
-                keyMapping = shiftKeyMap
-            } else if (keyMap.ControlRight.isDown && keyName in ctrlKeyMap) {
-                keyMapping = ctrlKeyMap
-            }
+			if (keyName in keyMap) {
+				keyMap[keyName].isDown = keyDirection === 'down'
+			}
 
-            const command = keyMapping[keyName]
-            if (command) {
-                sendCommand(command[keyDirection])
-                e.preventDefault()
-            } else {
-                console.debug(`Pressed ${e.code}.`)
-            }
-        }
+			if (keyMap.ShiftLeft.isDown && keyName in shiftKeyMap) {
+				keyMapping = shiftKeyMap
+			} else if (keyMap.ControlRight.isDown && keyName in ctrlKeyMap) {
+				keyMapping = ctrlKeyMap
+			}
 
-        document.addEventListener('keydown', function (e) {
-            handleKey(e, e.code, 'down')
-        })
-        document.addEventListener('keyup', function (e) {
-            handleKey(e, e.code, 'up')
-        })
+			const command = keyMapping[keyName]
+			if (command) {
+				sendCommand(command[keyDirection])
+				e.preventDefault()
+			} else {
+				console.debug(`Pressed ${e.code}.`)
+			}
+		}
 
-        document.addEventListener('mousedown', function (e) {
-            if (e.target.id === 'send-mode-toggle') {
-                return
-            }
-            handleKey(e, 'LeftClick', 'down')
-        })
+		document.addEventListener('keydown', function (e) {
+			handleKey(e, e.code, 'down')
+		})
+		document.addEventListener('keyup', function (e) {
+			handleKey(e, e.code, 'up')
+		})
 
-        document.addEventListener('mouseup', function (e) {
-            if (e.target.id === 'send-mode-toggle') {
-                return
-            }
-            handleKey(e, 'LeftClick', 'up')
-        })
+		document.addEventListener('mousedown', function (e) {
+			if (e.target.id === 'send-mode-toggle') {
+				return
+			}
+			handleKey(e, 'LeftClick', 'down')
+		})
 
-        document.addEventListener('mousemove', function (e) {
-            // Top left of the page is 0, 0.
-            const newX = e.pageX
-            const newY = e.pageY
-            if (currentMousePos.x !== undefined) {
-                let dX = newX - currentMousePos.x
-                let dY = currentMousePos.y - newY
+		document.addEventListener('mouseup', function (e) {
+			if (e.target.id === 'send-mode-toggle') {
+				return
+			}
+			handleKey(e, 'LeftClick', 'up')
+		})
 
-                if (Math.abs(dX) >= mouseSensitivityX) {
-                    currentMousePos.x = newX
-                } else {
-                    dX = 0
-                }
-                if (Math.abs(dY) >= mouseSensitivityY) {
-                    currentMousePos.y = newY
-                } else {
-                    dY = 0
-                }
-                if (Math.abs(dX) > 0 && Math.abs(dY) > 0) {
-                    // console.debug(dX,dY)
-                }
-            } else {
-                currentMousePos.x = newX
-                currentMousePos.y = newY
-            }
-        })
+		document.addEventListener('mousemove', function (e) {
+			// Top left of the page is 0, 0.
+			const newX = e.pageX
+			const newY = e.pageY
+			if (currentMousePos.x !== undefined) {
+				let dX = newX - currentMousePos.x
+				let dY = currentMousePos.y - newY
+
+				if (Math.abs(dX) >= mouseSensitivityX) {
+					currentMousePos.x = newX
+				} else {
+					dX = 0
+				}
+				if (Math.abs(dY) >= mouseSensitivityY) {
+					currentMousePos.y = newY
+				} else {
+					dY = 0
+				}
+				if (Math.abs(dX) > 0 && Math.abs(dY) > 0) {
+					// console.debug(dX,dY)
+				}
+			} else {
+				currentMousePos.x = newX
+				currentMousePos.y = newY
+			}
+		})
 	</script>
 </head>
 
 <body>
+<div class="mixer-stream">
+	<iframe id="mixer-stream" class="mixer-stream" hidden>
+	</iframe>
+</div>
+
 <section class="section">
 	<div class="columns has-background-dark">
 		<div class="column is-one-quarter">
