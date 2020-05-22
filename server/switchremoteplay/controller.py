@@ -56,9 +56,10 @@ class SwitchController():
 			val = stick.get_calibration().h_center
 		else:
 			try:
-				min_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
-				max_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
-				val = SwitchController._map_val(float(value), min_val, max_val)
+				# LEFT: -1, RIGHT: +1
+				left_val = stick.get_calibration().h_center - stick.get_calibration().h_max_below_center
+				right_val = stick.get_calibration().h_center + stick.get_calibration().h_max_above_center
+				val = SwitchController._map_val(float(value), left_val, right_val)
 			except ValueError:
 				raise ValueError(f'Unexpected stick value "{value}"')
 		return val
@@ -74,9 +75,10 @@ class SwitchController():
 			val = stick.get_calibration().v_center
 		else:
 			try:
-				min_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
-				max_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
-				val = SwitchController._map_val(float(value), min_val, max_val)
+				# Match the JavaScript Gamepad API: UP: -1, DOWN: +1
+				down_val = stick.get_calibration().v_center - stick.get_calibration().v_max_below_center
+				up_val = stick.get_calibration().v_center + stick.get_calibration().v_max_above_center
+				val = SwitchController._map_val(float(value), up_val, down_val)
 			except ValueError:
 				raise ValueError(f'Unexpected stick value "{value}"')
 		return val
