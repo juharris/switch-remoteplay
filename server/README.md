@@ -77,11 +77,11 @@ For moving by a specific amount: `s <stick> <direction> <amount>`
     * UP/RIGHT: `max`
     * DOWN/LEFT: `min`
     * back to the calibrated center: `center`
-    * for convenience with matching the [JavaScript Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/)
-    a decimal number between `-1.0` and `1.0`:
-      * UP/LEFT: `-1.0` (yes `-1.0` is UP, this is how the Gamepad API works)
-      * DOWN/RIGHT: `1.0`
-      * back to the calibrated center: `0` 
+  * For convenience with matching the [JavaScript Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/)
+a decimal number between `-1.0` and `1.0`:
+    * UP/LEFT: `-1.0` (yes `-1.0` is UP, this is how the Gamepad API works)
+    * DOWN/RIGHT: `1.0`
+    * back to the calibrated center: `0` 
 
 Examples:
 * Push the left stick up all the way: `'s l v max'`, then let go of it and set it back to it's center position with: `'s l v center'`.
