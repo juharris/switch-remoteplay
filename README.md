@@ -62,8 +62,5 @@ See:
 * [server](/server): a service to run on a device near your Switch (full API docs are there)
 * [client](/website-client): a website for your friends to "connect" to your Switch
 
-# Issues
-* Be careful not to press Ctrl+W (LStick Up + A) while playing! (will get addressed eventually)
-
 # Acknowledgements
 A very special thank you to https://github.com/mart1nro/joycontrol for the very conveninent and full API and the acknowledgements there as well for so much of the great research into how to communicate with the Switch.
