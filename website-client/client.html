@@ -23,9 +23,7 @@
 			border: 0px;
 			overflow: hidden;
 			/* Normally the Switch has 1080p: 1920x1080 */
-			/* Need to test this with an actual Switch */
-			/* width: 1440px;
-			height: 810px; */
+			/* Use low resolution for now since streaming will mainly be low quality for low latency. */
 			width: 960px;
 			height: 540px;
 			max-width: 100%;
@@ -104,8 +102,10 @@
 
 			const mixerChannel = urlParams.get('mixerChannel')
 			if (mixerChannel) {
-				document.getElementById('mixer-stream').src = `https://mixer.com/embed/player/${mixerChannel}?muted=false&disableLowLatency=false`
+				// Mixer docs: https://mixer.com/dashboard/channel/customize
+				// The Mixer stream seems to start muted, and there does seem to be a way that works to unmute it by default.
 				document.getElementById('mixer-stream').hidden = false
+				document.getElementById('mixer-stream').src = `https://mixer.com/embed/player/${mixerChannel}`
 			}
 		})
 
@@ -419,6 +419,23 @@
 		<img width="941px" height="800px"
 			src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
 			alt="Nintendo Switch Controller" />
+	</section>
+	<section class="section">
+		<h3 class="has-text-white title is-3">URL Parameters for this page</h3>
+		<p class="has-text-white">
+			a: The server address of the host that will send commands to the Switch.
+		</p>
+		<p class="has-text-white">
+			c: Use "c=true" to connect to the server automatically.
+			Defaults to "c=false" to not connect to the server automatically.
+		</p>
+		<p class="has-text-white">
+			s: Use "s=true" to enable sending commands automatically.
+			Defaults to "s=false" to not automatically send commands.
+		</p>
+		<p class="has-text-white">
+			mixerChannel: The channel name for a Mixer stream to start playing.
+		</p>
 	</section>
 </body>
 
