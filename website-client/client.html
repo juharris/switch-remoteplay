@@ -5,12 +5,13 @@
 	<meta charset="UTF-8">
 	<title>Switch Remoteplay</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
-			integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+		integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js"
-			integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+		integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
 	<style type="text/css">
-		html, section {
+		html,
+		section {
 			background-color: #363636;
 		}
 
@@ -23,8 +24,10 @@
 			overflow: hidden;
 			/* Normally the Switch has 1080p: 1920x1080 */
 			/* Need to test this with an actual Switch */
-			width: 1920px;
-			height: 1080px;
+			/* width: 1440px;
+			height: 810px; */
+			width: 960px;
+			height: 540px;
 			max-width: 100%;
 			max-height: 100%;
 		}
@@ -36,7 +39,7 @@
 
 		let socket
 		let isInSendMode = false
-		const currentMousePos = {x: undefined, y: undefined}
+		const currentMousePos = { x: undefined, y: undefined }
 
 		function updateConnectionStatus(status) {
 			document.getElementById('connection-status').innerText = "Connection status: " + status
@@ -99,15 +102,15 @@
 			isInSendMode = urlParams.get('s') === 'true'
 			checkSendMode()
 
-			const mixerStreamUrl = urlParams.get('mixerStreamUrl')
-			if (mixerStreamUrl) {
-				document.getElementById('mixer-stream').src = mixerStreamUrl
+			const mixerChannel = urlParams.get('mixerChannel')
+			if (mixerChannel) {
+				document.getElementById('mixer-stream').src = `https://mixer.com/embed/player/${mixerChannel}?muted=false&disableLowLatency=false`
 				document.getElementById('mixer-stream').hidden = false
 			}
 		})
 
 		function sendCommand(command) {
-			if (!command || !socket) {
+			if (!command || !socket || !isInSendMode) {
 				return
 			}
 			document.getElementById('status').innerText = `Status:  emitting ${command}`
@@ -207,6 +210,41 @@
 				down: 'a d',
 				up: 'a u',
 			},
+
+			l: {
+				down: 'l d',
+				up: 'l u',
+			},
+			zl: {
+				down: 'zl d',
+				up: 'zl u',
+			},
+			r: {
+				down: 'r d',
+				up: 'r u',
+			},
+			zr: {
+				down: 'zr d',
+				up: 'zr u',
+			},
+
+			minus: {
+				down: 'minus d',
+				up: 'minus u',
+			},
+			plus: {
+				down: 'plus d',
+				up: 'plus u',
+			},
+			
+			capture: {
+				down: 'capture d',
+				up: 'capture u',
+			},
+			home: {
+				down: 'home d',
+				up: 'home u',
+			},
 		}
 
 		const keyMap = {
@@ -220,28 +258,23 @@
 			ArrowUp: actions.x,
 			ArrowDown: actions.b,
 
-			Space: {
-				down: 'b d',
-				up: 'b u',
-			},
-			KeyE: {
-				down: 'x d',
-				up: 'x u',
-			},
-			KeyQ: {
-				down: 'y d',
-				up: 'y u',
-			},
-			LeftClick: {
-				down: 'a d',
-				up: 'a u',
-			},
+			LeftClick: actions.a,
+			Space: actions.b,
+
+			KeyQ: actions.l,
+			KeyE: actions.r,
 			ShiftLeft: {
-				isDown: false
+				isDown: false,
 			},
-			ControlRight: {
-				isDown: false
+			ShiftRight: {
+				isDown: false,
 			},
+
+			KeyZ: actions.minus,
+			KeyX: actions.plus,
+
+			KeyC: actions.capture,
+			KeyV: actions.home,
 		}
 
 		const shiftKeyMap = {
@@ -249,9 +282,12 @@
 			KeyD: actions.arrowRight,
 			KeyW: actions.arrowUp,
 			KeyS: actions.arrowDown,
-		}
 
-		const ctrlKeyMap = {
+			KeyQ: actions.zl,
+			KeyE: actions.zr,
+
+			// These used to be activated when Ctrl was pressed
+			// but that could cause someone to activate other commands which might close the window.
 			ArrowUp: actions.rightStickFullUp,
 			ArrowDown: actions.rightStickFullDown,
 			ArrowLeft: actions.rightStickFullLeft,
@@ -269,10 +305,8 @@
 				keyMap[keyName].isDown = keyDirection === 'down'
 			}
 
-			if (keyMap.ShiftLeft.isDown && keyName in shiftKeyMap) {
+			if ((keyMap.ShiftLeft.isDown || keyMap.ShiftRight.isDown) && keyName in shiftKeyMap) {
 				keyMapping = shiftKeyMap
-			} else if (keyMap.ControlRight.isDown && keyName in ctrlKeyMap) {
-				keyMapping = ctrlKeyMap
 			}
 
 			const command = keyMapping[keyName]
@@ -305,7 +339,8 @@
 			handleKey(e, 'LeftClick', 'up')
 		})
 
-		document.addEventListener('mousemove', function (e) {
+		// Keeping in case we want to handle something on mouse movement later.
+		function mouseMoveHandler(e) {
 			// Top left of the page is 0, 0.
 			const newX = e.pageX
 			const newY = e.pageY
@@ -330,44 +365,61 @@
 				currentMousePos.x = newX
 				currentMousePos.y = newY
 			}
-		})
+		}
+		// document.addEventListener('mousemove', mouseMoveHandler)
+
 	</script>
 </head>
 
 <body>
-<div class="mixer-stream">
-	<iframe id="mixer-stream" class="mixer-stream" hidden>
-	</iframe>
-</div>
+	<section class="section">
+		<div class="columns has-background-dark">
+			<div class="column is-one-quarter">
+				<label class="has-text-white" for="server-address">Server Address:</label>
+				<input class="input" id="server-address" />
+			</div>
 
-<section class="section">
-	<div class="columns has-background-dark">
-		<div class="column is-one-quarter">
-			<label class="has-text-white" for="server-address">Server Address:</label>
-			<input class="input" id="server-address"/>
-			<br><br>
-			<p class="has-text-white">Left Control Stick: WASD</p>
-			<p class="has-text-white">X:▲, Y: ◀, B:▼, A:▶</p>
-			<p class="has-text-white">Arrows: Shift+WASD</p>
-			<p class="has-text-white">Right Stick: Shift+▲◀▼▶</p>
-			<img width="941px" height="800px"
-				 src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
-				 alt="Nintendo Switch Controller"/>
+			<div class="column is-one-quarter">
+				<br>
+				<button class="button is-success" id="connect" onclick="toggleConnect()">Connect</button>
+				<br><br>
+				<p class="has-text-white" id="connection-status">Connection status: </p>
+				<p class="has-text-white" id="send-mode-status">Send mode: </p>
+				<br>
+				<button class="button is-success" id="send-mode-toggle" onclick="toggleSendMode()" disabled>
+					Start Sending Commands
+				</button>
+				<p class="has-text-white" id="status">Status: </p>
+			</div>
 		</div>
-
-		<div class="column is-one-quarter">
-			<br>
-			<button class="button is-success" id="connect" onclick="toggleConnect()">Connect</button>
-			<br><br>
-			<p class="has-text-white" id="connection-status">Connection status: </p>
-			<p class="has-text-white" id="send-mode-status">Send mode: </p>
-			<br>
-			<button class="button is-success" id="send-mode-toggle" onclick="toggleSendMode()" disabled>
-				Start Sending Commands
-			</button>
-			<p class="has-text-white" id="status">Status: </p>
+	</section>
+	<section class="section">
+		<div class="mixer-stream">
+			<iframe id="mixer-stream" class="mixer-stream" hidden>
+			</iframe>
 		</div>
-	</div>
-</section>
+	</section>
+	<section class="section">
+		<div class="columns has-background-dark">
+			<div class="column is-one-half">
+				<p class="has-text-white">L: Q, ZL: Shift+Q</p>
+				<p class="has-text-white">-: Z</p>
+				<p class="has-text-white">Left Control Stick: WASD</p>
+				<p class="has-text-white">Arrows: Shift+WASD</p>
+				<p class="has-text-white">Capture: C</p>
+			</div>
+			<div class="column is-one-half">
+				<p class="has-text-white">R: E, ZR: Shift+E</p>
+				<p class="has-text-white">+: X</p>
+				<p class="has-text-white">X: ▲, Y: ◀, B:▼, A:▶</p>
+				<p class="has-text-white">Right Stick: Shift+▲◀▼▶</p>
+				<p class="has-text-white">Home: V</p>
+			</div>
+		</div>
+		<img width="941px" height="800px"
+			src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
+			alt="Nintendo Switch Controller" />
+	</section>
 </body>
+
 </html>
