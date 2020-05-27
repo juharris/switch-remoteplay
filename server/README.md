@@ -89,10 +89,12 @@ Examples:
 
 Angling the sticks: `s <stick> hv <horizontal amount> <vertical amount>`
 
-Example: Push the right stick halfway up and halfway to the right: `'s r hv 0.5 0.5'`.
+Example: Push the right stick halfway to the right and halfway up: `'s r hv 0.5 -0.5'`.
+
+Example: Push the left stick halfway to the right and halfway down: `'s l hv 0.5 0.5'`.
 
 # Wait
-(not supported yet)
+(not supported yet - in discussion [here](https://github.com/juharris/switch-remoteplay/issues/8))
 This is mainly for macros. It might only be supported by the client and not the server.
 
 Format: `wait <time in milliseconds>`
