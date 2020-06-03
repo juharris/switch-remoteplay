@@ -2,7 +2,7 @@ NOT OFFICIALLY SUPPORTED OR INVOLVED WITH NINTENDO IN ANY WAY
 
 This is an independent project.
 
-# Switch Remoteplay
+# Switch Remote Play
 
 The goal of this project is to support **easily** playing your Nintendo Switch remotely or locally via another device with a keyboard/mouse/controller/touchscreen.
 No hacking of your Switch is required.

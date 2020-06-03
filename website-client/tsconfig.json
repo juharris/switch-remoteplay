@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [
+      // Required for Material-UI: https://material-ui.com/guides/typescript/
+      "es6",
+      // End required for Material-UI.
+
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    
+    // Required for Material-UI: https://material-ui.com/guides/typescript/
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
+    // End required for Material-UI.
+  },
+  "include": [
+    "src"
+  ]
+}
