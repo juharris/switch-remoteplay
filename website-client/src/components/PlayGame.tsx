@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import React from 'react'
 import io from 'socket.io-client'
+import { createStyles, withStyles } from '@material-ui/core'
 
 const maxStick = 'max'
 const minStick = 'min'
@@ -164,14 +165,26 @@ const shiftKeyMap = {
 	ArrowRight: actions.rightStickFullRight,
 }
 
-export default class PlayGame extends React.Component<any, any> {
+// Can take a Theme as input.
+const styles = () => createStyles({
+	controller: {
+		marginTop: '10px',
+	},
+	leftButtons: {
+		marginLeft: '15%',
+	},
+	rightButtons: {
+	}
+})
+
+class PlayGame extends React.Component<any, any> {
 	constructor(props: Readonly<any>) {
 		super(props)
 		this.state = {
 			isConnected: false,
 			isAttemptingToConnect: false,
 			connectButtonText: "Connect",
-			serverAddress: undefined,
+			serverAddress: "",
 			connectionStatus: undefined,
 
 			isInSendMode: false,
@@ -197,6 +210,8 @@ export default class PlayGame extends React.Component<any, any> {
 	}
 
 	componentDidMount(): void {
+		// TODO Add Gamepad support.
+
 		// Not used for now.
 		// document.addEventListener('mousemove', mouseMoveHandler)
 
@@ -207,7 +222,8 @@ export default class PlayGame extends React.Component<any, any> {
 			this.handleKey(e, e.code, 'up')
 		})
 
-		document.addEventListener('mousedown', e => {
+		document.addEventListener('mousedown', (e: MouseEvent) => {
+			// TODO Allow if clicking on 'send-mode-toggle'
 			// if (e!.target!.name === 'send-mode-toggle') {
 			// 	return
 			// }
@@ -389,6 +405,7 @@ export default class PlayGame extends React.Component<any, any> {
 	}
 
 	render(): React.ReactNode {
+		const { classes } = this.props
 		return (<Container>
 			<div>
 				<Grid container spacing={3}>
@@ -408,24 +425,30 @@ export default class PlayGame extends React.Component<any, any> {
 			</div>
 			{this.renderVideo()}
 			{/* TODO Use Controller from https://github.com/nuiofrd/switch-remoteplay/tree/master/switch-rp-client/src */}
-			<Grid container spacing={3} direction="column">
-				<Grid item>L: Q, ZL: Shift+Q</Grid>
-				<Grid item>-: Z</Grid>
-				<Grid item>Left Control Stick: WASD</Grid>
-				<Grid item>Arrows: Shift+WASD</Grid>
-				<Grid item>Capture: C</Grid>
-			</Grid>
-			<Grid container spacing={3} direction="column">
-				<Grid item>R: E, ZR: Shift+E</Grid>
-				<Grid item>+: X</Grid>
-				<Grid item>X: ▲, Y: ◀, B:▼, A:▶</Grid>
-				<Grid item>Right Stick: Shift+▲◀▼▶</Grid>
-				<Grid item>Home: V</Grid>
-			</Grid>
 
-			<img width="941px" height="800px"
-				src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
-				alt="Nintendo Switch Controller" />
+			<div className={classes.controller}>
+				<Grid container>
+					<Grid className={classes.leftButtons} item container direction="column" xs={4}>
+						<Grid item>L: Q, ZL: Shift+Q</Grid>
+						<Grid item>-: Z</Grid>
+						<Grid item>Left Control Stick: WASD</Grid>
+						<Grid item>Arrows: Shift+WASD</Grid>
+						<Grid item>Capture: C</Grid>
+					</Grid>
+					<Grid item container direction="column" xs></Grid>
+					<Grid className={classes.rightButtons} item container direction="column" xs={4}>
+						<Grid item>R: E, ZR: Shift+E</Grid>
+						<Grid item>+: X</Grid>
+						<Grid item>X: ▲, Y: ◀, B:▼, A:▶</Grid>
+						<Grid item>Right Stick: Shift+▲◀▼▶</Grid>
+						<Grid item>Home: V</Grid>
+					</Grid>
+				</Grid>
+
+				<img width="941px" height="800px"
+					src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
+					alt="Nintendo Switch Controller" />
+			</div>
 			<div>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
 				<Typography component="p">
@@ -461,3 +484,5 @@ export default class PlayGame extends React.Component<any, any> {
 		}
 	}
 }
+
+export default withStyles(styles)(PlayGame)

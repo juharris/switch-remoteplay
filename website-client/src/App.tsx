@@ -21,6 +21,9 @@ const styles = () => createStyles({
 		// backgroundColor: palette.background.default,
 		// color: palette.primary.main,
 	},
+	app: {
+		marginTop: '10px',
+	}
 })
 
 class App extends React.Component<WithStyles<typeof styles>> {
@@ -32,14 +35,15 @@ class App extends React.Component<WithStyles<typeof styles>> {
 				<CssBaseline />
 				<div className={classes.root}>
 					<CustomAppBar />
-
-					{/* A <Switch> looks through its children <Route>s and
+					<div className={classes.app}>
+						{/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
-					<Switch>
-						<Route path="/">
-							<PlayGame />
-						</Route>
-					</Switch>
+						<Switch>
+							<Route path="/">
+								<PlayGame />
+							</Route>
+						</Switch>
+					</div>
 				</div>
 			</ThemeProvider>
 		</Router >)
