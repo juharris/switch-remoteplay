@@ -10,6 +10,8 @@ from joycontrol.server import create_hid_server
 
 
 class SwitchController():
+	configured_log = False
+
 	def __init__(self, logger: Logger, controller_state: ControllerState):
 		self._controller_state: ControllerState = controller_state
 		self._logger = logger
@@ -18,8 +20,9 @@ class SwitchController():
 	async def get_controller(logger: Logger, switch_mac_address=None, spi_flash=None, controller='PRO_CONTROLLER',
 							 capture_file=None,
 							 device_id=None):
-
-		log.configure(logger.level, logger.level)
+		if not SwitchController.configured_log:
+			log.configure(logger.level, logger.level)
+			SwitchController.configured_log = True
 		if spi_flash:
 			with open(spi_flash, 'rb') as spi_flash_file:
 				spi_flash = FlashMemory(spi_flash_file.read())
@@ -32,13 +35,21 @@ class SwitchController():
 		factory = controller_protocol_factory(controller, spi_flash=spi_flash)
 		ctl_psm, itr_psm = 17, 19
 		if switch_mac_address:
-			logger.info("Pairing up with Switch MAC address: %s", switch_mac_address)
-		transport, protocol = await create_hid_server(factory, reconnect_bt_addr=switch_mac_address,
-													  ctl_psm=ctl_psm,
-													  itr_psm=itr_psm, capture_file=capture_file,
-													  device_id=device_id)
+			logger.info("Pairing with Switch MAC address: %s", switch_mac_address)
+		while True:
+			try:
+				transport, protocol = await create_hid_server(factory, reconnect_bt_addr=switch_mac_address,
+															  ctl_psm=ctl_psm,
+															  itr_psm=itr_psm, capture_file=capture_file,
+															  device_id=device_id)
 
-		controller_state: ControllerState = protocol.get_controller_state()
+				controller_state: ControllerState = protocol.get_controller_state()
+				break
+			except:
+				# TODO Try to wake the Switch up from sleep.
+				wait_s = 3
+				logger.exception("Error pairing. Will try again in %ds.", wait_s)
+				await asyncio.sleep(wait_s)
 
 		return SwitchController(logger, controller_state)
 
@@ -127,6 +138,9 @@ class SwitchController():
 			raise ValueError(f'Unexpected argument "{direction}"')
 
 		return f'{stick.__class__.__name__} was set to ({stick.get_h()}, {stick.get_v()}).'
+
+	def is_connected(self) -> bool:
+		return self._controller_state._protocol is not None and self._controller_state._protocol.transport is not None
 
 	def run(self, command_input: str):
 		self._logger.debug(command_input)
