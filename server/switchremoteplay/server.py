@@ -23,25 +23,25 @@ controller: Optional[SwitchController] = None
 
 @socketio.on('connect')
 def test_connect():
-	print("Connected")
+	logger.info("Connected")
 	send({'connected': True}, json=True)
 
 
 @socketio.on('disconnect')
 def test_disconnect():
-	print("Disconnected")
+	logger.info("Disconnected")
 
 
 # Handle unnamed events.
 @socketio.on('message')
 def handle_message(message):
-	print("received message: " + message)
+	logger.debug("received message: " + message)
 
 
 # Handle unnamed events with JSON.
 @socketio.on('json')
 def handle_json(json):
-	print("received json: " + str(json))
+	logger.debug("received json: %s", json)
 
 
 @socketio.on('p')
@@ -64,10 +64,13 @@ async def _main():
 	try:
 		controller = await SwitchController.get_controller(logger, switch_mac_address)
 		start_server()
-		# Keep the server running.
+		# Keep the server running and attempt to reconnect the controller.
 		# There must be a better way to do this but this seems to work fine for now.
 		while True:
-			await asyncio.sleep(60)
+			if not controller.is_connected():
+				logger.info("Attempting to reconnect the controller.")
+				controller = await SwitchController.get_controller(logger, switch_mac_address)
+			await asyncio.sleep(10)
 	finally:
 		logger.info('Stopping the service...')
 
@@ -77,7 +80,7 @@ def start_server():
 	# 5000 is the default port.
 	port = 5000
 	# port = 48668
-	print("Running at {}:{}".format(host, port))
+	logger.info("Socket service running at {}:{}".format(host, port))
 
 	l = asyncio.get_running_loop()
 
@@ -94,4 +97,3 @@ if __name__ == '__main__':
 	loop.run_until_complete(
 		_main()
 	)
-	print("done")
