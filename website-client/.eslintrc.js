@@ -25,5 +25,6 @@ module.exports = {
 			anonymous: 'never',
 			asyncArrow: 'always'
 		}],
+		'@typescript-eslint/no-explicit-any': 'off',
 	},
 }

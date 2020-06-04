@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import 'typeface-roboto'
 import './App.css'
 import CustomAppBar from './AppBar'
-import Home from './components/Home'
+import PlayGame from './components/PlayGame'
 
 const theme = createMuiTheme({
 	palette: {
@@ -37,7 +37,7 @@ class App extends React.Component<WithStyles<typeof styles>> {
             renders the first one that matches the current URL. */}
 					<Switch>
 						<Route path="/">
-							<Home />
+							<PlayGame />
 						</Route>
 					</Switch>
 				</div>
