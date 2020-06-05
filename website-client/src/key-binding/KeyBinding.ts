@@ -9,5 +9,6 @@ export abstract class KeyBinding {
 		this.sendCommand = sendCommand
 	}
 
+	abstract init(): void
 	abstract destroy(): void
 }

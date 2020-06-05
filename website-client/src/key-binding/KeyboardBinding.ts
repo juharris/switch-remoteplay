@@ -54,8 +54,15 @@ export default class KeyboardBinding extends KeyBinding {
 
 	constructor(sendCommand: SendCommand) {
 		super(sendCommand)
+		this.init()
+	}
+
+	init(): void {
+		document.addEventListener('keydown', this.handleKeyDown)
+		document.addEventListener('keyup', this.handleKeyUp)
+
 		// No mouse control is used in this class but another class can be set up to do it.
-		// It would be trick to do in general and should probably be specific to the game.
+		// It would be tricky to do in general and should probably be specific to the game.
 		// document.addEventListener('mousemove', mouseMoveHandler)
 		// document.addEventListener('mousedown', (e: MouseEvent) => {
 		//     // TODO Allow if clicking on 'send-mode-toggle'
@@ -69,13 +76,21 @@ export default class KeyboardBinding extends KeyBinding {
 		//     this.handleKey(e, 'LeftClick', 'up')
 		// })
 
-		document.addEventListener('keydown', e => {
-			this.handleKey(e, e.code, 'down')
-		})
-		document.addEventListener('keyup', e => {
-			this.handleKey(e, e.code, 'up')
-		})
 	}
+
+	destroy(): void {
+		document.removeEventListener('keydown', this.handleKeyDown)
+		document.removeEventListener('keyup', this.handleKeyUp)
+	}
+
+	handleKeyDown = (e: KeyboardEvent) => {
+		this.handleKey(e, e.code, 'down')
+	}
+
+	handleKeyUp = (e: KeyboardEvent) => {
+		this.handleKey(e, e.code, 'up')
+	}
+
 
 	// Keeping in case we want to handle something on mouse movement later.
 	// private mouseMoveHandler(e: MouseEvent) {
@@ -124,8 +139,4 @@ export default class KeyboardBinding extends KeyBinding {
 			console.debug(`Pressed ${(e as KeyboardEvent).code}.`)
 		}
 	}
-
-	destroy(): void {
-		// TODO Stop listeners.
-	}	
 }
