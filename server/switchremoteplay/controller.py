@@ -48,7 +48,8 @@ class SwitchController():
 			except:
 				# TODO Try to wake the Switch up from sleep.
 				wait_s = 3
-				logger.exception("Error pairing. Will try again in %ds.", wait_s)
+				logger.exception("Error pairing. Make sure your Switch is on."
+								 "Will try again in %ds.", wait_s)
 				await asyncio.sleep(wait_s)
 
 		return SwitchController(logger, controller_state)
