@@ -78,16 +78,16 @@ export default class KeyboardBinding extends KeyBinding {
 
 	}
 
-	destroy(): void {
+	stop(): void {
 		document.removeEventListener('keydown', this.handleKeyDown)
 		document.removeEventListener('keyup', this.handleKeyUp)
 	}
 
-	handleKeyDown = (e: KeyboardEvent) => {
+	handleKeyDown: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
 		this.handleKey(e, e.code, 'down')
 	}
 
-	handleKeyUp = (e: KeyboardEvent) => {
+	handleKeyUp: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
 		this.handleKey(e, e.code, 'up')
 	}
 

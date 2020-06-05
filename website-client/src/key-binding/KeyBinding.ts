@@ -10,5 +10,5 @@ export abstract class KeyBinding {
 	}
 
 	abstract init(): void
-	abstract destroy(): void
+	abstract stop(): void
 }
