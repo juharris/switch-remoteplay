@@ -1,5 +1,7 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import green from '@material-ui/core/colors/green'
+import red from '@material-ui/core/colors/red'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
@@ -7,7 +9,6 @@ import Typography from '@material-ui/core/Typography'
 import React from 'react'
 import io from 'socket.io-client'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
-
 
 // Can take a Theme as input.
 const styles = () => createStyles({
@@ -39,7 +40,6 @@ class PlayGame extends React.Component<any, any> {
 	constructor(props: Readonly<any>) {
 		super(props)
 		this.state = {
-			isConnected: false,
 			isAttemptingToConnect: false,
 			connectButtonText: "Connect",
 			serverAddress: "",
@@ -73,9 +73,6 @@ class PlayGame extends React.Component<any, any> {
 		const serverAddress = urlParams.get('a') || 'http://127.0.0.1:5000'
 
 		const connectNow = urlParams.get('c') === 'true'
-		if (connectNow) {
-			this.toggleConnect()
-		}
 
 		const isInSendMode = urlParams.get('s') === 'true'
 
@@ -86,6 +83,10 @@ class PlayGame extends React.Component<any, any> {
 			serverAddress,
 			mixerChannel,
 			keyBinding: new KeyboardBinding(this.sendCommand)
+		}, () => {
+			if (connectNow) {
+				this.toggleConnect()
+			}
 		})
 	}
 
@@ -109,7 +110,6 @@ class PlayGame extends React.Component<any, any> {
 			this.state.socket.destroy()
 		}
 		this.setState({
-			isConnected: false,
 			connectButtonText: "Connect",
 			socket: undefined,
 		})
@@ -136,7 +136,6 @@ class PlayGame extends React.Component<any, any> {
 			socket.on('connect', () => {
 				this.updateConnectionStatus("✅ Connected")
 				this.setState({
-					isConnected: true,
 					connectButtonText: "Disconnect",
 					isAttemptingToConnect: false,
 				})
@@ -193,11 +192,17 @@ class PlayGame extends React.Component<any, any> {
 				<Grid container spacing={3}>
 					<Grid item xs={12} sm={6}>
 						<TextField label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
-						<Button variant="contained" color="primary" onClick={this.toggleConnect}>{this.state.connectButtonText}</Button>
-						<Typography component="p">{this.state.connectionStatus}</Typography>
+						<Button variant="contained" onClick={this.toggleConnect}
+							style={{ backgroundColor: this.state.socket && this.state.socket.connected ? red[500] : green[500] }}>
+							{this.state.connectButtonText}
+						</Button>
+						<Typography component="p">
+							{this.state.connectionStatus}
+						</Typography>
 					</Grid>
 					<Grid item xs={12} sm={6}>
-						<Button name="send-mode-toggle" variant="contained" color="primary" onClick={this.toggleSendMode} disabled={!this.state.isConnected}>
+						<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
+							style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
 							{this.state.sendCommandsButtonText}
 						</Button>
 						<Typography component="p">{this.state.sendModeStatus}</Typography>
