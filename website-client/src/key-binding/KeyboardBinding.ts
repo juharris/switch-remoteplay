@@ -1,5 +1,5 @@
 import actions from './actions'
-import { KeyBinding, SendCommand } from './KeyBinding'
+import { KeyBinding } from './KeyBinding'
 
 /**
  * Keyboard bindings. No mouse control.
@@ -52,12 +52,12 @@ export default class KeyboardBinding extends KeyBinding {
 		ArrowRight: actions.rightStickFullRight,
 	}
 
-	constructor(sendCommand: SendCommand) {
-		super(sendCommand)
-		this.init()
+	getName(): string {
+		return "Keyboard"
 	}
 
-	init(): void {
+	start: () => void = () => {
+		console.debug(`${this.getName()}: Starting`)
 		document.addEventListener('keydown', this.handleKeyDown)
 		document.addEventListener('keyup', this.handleKeyUp)
 
@@ -79,6 +79,7 @@ export default class KeyboardBinding extends KeyBinding {
 	}
 
 	stop(): void {
+		console.debug(`${this.getName()}: Stopping`)
 		document.removeEventListener('keydown', this.handleKeyDown)
 		document.removeEventListener('keyup', this.handleKeyUp)
 	}

@@ -6,6 +6,7 @@ import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 import React from 'react'
 import io from 'socket.io-client'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
@@ -39,8 +40,23 @@ const styles = () => createStyles({
 class PlayGame extends React.Component<any, any> {
 	constructor(props: Readonly<any>) {
 		super(props)
+
+		this.checkSendMode = this.checkSendMode.bind(this)
+		this.handleChange = this.handleChange.bind(this)
+		this.handleInputMethodSelection = this.handleInputMethodSelection.bind(this)
+		this.onDisconnect = this.onDisconnect.bind(this)
+		this.renderVideo = this.renderVideo.bind(this)
+		this.sendCommand = this.sendCommand.bind(this)
+		this.toggleConnect = this.toggleConnect.bind(this)
+		this.toggleSendMode = this.toggleSendMode.bind(this)
+		this.updateConnectionStatus = this.updateConnectionStatus.bind(this)
+
+		const inputMethod = new KeyboardBinding(this.sendCommand)
+		const inputMethodOptions = [
+			inputMethod,
+		]
+
 		this.state = {
-			isAttemptingToConnect: false,
 			connectButtonText: "Connect",
 			serverAddress: "",
 			connectionStatus: undefined,
@@ -53,16 +69,10 @@ class PlayGame extends React.Component<any, any> {
 			mixerChannel: undefined,
 
 			socket: undefined,
-		}
 
-		this.onDisconnect = this.onDisconnect.bind(this)
-		this.renderVideo = this.renderVideo.bind(this)
-		this.sendCommand = this.sendCommand.bind(this)
-		this.toggleConnect = this.toggleConnect.bind(this)
-		this.toggleSendMode = this.toggleSendMode.bind(this)
-		this.updateConnectionStatus = this.updateConnectionStatus.bind(this)
-		this.handleChange = this.handleChange.bind(this)
-		this.checkSendMode = this.checkSendMode.bind(this)
+			inputMethod,
+			inputMethodOptions,
+		}
 	}
 
 	componentDidMount(): void {
@@ -82,16 +92,24 @@ class PlayGame extends React.Component<any, any> {
 			isInSendMode,
 			serverAddress,
 			mixerChannel,
-			keyBinding: new KeyboardBinding(this.sendCommand)
 		}, () => {
 			if (connectNow) {
 				this.toggleConnect()
 			}
+			this.checkSendMode()
 		})
 	}
 
 	private handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		this.setState({ [event.target.name]: event.target.value })
+	}
+
+	private handleInputMethodSelection(event: React.ChangeEvent<{}>, newValue: string): void {
+		if (this.state.inputMethod && this.state.inputMethod.getName() !== newValue){
+			this.state.inputMethod.stop()
+		}
+		console.log(event.target)
+		console.log(newValue)
 	}
 
 	private updateConnectionStatus(status: string) {
@@ -130,14 +148,12 @@ class PlayGame extends React.Component<any, any> {
 		const socket = io(address)
 		this.setState({
 			connectButtonText: "Cancel connection attempt",
-			isAttemptingToConnect: true,
 			socket,
 		}, () => {
 			socket.on('connect', () => {
 				this.updateConnectionStatus("✅ Connected")
 				this.setState({
 					connectButtonText: "Disconnect",
-					isAttemptingToConnect: false,
 				})
 			})
 
@@ -173,11 +189,13 @@ class PlayGame extends React.Component<any, any> {
 
 	private checkSendMode() {
 		if (this.state.isInSendMode) {
+			this.state.inputMethod.start()
 			this.setState({
 				sendModeStatus: "Send mode: ✅ Enabled",
 				sendCommandsButtonText: "Stop Sending Commands",
 			})
 		} else {
+			this.state.inputMethod.stop()
 			this.setState({
 				sendModeStatus: "Send mode: ❌ Disabled",
 				sendCommandsButtonText: "Start Sending Commands",
@@ -187,13 +205,14 @@ class PlayGame extends React.Component<any, any> {
 
 	render(): React.ReactNode {
 		const { classes } = this.props
+
 		return (<Container>
 			<div>
 				<Grid container spacing={3}>
 					<Grid item xs={12} sm={6}>
 						<TextField label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
 						<Button variant="contained" onClick={this.toggleConnect}
-							style={{ backgroundColor: this.state.socket && this.state.socket.connected ? red[500] : green[500] }}>
+							style={{ backgroundColor: this.state.socket ? red[500] : green[500] }}>
 							{this.state.connectButtonText}
 						</Button>
 						<Typography component="p">
@@ -207,6 +226,18 @@ class PlayGame extends React.Component<any, any> {
 						</Button>
 						<Typography component="p">{this.state.sendModeStatus}</Typography>
 						<Typography component="p">{this.state.status}</Typography>
+					</Grid>
+					<Grid item xs={6}>
+						<Autocomplete
+							id="input-method"
+							openOnFocus
+							disableClearable
+							value={this.state.inputMethod}
+							options={this.state.inputMethodOptions || []}
+							getOptionLabel={(option: any) => option.getName()}
+							onChange={this.handleInputMethodSelection}
+							renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
+						/>
 					</Grid>
 				</Grid>
 			</div>
