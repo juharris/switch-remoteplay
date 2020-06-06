@@ -30,14 +30,16 @@ Here are the events as strings that the API handles:
 These single letter command put the button in the pushed state, wait a few milliseconds, and then puts the button in the not pushed state.
 Honestly you don't really need this except maybe for simple macros since if you're mapping real controller input you should be setting buttons in the pressed/unpressed state to support holding down a button.
 
-| Switch Button | String |
-|---------------|--------|
-| L             | `'l'` |
-| R             | `'r'` |
-| A             | `'a'` |
-| B             | `'b'` |
-| X             | `'x'` |
-| Y             | `'y'` |
+All buttons are supported:
+```
+'l', 'zl',
+'r', 'zr',
+'a', 'b', 'x', 'y',
+'minus', 'plus',
+'r_stick', 'l_stick',
+'home', 'capture',
+'down', 'up', 'right', 'left'
+```
 
 ### Set a button in the pressed/unpressed state:
 Format: `<button> <up/down>`.

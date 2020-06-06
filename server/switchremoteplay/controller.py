@@ -169,7 +169,7 @@ class SwitchController():
 				value = vertical_value = None
 			s = self._set_stick(stick, direction, value, vertical_value)
 			self._logger.debug(s)
-		elif command in 'lrabxy':
+		elif command in self._controller_state.button_state.get_available_buttons():
 			# `button_push` sends the controller's state which could be a problem for running
 			# simultaneous commands but it's documented in the API that it might not work well.
 			asyncio.ensure_future(button_push(self._controller_state, command))

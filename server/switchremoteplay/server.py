@@ -22,13 +22,13 @@ controller: Optional[SwitchController] = None
 
 
 @socketio.on('connect')
-def test_connect():
+def connect():
 	logger.info("Connected")
 	send({'connected': True}, json=True)
 
 
 @socketio.on('disconnect')
-def test_disconnect():
+def disconnect():
 	logger.info("Disconnected")
 
 
@@ -62,8 +62,8 @@ async def _main():
 
 	global controller
 	try:
-		controller = await SwitchController.get_controller(logger, switch_mac_address)
 		start_server()
+		controller = await SwitchController.get_controller(logger, switch_mac_address)
 		# Keep the server running and attempt to reconnect the controller.
 		# There must be a better way to do this but this seems to work fine for now.
 		while True:
