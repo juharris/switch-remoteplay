@@ -10,6 +10,7 @@ export abstract class KeyBinding {
 	}
 
 	abstract getName(): string
+
 	abstract start(): void
 	abstract stop(): void
 }

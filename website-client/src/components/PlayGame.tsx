@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import React from 'react'
 import io from 'socket.io-client'
+import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
 
 // Can take a Theme as input.
@@ -44,6 +45,8 @@ class PlayGame extends React.Component<any, any> {
 		this.checkSendMode = this.checkSendMode.bind(this)
 		this.handleChange = this.handleChange.bind(this)
 		this.handleInputMethodSelection = this.handleInputMethodSelection.bind(this)
+		this.handleGamepadConnected = this.handleGamepadConnected.bind(this)
+		this.handleGamepadDisconnected = this.handleGamepadDisconnected.bind(this)
 		this.onDisconnect = this.onDisconnect.bind(this)
 		this.renderVideo = this.renderVideo.bind(this)
 		this.sendCommand = this.sendCommand.bind(this)
@@ -76,7 +79,6 @@ class PlayGame extends React.Component<any, any> {
 	}
 
 	componentDidMount(): void {
-		// TODO Add Gamepad support.
 		const queryString = window.location.search
 		const urlParams = new URLSearchParams(queryString)
 
@@ -98,18 +100,52 @@ class PlayGame extends React.Component<any, any> {
 			}
 			this.checkSendMode()
 		})
+
+		window.addEventListener('gamepadconnected', this.handleGamepadConnected)
+		window.addEventListener('gamepaddisconnected', this.handleGamepadDisconnected)
+	}
+
+	private handleGamepadConnected(e: any | GamepadEvent): void {
+		console.debug("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+			e.gamepad.index, e.gamepad.id,
+			e.gamepad.buttons.length, e.gamepad.axes.length)
+		this.state.inputMethod.stop()
+		const inputMethod = new GamepadBinding(this.sendCommand, e.gamepad)
+		const inputMethodOptions = this.state.inputMethodOptions.concat([inputMethod])
+		this.setState({
+			inputMethod,
+			inputMethodOptions,
+		}, () => {
+			if (this.state.isInSendMode) {
+				this.state.inputMethod.start()
+			}
+		})
+	}
+
+	private handleGamepadDisconnected(e: any | GamepadEvent): void {
+		console.debug("Gamepad disconnected at index %d: %s.",
+			e.gamepad.index, e.gamepad.id)
+		if (this.state.inputMethod && this.state.inputMethod.index === e.gamepad.index) {
+			this.state.inputMethod.stop()
+		}
+		// TODO Remove from input methods.
 	}
 
 	private handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
-	private handleInputMethodSelection(event: React.ChangeEvent<{}>, newValue: string): void {
-		if (this.state.inputMethod && this.state.inputMethod.getName() !== newValue){
+	private handleInputMethodSelection(event: React.ChangeEvent<any>, newValue: string): void {
+		if (this.state.inputMethod !== newValue) {
 			this.state.inputMethod.stop()
 		}
-		console.log(event.target)
-		console.log(newValue)
+		this.setState({
+			inputMethod: newValue,
+		}, () => {
+			if (this.state.isInSendMode) {
+				this.state.inputMethod.start()
+			}
+		})
 	}
 
 	private updateConnectionStatus(status: string) {
