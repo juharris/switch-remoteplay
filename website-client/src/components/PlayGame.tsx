@@ -203,6 +203,7 @@ class PlayGame extends React.Component<any, any> {
 
 	private sendCommand(command: string) {
 		if (!command || !this.state.socket || !this.state.isInSendMode) {
+			console.debug("Not connected but would send:\n%s", command)
 			return
 		}
 		this.setState({

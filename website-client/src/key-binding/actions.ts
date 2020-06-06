@@ -20,6 +20,10 @@ export default {
 		down: `s l v ${minStick}`,
 		up: `s l v ${centerStick}`,
 	},
+	l_stick: {
+		down: 'l_stick d',
+		up: 'l_stick u',
+	},
 
 	// Right Stick
 	rightStickFullLeft: {
@@ -37,6 +41,10 @@ export default {
 	rightStickFullDown: {
 		down: `s r v ${minStick}`,
 		up: `s r v ${centerStick}`,
+	},
+	r_stick: {
+		down: 'r_stick d',
+		up: 'r_stick u',
 	},
 
 	// Arrows
