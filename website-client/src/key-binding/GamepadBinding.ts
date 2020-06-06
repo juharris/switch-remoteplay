@@ -46,7 +46,7 @@ export default class GamepadBinding extends KeyBinding {
 	}
 
 	loop(): void {
-		const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : []);
+		const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : [])
 		if (this.gamepad.index < gamepads.length) {
 			const gamepad = gamepads[this.gamepad.index]
 			const command = this.getCommand(gamepad)
