@@ -36,6 +36,9 @@ const styles = () => createStyles({
 		maxWidth: '100%',
 		maxHeight: '100%',
 	},
+	inputMethodSelect: {
+		paddingTop: '10px',
+	},
 })
 
 class PlayGame extends React.Component<any, any> {
@@ -265,7 +268,12 @@ class PlayGame extends React.Component<any, any> {
 						<Typography component="p">{this.state.status}</Typography>
 					</Grid>
 					<Grid item xs={6}>
+						<Typography component="p">
+							To use a controller, either select it from the list below or
+							connect it to your device and then press any button on it.
+						</Typography>
 						<Autocomplete
+							className={classes.inputMethodSelect}
 							id="input-method"
 							openOnFocus
 							disableClearable
@@ -282,23 +290,29 @@ class PlayGame extends React.Component<any, any> {
 			{/* TODO Use Controller from https://github.com/nuiofrd/switch-remoteplay/tree/master/switch-rp-client/src */}
 
 			<div className={classes.controller}>
-				<Grid container>
-					<Grid className={classes.leftButtons} item container direction="column" xs={4}>
-						<Grid item>L: Q, ZL: Shift+Q</Grid>
-						<Grid item>-: Z</Grid>
-						<Grid item>Left Control Stick: WASD</Grid>
-						<Grid item>Arrows: Shift+WASD</Grid>
-						<Grid item>Capture: C</Grid>
-					</Grid>
-					<Grid item container direction="column" xs></Grid>
-					<Grid className={classes.rightButtons} item container direction="column" xs={4}>
-						<Grid item>R: E, ZR: Shift+E</Grid>
-						<Grid item>+: X</Grid>
-						<Grid item>X: ▲, Y: ◀, B:▼, A:▶</Grid>
-						<Grid item>Right Stick: Shift+▲◀▼▶</Grid>
-						<Grid item>Home: V</Grid>
-					</Grid>
-				</Grid>
+				{this.state.inputMethod.getName() === 'Keyboard' &&
+					<div>
+						<Typography component="p">
+							Keyboard Controls
+						</Typography>
+						<Grid container>
+							<Grid className={classes.leftButtons} item container direction="column" xs={4}>
+								<Grid item>L: Q, ZL: Shift+Q</Grid>
+								<Grid item>-: Z</Grid>
+								<Grid item>Left Control Stick: WASD</Grid>
+								<Grid item>Arrows: Shift+WASD</Grid>
+								<Grid item>Capture: C</Grid>
+							</Grid>
+							<Grid item container direction="column" xs></Grid>
+							<Grid className={classes.rightButtons} item container direction="column" xs={4}>
+								<Grid item>R: E, ZR: Shift+E</Grid>
+								<Grid item>+: X</Grid>
+								<Grid item>X: ▲, Y: ◀, B:▼, A:▶</Grid>
+								<Grid item>Right Stick: Shift+▲◀▼▶</Grid>
+								<Grid item>Home: V</Grid>
+							</Grid>
+						</Grid>
+					</div>}
 
 				<img width="941px" height="800px"
 					src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
