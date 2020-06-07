@@ -14,6 +14,13 @@ import KeyboardBinding from '../key-binding/KeyboardBinding'
 
 // Can take a Theme as input.
 const styles = () => createStyles({
+	connectionSection: {
+		minHeight: 120,
+	},
+	serverAddressInput: {
+		width: 250,
+		maxWidth: '100%'
+	},
 	controller: {
 		marginTop: '10px',
 	},
@@ -37,9 +44,13 @@ const styles = () => createStyles({
 		maxHeight: '100%',
 	},
 	inputMethodSelect: {
-		paddingTop: '10px',
+		paddingTop: 20,
+		width: 400,
+		maxWidth: '100%',
 	},
 })
+
+const setupMixedContent = " You may have to enable \"mixed content\" or \"insecure content\" for this connection in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https). Warning! This is insecure."
 
 class PlayGame extends React.Component<any, any> {
 	constructor(props: Readonly<any>) {
@@ -181,8 +192,8 @@ class PlayGame extends React.Component<any, any> {
 			this.onDisconnect()
 			return
 		}
-		const address = this.state.serverAddress
-		const status = `Attempting to connect to "${address}"...`
+		const address: string = this.state.serverAddress
+		const status = `Attempting to connect to "${address}"...${!address.startsWith('https://') ? setupMixedContent : ""}`
 		this.updateConnectionStatus(status)
 		const socket = io(address)
 		this.setState({
@@ -247,46 +258,43 @@ class PlayGame extends React.Component<any, any> {
 		const { classes } = this.props
 
 		return (<Container>
-			<div>
-				<Grid container spacing={3}>
-					<Grid item xs={12} sm={6}>
-						<TextField label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
-						<Button variant="contained" onClick={this.toggleConnect}
-							style={{ backgroundColor: this.state.socket ? red[500] : green[500] }}>
-							{this.state.connectButtonText}
-						</Button>
-						<Typography component="p">
-							{this.state.connectionStatus}
-						</Typography>
-					</Grid>
-					<Grid item xs={12} sm={6}>
-						<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
-							style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
-							{this.state.sendCommandsButtonText}
-						</Button>
-						<Typography component="p">{this.state.sendModeStatus}</Typography>
-						<Typography component="p">{this.state.status}</Typography>
-					</Grid>
-					<Grid item xs={6}>
-						<Typography component="p">
-							To use a controller, either select it from the list below or
-							connect it to your device and then press any button on it.
-						</Typography>
-						<Autocomplete
-							className={classes.inputMethodSelect}
-							id="input-method"
-							openOnFocus
-							disableClearable
-							value={this.state.inputMethod}
-							options={this.state.inputMethodOptions || []}
-							getOptionLabel={(option: any) => option.getName()}
-							onChange={this.handleInputMethodSelection}
-							renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
-						/>
-					</Grid>
+			<Grid className={classes.connectionSection} container spacing={3}>
+				<Grid item xs={12} sm={6}>
+					<TextField className={classes.serverAddressInput} label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
+					<Button variant="contained" onClick={this.toggleConnect}
+						style={{ backgroundColor: this.state.socket ? red[500] : green[500] }}>
+						{this.state.connectButtonText}
+					</Button>
+					<Typography component="p">
+						{this.state.connectionStatus}
+					</Typography>
 				</Grid>
-			</div>
+				<Grid item xs={12} sm={6}>
+					<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
+						style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
+						{this.state.sendCommandsButtonText}
+					</Button>
+					<Typography component="p">{this.state.sendModeStatus}</Typography>
+					<Typography component="p">{this.state.status}</Typography>
+				</Grid>
+			</Grid>
 			{this.renderVideo()}
+
+			<Typography component="p">
+				To use a controller, either select it from the list below or
+				connect it to this device and then press any button on it.
+			</Typography>
+			<Autocomplete
+				className={classes.inputMethodSelect}
+				id="input-method"
+				openOnFocus
+				disableClearable
+				value={this.state.inputMethod}
+				options={this.state.inputMethodOptions || []}
+				getOptionLabel={(option: any) => option.getName()}
+				onChange={this.handleInputMethodSelection}
+				renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
+			/>
 			{/* TODO Use Controller from https://github.com/nuiofrd/switch-remoteplay/tree/master/switch-rp-client/src */}
 
 			<div className={classes.controller}>
