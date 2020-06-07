@@ -56,31 +56,35 @@ async def _main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-r', '--switch_mac_address', type=str, default=None,
 						help="The Switch console's MAC address. Specify this if you've already paired a Switch console to your server device.")
+	parser.add_argument('-c', '--controller_type', type=str, default="PRO_CONTROLLER",
+						help="The type of controller to simulate. Either PRO_CONTROLLER, JOYCON_L, or JOYCON_R.")
+
+	parser.add_argument('--service_port', type=int, default=5000,
+						help="The port that the socket service should use for connections.")
 
 	args = parser.parse_args()
 	switch_mac_address = args.switch_mac_address
+	controller_type = args.controller_type
+	port = args.service_port
 
 	global controller
 	try:
-		start_server()
-		controller = await SwitchController.get_controller(logger, switch_mac_address)
+		start_server(port)
 		# Keep the server running and attempt to reconnect the controller.
 		# There must be a better way to do this but this seems to work fine for now.
 		while True:
-			if not controller.is_connected():
-				logger.info("Attempting to reconnect the controller.")
-				controller = await SwitchController.get_controller(logger, switch_mac_address)
+			if controller is None or not controller.is_connected():
+				logger.info("Attempting to connect the controller.")
+				controller = await SwitchController.get_controller(logger, switch_mac_address,
+																   controller=controller_type)
 			await asyncio.sleep(10)
 	finally:
 		logger.info('Stopping the service...')
 
 
-def start_server():
+def start_server(port):
 	host = '0.0.0.0'
-	# 5000 is the default port.
-	port = 5000
-	# port = 48668
-	logger.info("Socket service running at {}:{}".format(host, port))
+	logger.info("Socket service running at %s:%d", host, port)
 
 	l = asyncio.get_running_loop()
 
