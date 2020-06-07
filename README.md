@@ -20,19 +20,20 @@ You <===> Website <=====> Server <--Bluetooth--> Switch
 Example [video](https://www.youtube.com/watch?v=EIofCEfQA1E).
 
 # Status
-One keyboard layout is supported to map keys on a keyboard to control the control sticks and the keys on a Nintendo Switch.
+One keyboard layout or gaming controller layout is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.
-This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard.
+This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller.
 
 # Requirements
 The host (person setting this up) needs:
-* Nintendo Switch
-* **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch: [joycontrol][joycontrol])
+* A Nintendo Switch
+* **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch via Bluetooth: [joycontrol][joycontrol])
 * (optional) video capture card to see the video (or just have bad quality and lag by pointing your camera at your Switch and use a video chat app)
 
 The client (your friend) needs:
 * A web browser to open the client and send commands
-* A keyboard (support for controllers, touch screens, and a mouse are planned)
+  * You can use the already [hosted client][client] but you may have to enable mixed content for that site in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https).
+* A keyboard or gaming controller
 
 # Plans
 * Support gaming controllers.
@@ -60,4 +61,5 @@ See:
 # Acknowledgements
 A very special thank you to [joycontrol][joycontrol] for the very conveninent and full API and the acknowledgements there as well for so much of the great research into how to communicate with the Switch.
 
+[client]: https://jubuntu.eastus.cloudapp.azure.com
 [joycontrol]: https://github.com/mart1nro/joycontrol
