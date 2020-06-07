@@ -52,17 +52,23 @@ def handle_press(command):
 
 
 async def _main():
-	logger.info("Starting")
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-r', '--switch_mac_address', type=str, default=None,
 						help="The Switch console's MAC address. Specify this if you've already paired a Switch console to your server device.")
 	parser.add_argument('-c', '--controller_type', type=str, default="PRO_CONTROLLER",
-						help="The type of controller to simulate. Either PRO_CONTROLLER, JOYCON_L, or JOYCON_R.")
-
+						help="The type of controller to simulate. Either PRO_CONTROLLER, JOYCON_L, or JOYCON_R. Default: PRO_CONTROLLER.")
 	parser.add_argument('--service_port', type=int, default=5000,
-						help="The port that the socket service should use for connections.")
+						help="The port that the socket service should use for connections.\n Default: 5000.")
+
+	parser.add_argument('--log_level', type=str, default=logging.INFO,
+						help="The log level. Options are Python log level names. Default: INFO.")
 
 	args = parser.parse_args()
+
+	logger.setLevel(args.log_level)
+	SwitchController.configure_log(logger.level)
+
+	logger.info("Starting")
 	switch_mac_address = args.switch_mac_address
 	controller_type = args.controller_type
 	port = args.service_port
@@ -96,7 +102,6 @@ def start_server(port):
 
 
 if __name__ == '__main__':
-	logger.setLevel(logging.INFO)
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(
 		_main()

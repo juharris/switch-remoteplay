@@ -13,9 +13,16 @@ sudo pip3 install -e .
 
 # Start
 ```bash
-# Append '-r <Switch MAC address>' to reconnect to an already paired Switch.
-SECRET_KEY='something random-ish' PYTHONPATH=".:${PYTHONPATH}" sudo python3 switchremoteplay/server.py
+sudo SECRET_KEY='something random-ish' python3 switchremoteplay/server.py
 ```
+Append `-r <Switch MAC address>` to reconnect to an already paired Switch. For example `-r 6E:A3:63:B9:CE:92`.
+
+To see more configuration options, run:
+```bash
+sudo python3 switchremoteplay/server.py --help
+```
+
+You can change the controller type, the port used by the socket service, and the log level.
 
 # API
 The service uses a socket to connect to the client.
