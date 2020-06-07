@@ -18,12 +18,14 @@
 		"react-dom": "^16.13.1",
 		"react-router-dom": "^5.2.0",
 		"react-scripts": "3.4.1",
+		"serve": "^11.3.2",
 		"socket.io-client": "^2.3.0",
 		"typeface-roboto": "^0.0.75",
 		"typescript": "~3.7.2"
 	},
 	"scripts": {
 		"start": "react-scripts start",
+		"start-prod": "serve --single build",		
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
