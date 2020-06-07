@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 install_requires = [
 	'eventlet',
-	# 'joycontrol @ git+ssh://git@github.com/juharris/joycontrol.git@e90499393be4d829015785f7949566d6dc1561ba',
+	'joycontrol @ git+https://git@github.com/mart1nro/joycontrol.git@721646a7ec10231490bcf788b3bdde10d8c2007f',
 	'flask-socketio',
 ]
 
@@ -14,7 +14,7 @@ test_deps = [
 
 setup(
 	name='switch-remoteplay-server',
-	version='0.2.0',
+	version='0.3.0',
 	packages=find_packages(),
 	url='https://github.com/juharris/switch-remoteplay',
 	license='MIT',

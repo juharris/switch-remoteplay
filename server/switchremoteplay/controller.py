@@ -10,19 +10,19 @@ from joycontrol.server import create_hid_server
 
 
 class SwitchController():
-	configured_log = False
-
 	def __init__(self, logger: Logger, controller_state: ControllerState):
 		self._controller_state: ControllerState = controller_state
 		self._logger = logger
 
 	@staticmethod
+	def configure_log(level):
+		log.configure(level, level)
+
+	@staticmethod
 	async def get_controller(logger: Logger, switch_mac_address=None, spi_flash=None, controller='PRO_CONTROLLER',
 							 capture_file=None,
 							 device_id=None):
-		if not SwitchController.configured_log:
-			log.configure(logger.level, logger.level)
-			SwitchController.configured_log = True
+		logger.info("Simulating a %s controller.", controller)
 		if spi_flash:
 			with open(spi_flash, 'rb') as spi_flash_file:
 				spi_flash = FlashMemory(spi_flash_file.read())
@@ -52,6 +52,7 @@ class SwitchController():
 								 "Will try again in %ds.", wait_s)
 				await asyncio.sleep(wait_s)
 
+		logger.info("Simulated %s paired.", controller.name)
 		return SwitchController(logger, controller_state)
 
 	def __del__(self):

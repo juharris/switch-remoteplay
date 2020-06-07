@@ -27,8 +27,8 @@ This is very much a work in progress right now but you can indeed play your Swit
 # Requirements
 The host (person setting this up) needs:
 * A Nintendo Switch
-* **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch via Bluetooth: [joycontrol][joycontrol])
-* (optional) video capture card to see the video (or just have bad quality and lag by pointing your camera at your Switch and use a video chat app)
+* A **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch via Bluetooth: [joycontrol][joycontrol])
+* (optional) A video capture card to see the video (or just have bad quality and lag by pointing your camera at your Switch and use a video chat app)
 
 The client (your friend) needs:
 * A web browser to open the client and send commands
