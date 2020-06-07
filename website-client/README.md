@@ -14,7 +14,7 @@ Development setup:
 yarn install
 yarn start
 ```
-jubuntu.eastus.cloudapp.azure.com
+
 ### Building the Container
 This is mainly if you need to edit the code, otherwise you can use the already published version.
 ```bash
