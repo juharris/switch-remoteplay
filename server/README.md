@@ -1,7 +1,13 @@
 # Server
 
 # Setup
-Follow the setup instructions for [joycontrol][joycontrol].
+This code relies a lot on [joycontrol][joycontrol] for sending commands via Bluetooth to your Switch.
+For information and troubleshooting on pairing controllers: see [joycontrol][joycontrol].
+
+Install dependencies required by [joycontrol][joycontrol]:
+```bash
+sudo apt install python3-dbus libhidapi-hidraw0
+```
 
 For this code, in this server folder:
 
