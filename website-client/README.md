@@ -1,5 +1,9 @@
 # Client
-This client runs as a website and communicates with the service.
+This client runs as a website for you to interact directly with.
+This client communicates with the service (in the server folder).
+
+If you just want to use an already deployed version, then you can find one [here](https://jubuntu.eastus.cloudapp.azure.com/).
+You may have to enable mixed content for that site in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -26,7 +30,7 @@ To run that container:
 docker run --rm -d -p 5000:5000 --name switch-remoteplay-client switch-remoteplay-client:latest
 ```
 
-#### Updateing the Public Image
+#### Updating the Public Image
 You will need permission to push a new image to Docker Hub.
 ```
 docker login
