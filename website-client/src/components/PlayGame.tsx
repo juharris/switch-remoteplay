@@ -11,6 +11,8 @@ import React from 'react'
 import io from 'socket.io-client'
 import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
+import Controller from './Controller/Controller'
+import { ControllerState } from './Controller/ControllerState'
 
 // Can take a Theme as input.
 const styles = () => createStyles({
@@ -47,6 +49,10 @@ const styles = () => createStyles({
 		paddingTop: 20,
 		width: 400,
 		maxWidth: '100%',
+	},
+	urlParamsInfo: {
+		paddingTop: 20,
+		paddingBottom: 10,
 	},
 })
 
@@ -119,7 +125,7 @@ class PlayGame extends React.Component<any, any> {
 		window.addEventListener('gamepaddisconnected', this.handleGamepadDisconnected)
 	}
 
-	private handleGamepadConnected(e: any | GamepadEvent): void {
+	private handleGamepadConnected(e: any | GamepadEventInit): void {
 		console.debug("Gamepad connected at index %d: %s. %d buttons, %d axes.",
 			e.gamepad.index, e.gamepad.id,
 			e.gamepad.buttons.length, e.gamepad.axes.length)
@@ -136,7 +142,7 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private handleGamepadDisconnected(e: any | GamepadEvent): void {
+	private handleGamepadDisconnected(e: any | GamepadEventInit): void {
 		console.debug("Gamepad disconnected at index %d: %s.",
 			e.gamepad.index, e.gamepad.id)
 		if (this.state.inputMethod && this.state.inputMethod.index === e.gamepad.index) {
@@ -215,19 +221,14 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private sendCommand(command: string) {
-		if (!command || !this.state.socket || !this.state.isInSendMode) {
-			console.debug("Not connected but would send:\n%s", command)
-			return
-		}
+	private sendCommand(command: string, controllerState: ControllerState) {
+		// TODO Move after emit.
 		this.setState({
-			status: `Status:  emitting ${command}`
+			controllerState,
 		})
-		this.state.socket.emit('p', command, (data: string) => {
-			this.setState({
-				status: `Status: responded: ${data}`
-			})
-		})
+		if (command && this.state.socket && this.state.isInSendMode) {
+			this.state.socket.emit('p', command)
+		}
 	}
 
 	private toggleSendMode() {
@@ -295,7 +296,6 @@ class PlayGame extends React.Component<any, any> {
 				onChange={this.handleInputMethodSelection}
 				renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
 			/>
-			{/* TODO Use Controller from https://github.com/nuiofrd/switch-remoteplay/tree/master/switch-rp-client/src */}
 
 			<div className={classes.controller}>
 				{this.state.inputMethod.getName() === 'Keyboard' &&
@@ -322,11 +322,12 @@ class PlayGame extends React.Component<any, any> {
 						</Grid>
 					</div>}
 
-				<img width="941px" height="800px"
+				{/* <img width="941px" height="800px"
 					src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
-					alt="Nintendo Switch Controller" />
+					alt="Nintendo Switch Controller" /> */}
+				<Controller controllerState={this.state.controllerState} />
 			</div>
-			<div>
+			<div className={classes.urlParamsInfo}>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
 				<Typography component="p">
 					a: The server address of the host that will send commands to the Switch.
@@ -352,7 +353,9 @@ class PlayGame extends React.Component<any, any> {
 			// The Mixer stream seems to start muted, and there does seem to be a way that works to unmute it by default.
 			const { classes } = this.props
 			return (<div className={classes.mixerDiv}>
-				<iframe className={classes.mixerIframe} title="Mixer Stream" id="mixer-stream" src={`https://mixer.com/embed/player/${this.state.mixerChannel}`}>
+				<iframe className={classes.mixerIframe}
+					allowFullScreen={true}
+					title="Mixer Stream" id="mixer-stream" src={`https://mixer.com/embed/player/${this.state.mixerChannel}?disableLowLatency=0`}>
 				</iframe>
 			</div>)
 		} else {

@@ -1,0 +1,21 @@
+.Button {
+    background-color: #111;
+    color: white;
+    display: flex;
+    border-radius: 50%;
+    height: 4rem;
+    width: 4rem;
+    justify-content: center;
+    align-items: center;
+    text-transform: capitalize;
+    user-select: none;
+}
+
+.Button h1 {
+    text-align: center;
+}
+
+.Pressed {
+    background-color: #999;
+    color: #111;
+}

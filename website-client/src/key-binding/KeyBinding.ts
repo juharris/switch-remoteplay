@@ -1,9 +1,12 @@
+import { ControllerState } from '../components/Controller/ControllerState'
+
 export interface SendCommand {
-	(command: string): void
+	(command: string, controllerState: ControllerState): void
 }
 
 export abstract class KeyBinding {
 	sendCommand: SendCommand
+	controllerState? = new ControllerState()
 
 	constructor(sendCommand: SendCommand) {
 		this.sendCommand = sendCommand
@@ -11,6 +14,13 @@ export abstract class KeyBinding {
 
 	abstract getName(): string
 
-	abstract start(): void
-	abstract stop(): void
+	public start(): void {
+		console.debug(`${this.getName()}: Starting`)
+		this.controllerState = new ControllerState()	
+	}
+
+	public stop(): void {
+		console.debug(`${this.getName()}: Stopping`)		
+		this.controllerState = undefined
+	}
 }

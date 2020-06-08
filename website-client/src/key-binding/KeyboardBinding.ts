@@ -57,7 +57,7 @@ export default class KeyboardBinding extends KeyBinding {
 	}
 
 	start: () => void = () => {
-		console.debug(`${this.getName()}: Starting`)
+		super.start()
 		document.addEventListener('keydown', this.handleKeyDown)
 		document.addEventListener('keyup', this.handleKeyUp)
 
@@ -79,7 +79,7 @@ export default class KeyboardBinding extends KeyBinding {
 	}
 
 	stop(): void {
-		console.debug(`${this.getName()}: Stopping`)
+		super.stop()
 		document.removeEventListener('keydown', this.handleKeyDown)
 		document.removeEventListener('keyup', this.handleKeyUp)
 	}
@@ -134,7 +134,7 @@ export default class KeyboardBinding extends KeyBinding {
 
 		const command = keyMapping[keyName]
 		if (command) {
-			this.sendCommand(command[keyDirection])
+			this.sendCommand(command[keyDirection], this.controllerState!)
 			e.preventDefault()
 		} else if (e.type === 'keydown') {
 			console.debug(`Pressed ${(e as KeyboardEvent).code}.`)
