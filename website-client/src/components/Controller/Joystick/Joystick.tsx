@@ -1,7 +1,7 @@
 import React from 'react'
 import classes from './Joystick.module.css'
 
-const Joystick = (props: any) => {
+const Joystick: React.FunctionComponent<any> = (props: any) => {
 	let classList = classes.Joystick
 	if (props.pressed) classList += " " + classes.Pressed
 	const styles = {

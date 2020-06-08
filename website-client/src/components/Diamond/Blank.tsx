@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Blank = (props: any) => {
+const Blank: React.FunctionComponent = () => {
 	const style = {
 		width: "4rem",
 		height: "4em",

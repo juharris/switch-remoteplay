@@ -4,7 +4,7 @@ import classes from './Diamond.module.css'
 import Button from '../Button/Button'
 import Blank from './Blank'
 
-const Diamond = (props: any) => {
+const Diamond: React.FunctionComponent<any> = (props: any) => {
 	return (
 		<div className={classes.Diamond}>
 			<div>

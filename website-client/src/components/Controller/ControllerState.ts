@@ -1,13 +1,13 @@
 class ButtonState {
-	public isPressed: boolean = false
+	public isPressed = false
 }
 
 class StickState extends ButtonState {
 	/** -1 is left, +1 is right */
-	public horizontalValue: number = 0
+	public horizontalValue = 0
 
 	/** -1 is up, +1 is down */
-	public verticalValue: number = 0
+	public verticalValue = 0
 }
 
 // Member names in here match actions.

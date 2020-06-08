@@ -6,7 +6,7 @@ export interface SendCommand {
 
 export abstract class KeyBinding {
 	sendCommand: SendCommand
-	controllerState? = new ControllerState()
+	controllerState = new ControllerState()
 
 	constructor(sendCommand: SendCommand) {
 		this.sendCommand = sendCommand
@@ -16,11 +16,9 @@ export abstract class KeyBinding {
 
 	public start(): void {
 		console.debug(`${this.getName()}: Starting`)
-		this.controllerState = new ControllerState()	
 	}
 
 	public stop(): void {
-		console.debug(`${this.getName()}: Stopping`)		
-		this.controllerState = undefined
+		console.debug(`${this.getName()}: Stopping`)
 	}
 }

@@ -51,7 +51,7 @@ export default class GamepadBinding extends KeyBinding {
 			const gamepad = gamepads[this.gamepad.index]
 			const command = this.getCommand(gamepad)
 			if (command) {
-				this.sendCommand(command, this.controllerState!)
+				this.sendCommand(command, this.controllerState)
 			}
 			this.gamepad = gamepad
 		}

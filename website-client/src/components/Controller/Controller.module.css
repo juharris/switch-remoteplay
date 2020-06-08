@@ -60,7 +60,7 @@
 
 .Symbol p {
     margin: 0 1rem;
-    color: white;
+    color: #111;
     font-weight: 900;
     font-size: 24px;
     user-select: none;
@@ -72,5 +72,5 @@
 }
 
 .PressedAlt p {
-    color: #111;
+    color: #999;
 }

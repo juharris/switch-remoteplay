@@ -134,7 +134,7 @@ export default class KeyboardBinding extends KeyBinding {
 
 		const command = keyMapping[keyName]
 		if (command) {
-			this.sendCommand(command[keyDirection], this.controllerState!)
+			this.sendCommand(command[keyDirection], this.controllerState)
 			e.preventDefault()
 		} else if (e.type === 'keydown') {
 			console.debug(`Pressed ${(e as KeyboardEvent).code}.`)

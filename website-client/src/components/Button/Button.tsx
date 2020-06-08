@@ -1,7 +1,7 @@
 import React from 'react'
 import classes from './Button.module.css'
 
-const Button = (props: any) => {
+const Button: React.FunctionComponent<any> = (props: any) => {
 	let classList = classes.Button
 	if (props.button.pressed) classList += " " + classes.Pressed
 	return (
