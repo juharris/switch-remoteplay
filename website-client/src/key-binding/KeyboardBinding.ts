@@ -138,7 +138,7 @@ export default class KeyboardBinding extends KeyBinding {
 			try {
 				(this.controllerState as any)[command.name].isPressed = keyDirection === 'down'
 			} catch {
-
+				// Ignore.
 			}
 			this.sendCommand(command[keyDirection], this.controllerState)
 			e.preventDefault()

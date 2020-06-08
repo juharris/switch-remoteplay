@@ -31,20 +31,6 @@ const styles = () => createStyles({
 	},
 	rightButtons: {
 	},
-	mixerDiv: {
-		paddingTop: '10px',
-		textAlign: 'center',
-	},
-	mixerIframe: {
-		border: '0px',
-		overflow: 'hidden',
-		/* Normally the Switch has 1080p: 1920x1080 */
-		/* Use low resolution for now since streaming will mainly be low quality for low latency. */
-		width: '960px',
-		height: '540px',
-		maxWidth: '100%',
-		maxHeight: '100%',
-	},
 	inputMethodSelect: {
 		paddingTop: 20,
 		width: 400,
@@ -68,7 +54,6 @@ class PlayGame extends React.Component<any, any> {
 		this.handleGamepadConnected = this.handleGamepadConnected.bind(this)
 		this.handleGamepadDisconnected = this.handleGamepadDisconnected.bind(this)
 		this.onDisconnect = this.onDisconnect.bind(this)
-		this.renderVideo = this.renderVideo.bind(this)
 		this.sendCommand = this.sendCommand.bind(this)
 		this.toggleConnect = this.toggleConnect.bind(this)
 		this.toggleSendMode = this.toggleSendMode.bind(this)
@@ -279,8 +264,6 @@ class PlayGame extends React.Component<any, any> {
 					<Typography component="p">{this.state.status}</Typography>
 				</Grid>
 			</Grid>
-			{/* TODO If the window is big enough, then put the video between the controller. */}
-			{this.renderVideo()}
 
 			<Typography component="p">
 				To use a controller, either select it from the list below or
@@ -322,11 +305,8 @@ class PlayGame extends React.Component<any, any> {
 							</Grid>
 						</Grid>
 					</div>}
-
-				{/* <img width="941px" height="800px"
-					src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
-					alt="Nintendo Switch Controller" /> */}
-				<Controller controllerState={this.state.controllerState} />
+				<Controller controllerState={this.state.controllerState}
+					mixerChannel={this.state.mixerChannel} />
 			</div>
 			<div className={classes.urlParamsInfo}>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
@@ -346,22 +326,6 @@ class PlayGame extends React.Component<any, any> {
 				</Typography>
 			</div>
 		</Container >)
-	}
-
-	private renderVideo(): React.ReactNode {
-		if (this.state.mixerChannel) {
-			// Mixer docs: https://mixer.com/dashboard/channel/customize
-			// The Mixer stream seems to start muted, and there does seem to be a way that works to unmute it by default.
-			const { classes } = this.props
-			return (<div className={classes.mixerDiv}>
-				<iframe className={classes.mixerIframe}
-					allowFullScreen={true}
-					title="Mixer Stream" id="mixer-stream" src={`https://mixer.com/embed/player/${this.state.mixerChannel}?disableLowLatency=0`}>
-				</iframe>
-			</div>)
-		} else {
-			return undefined
-		}
 	}
 }
 

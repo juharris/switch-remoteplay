@@ -1,9 +1,10 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import React from 'react'
 import Diamond from '../Diamond/Diamond'
+import VideoStream from '../VideoStream'
 import cssClasses from './Controller.module.css'
-import Joystick from './Joystick/Joystick'
 import { ControllerState } from './ControllerState'
+import Joystick from './Joystick/Joystick'
 
 const styles = () => createStyles({
 	controller: {
@@ -13,7 +14,7 @@ const styles = () => createStyles({
 	},
 })
 
-class Controller extends React.Component<any, any> {
+class Controller extends React.Component<any> {
 	render(): React.ReactNode {
 		const { classes } = this.props
 		const controllerState: ControllerState = this.props.controllerState || new ControllerState()
@@ -64,15 +65,7 @@ class Controller extends React.Component<any, any> {
 					/>
 				</div>
 				<div className={cssClasses.Middle}>
-					{/* <ConnectController
-						controllerList={this.props.controllerList}
-						activeController={this.props.activeController}
-						setActiveController={this.props.setActiveController}
-						channel={this.props.channel}
-						setChannel={this.props.setChannel}
-						platform={this.props.platform}
-						setPlatform={this.props.setPlatform}
-					/> */}
+					<VideoStream {...this.props} />
 				</div>
 				<div>
 					<div>

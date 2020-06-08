@@ -1,15 +1,16 @@
+/* TODO Use lower-case for the names. */
+
 .Left {
     display: flex;
     align-items: center;
 }
 
 .Middle {
-    /* background-color: #111; */
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    flex-grow: 1;
-    max-width: 23rem;
+    /* Some of the settings were used before the video was in between the controls. */
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* flex-grow: 1; */
+    min-width: 23rem;
 }
 
 .Right {
@@ -27,7 +28,7 @@
 .LargeButton p {
     color: white;
     font-weight: 700;
-    font-size: 32px;
+    font-size: 30px;
     margin: 0;
     user-select: none;
 }
