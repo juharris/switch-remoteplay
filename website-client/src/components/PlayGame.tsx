@@ -207,13 +207,12 @@ class PlayGame extends React.Component<any, any> {
 	}
 
 	private sendCommand(command: string, controllerState: ControllerState) {
-		// TODO Move after emit.
-		this.setState({
-			controllerState,
-		})
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}
+		this.setState({
+			controllerState,
+		})
 	}
 
 	private toggleSendMode() {
