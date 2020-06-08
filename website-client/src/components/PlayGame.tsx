@@ -279,6 +279,7 @@ class PlayGame extends React.Component<any, any> {
 					<Typography component="p">{this.state.status}</Typography>
 				</Grid>
 			</Grid>
+			{/* TODO If the window is big enough, then put the video between the controller. */}
 			{this.renderVideo()}
 
 			<Typography component="p">

@@ -122,7 +122,7 @@ export default class KeyboardBinding extends KeyBinding {
 	// }
 
 	private handleKey(e: KeyboardEvent | MouseEvent, keyName: string, keyDirection: string) {
-		let keyMapping: any = this.keyMap
+		let keyMapping = this.keyMap
 
 		if (keyName in keyMapping) {
 			keyMapping[keyName].isDown = keyDirection === 'down'
@@ -134,6 +134,12 @@ export default class KeyboardBinding extends KeyBinding {
 
 		const command = keyMapping[keyName]
 		if (command) {
+			// TODO Show when sticks moves.
+			try {
+				(this.controllerState as any)[command.name].isPressed = keyDirection === 'down'
+			} catch {
+
+			}
 			this.sendCommand(command[keyDirection], this.controllerState)
 			e.preventDefault()
 		} else if (e.type === 'keydown') {

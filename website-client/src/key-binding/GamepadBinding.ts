@@ -46,16 +46,22 @@ export default class GamepadBinding extends KeyBinding {
 	}
 
 	loop(): void {
-		const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : [])
-		if (this.gamepad.index < gamepads.length) {
-			const gamepad = gamepads[this.gamepad.index]
-			const command = this.getCommand(gamepad)
-			if (command) {
-				this.sendCommand(command, this.controllerState)
+		try {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : [])
+			if (this.gamepad.index < gamepads.length) {
+				const gamepad = gamepads[this.gamepad.index]
+				const command = this.getCommand(gamepad)
+				if (command) {
+					this.sendCommand(command, this.controllerState)
+				}
+				this.gamepad = gamepad
 			}
-			this.gamepad = gamepad
+			this.animationRequest = requestAnimationFrame(this.loop)
+		} catch (err) {
+			// Sometimes a gamepad disconnecting can cause an error.
+			console.warn(err)
+			this.stop()
 		}
-		this.animationRequest = requestAnimationFrame(this.loop)
 	}
 
 	getCommand(gamepad: Gamepad): string {
