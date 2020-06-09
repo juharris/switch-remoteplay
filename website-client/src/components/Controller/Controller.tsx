@@ -65,7 +65,7 @@ class Controller extends React.Component<any> {
 					/>
 				</div>
 				<div className={cssClasses.Middle}>
-					<VideoStream {...this.props} />
+					<VideoStream {...this.props.videoStreamProps} />
 				</div>
 				<div>
 					<div>

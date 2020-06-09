@@ -6,22 +6,26 @@ const centerStick = 'center'
 export default {
 	// Left Stick
 	leftStickFullLeft: {
-		name: 'leftStickFullLeft',
+		name: 'leftStick',
+		dirName: 'left',
 		down: `s l h ${minStick}`,
 		up: `s l h ${centerStick}`,
 	},
 	leftStickFullRight: {
-		name: 'leftStickFullRight',
+		name: 'leftStick',
+		dirName: 'right',
 		down: `s l h ${maxStick}`,
 		up: `s l h ${centerStick}`,
 	},
 	leftStickFullUp: {
-		name: 'leftStickFullUp',
+		name: 'leftStick',
+		dirName: 'up',
 		down: `s l v ${maxStick}`,
 		up: `s l v ${centerStick}`,
 	},
 	leftStickFullDown: {
-		name: 'leftStickFullDown',
+		name: 'leftStick',
+		dirName: 'down',
 		down: `s l v ${minStick}`,
 		up: `s l v ${centerStick}`,
 	},
@@ -33,22 +37,26 @@ export default {
 
 	// Right Stick
 	rightStickFullLeft: {
-		name: 'rightStickFullLeft',
+		name: 'rightStick',
+		dirName: 'left',
 		down: `s r h ${minStick}`,
 		up: `s r h ${centerStick}`,
 	},
 	rightStickFullRight: {
-		name: 'rightStickFullRight',
+		name: 'rightStick',
+		dirName: 'right',
 		down: `s r h ${maxStick}`,
 		up: `s r h ${centerStick}`,
 	},
 	rightStickFullUp: {
-		name: 'rightStickFullUp',
+		name: 'rightStick',
+		dirName: 'up',
 		down: `s r v ${maxStick}`,
 		up: `s r v ${centerStick}`,
 	},
 	rightStickFullDown: {
-		name: 'rightStickFullDown',
+		name: 'rightStick',
+		dirName: 'down',
 		down: `s r v ${minStick}`,
 		up: `s r v ${centerStick}`,
 	},

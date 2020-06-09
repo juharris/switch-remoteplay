@@ -3,7 +3,11 @@ import classes from './Joystick.module.css'
 
 const Joystick: React.FunctionComponent<any> = (props: any) => {
 	let classList = classes.Joystick
-	if (props.pressed) classList += " " + classes.Pressed
+	const movedThreshold = 0.1
+	if (props.pressed || Math.abs(props.x) > movedThreshold || Math.abs(props.y) > movedThreshold) {
+		classList += " " + classes.Pressed
+	}
+
 	const styles = {
 		transform: `translate(${props.x * 15}px, ${props.y * 15}px)`,
 	}

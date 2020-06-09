@@ -103,7 +103,9 @@ class PlayGame extends React.Component<any, any> {
 			if (connectNow) {
 				this.toggleConnect()
 			}
-			this.checkSendMode()
+			if (isInSendMode) {
+				this.checkSendMode()
+			}
 		})
 
 		window.addEventListener('gamepadconnected', this.handleGamepadConnected)
@@ -305,7 +307,9 @@ class PlayGame extends React.Component<any, any> {
 						</Grid>
 					</div>}
 				<Controller controllerState={this.state.controllerState}
-					mixerChannel={this.state.mixerChannel} />
+					videoStreamProps={{
+						mixerChannel: this.state.mixerChannel,
+					}} />
 			</div>
 			<div className={classes.urlParamsInfo}>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
