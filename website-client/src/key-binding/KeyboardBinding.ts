@@ -57,7 +57,7 @@ export default class KeyboardBinding extends KeyBinding {
 	}
 
 	start: () => void = () => {
-		console.debug(`${this.getName()}: Starting`)
+		super.start()
 		document.addEventListener('keydown', this.handleKeyDown)
 		document.addEventListener('keyup', this.handleKeyUp)
 
@@ -79,7 +79,7 @@ export default class KeyboardBinding extends KeyBinding {
 	}
 
 	stop(): void {
-		console.debug(`${this.getName()}: Stopping`)
+		super.stop()
 		document.removeEventListener('keydown', this.handleKeyDown)
 		document.removeEventListener('keyup', this.handleKeyUp)
 	}
@@ -122,7 +122,7 @@ export default class KeyboardBinding extends KeyBinding {
 	// }
 
 	private handleKey(e: KeyboardEvent | MouseEvent, keyName: string, keyDirection: string) {
-		let keyMapping: any = this.keyMap
+		let keyMapping = this.keyMap
 
 		if (keyName in keyMapping) {
 			keyMapping[keyName].isDown = keyDirection === 'down'
@@ -132,9 +132,36 @@ export default class KeyboardBinding extends KeyBinding {
 			keyMapping = this.shiftKeyMap
 		}
 
-		const command = keyMapping[keyName]
-		if (command) {
-			this.sendCommand(command[keyDirection])
+		const action = keyMapping[keyName]
+		if (action) {
+			const controllerState = this.controllerState as any;
+
+			if (action.dirName) {
+				const stick = controllerState[action.name]
+				if (stick) {
+					switch (action.dirName) {
+						case 'left':
+							stick.horizontalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'right':
+							stick.horizontalValue = keyDirection === 'down' ? +1 : 0
+							break
+						case 'up':
+							stick.verticalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'down':
+							stick.verticalValue = keyDirection === 'down' ? +1 : 0
+							break
+					}
+				}
+			} else {
+				const button = controllerState[action.name]
+
+				if (button) {
+					button.isPressed = keyDirection === 'down'
+				}
+			}
+			this.sendCommand(action[keyDirection], this.controllerState)
 			e.preventDefault()
 		} else if (e.type === 'keydown') {
 			console.debug(`Pressed ${(e as KeyboardEvent).code}.`)

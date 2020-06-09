@@ -17,7 +17,9 @@ You <===> Website <=====> Server <--Bluetooth--> Switch
             '------------------------------ Streaming Server
 ```                                           
 
-Example [video](https://www.youtube.com/watch?v=EIofCEfQA1E).
+Example [video](https://youtu.be/EIofCEfQA1E) of someone playing my Switch from another city.
+
+Example [video](https://youtu.be/TJlWK2HU8Do) of me using an Xbox controller (that does not have Bluetooth) to play my Switch.
 
 # Status
 One keyboard layout or gaming controller layout is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.

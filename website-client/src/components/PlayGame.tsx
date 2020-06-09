@@ -11,9 +11,18 @@ import React from 'react'
 import io from 'socket.io-client'
 import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
+import Controller from './Controller/Controller'
+import { ControllerState } from './Controller/ControllerState'
 
 // Can take a Theme as input.
 const styles = () => createStyles({
+	connectionSection: {
+		minHeight: 120,
+	},
+	serverAddressInput: {
+		width: 250,
+		maxWidth: '100%'
+	},
 	controller: {
 		marginTop: '10px',
 	},
@@ -22,24 +31,18 @@ const styles = () => createStyles({
 	},
 	rightButtons: {
 	},
-	mixerDiv: {
-		paddingTop: '10px',
-		textAlign: 'center',
-	},
-	mixerIframe: {
-		border: '0px',
-		overflow: 'hidden',
-		/* Normally the Switch has 1080p: 1920x1080 */
-		/* Use low resolution for now since streaming will mainly be low quality for low latency. */
-		width: '960px',
-		height: '540px',
-		maxWidth: '100%',
-		maxHeight: '100%',
-	},
 	inputMethodSelect: {
-		paddingTop: '10px',
+		paddingTop: 20,
+		width: 400,
+		maxWidth: '100%',
+	},
+	urlParamsInfo: {
+		paddingTop: 20,
+		paddingBottom: 10,
 	},
 })
+
+const setupMixedContent = " You may have to enable \"mixed content\" or \"insecure content\" for this connection in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https). Warning! This is insecure."
 
 class PlayGame extends React.Component<any, any> {
 	constructor(props: Readonly<any>) {
@@ -51,7 +54,6 @@ class PlayGame extends React.Component<any, any> {
 		this.handleGamepadConnected = this.handleGamepadConnected.bind(this)
 		this.handleGamepadDisconnected = this.handleGamepadDisconnected.bind(this)
 		this.onDisconnect = this.onDisconnect.bind(this)
-		this.renderVideo = this.renderVideo.bind(this)
 		this.sendCommand = this.sendCommand.bind(this)
 		this.toggleConnect = this.toggleConnect.bind(this)
 		this.toggleSendMode = this.toggleSendMode.bind(this)
@@ -101,14 +103,16 @@ class PlayGame extends React.Component<any, any> {
 			if (connectNow) {
 				this.toggleConnect()
 			}
-			this.checkSendMode()
+			if (isInSendMode) {
+				this.checkSendMode()
+			}
 		})
 
 		window.addEventListener('gamepadconnected', this.handleGamepadConnected)
 		window.addEventListener('gamepaddisconnected', this.handleGamepadDisconnected)
 	}
 
-	private handleGamepadConnected(e: any | GamepadEvent): void {
+	private handleGamepadConnected(e: any | GamepadEventInit): void {
 		console.debug("Gamepad connected at index %d: %s. %d buttons, %d axes.",
 			e.gamepad.index, e.gamepad.id,
 			e.gamepad.buttons.length, e.gamepad.axes.length)
@@ -125,7 +129,7 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private handleGamepadDisconnected(e: any | GamepadEvent): void {
+	private handleGamepadDisconnected(e: any | GamepadEventInit): void {
 		console.debug("Gamepad disconnected at index %d: %s.",
 			e.gamepad.index, e.gamepad.id)
 		if (this.state.inputMethod && this.state.inputMethod.index === e.gamepad.index) {
@@ -181,8 +185,8 @@ class PlayGame extends React.Component<any, any> {
 			this.onDisconnect()
 			return
 		}
-		const address = this.state.serverAddress
-		const status = `Attempting to connect to "${address}"...`
+		const address: string = this.state.serverAddress
+		const status = `Attempting to connect to "${address}"...${!address.startsWith('https://') ? setupMixedContent : ""}`
 		this.updateConnectionStatus(status)
 		const socket = io(address)
 		this.setState({
@@ -204,18 +208,12 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private sendCommand(command: string) {
-		if (!command || !this.state.socket || !this.state.isInSendMode) {
-			console.debug("Not connected but would send:\n%s", command)
-			return
+	private sendCommand(command: string, controllerState: ControllerState) {
+		if (command && this.state.socket && this.state.isInSendMode) {
+			this.state.socket.emit('p', command)
 		}
 		this.setState({
-			status: `Status:  emitting ${command}`
-		})
-		this.state.socket.emit('p', command, (data: string) => {
-			this.setState({
-				status: `Status: responded: ${data}`
-			})
+			controllerState,
 		})
 	}
 
@@ -247,47 +245,42 @@ class PlayGame extends React.Component<any, any> {
 		const { classes } = this.props
 
 		return (<Container>
-			<div>
-				<Grid container spacing={3}>
-					<Grid item xs={12} sm={6}>
-						<TextField label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
-						<Button variant="contained" onClick={this.toggleConnect}
-							style={{ backgroundColor: this.state.socket ? red[500] : green[500] }}>
-							{this.state.connectButtonText}
-						</Button>
-						<Typography component="p">
-							{this.state.connectionStatus}
-						</Typography>
-					</Grid>
-					<Grid item xs={12} sm={6}>
-						<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
-							style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
-							{this.state.sendCommandsButtonText}
-						</Button>
-						<Typography component="p">{this.state.sendModeStatus}</Typography>
-						<Typography component="p">{this.state.status}</Typography>
-					</Grid>
-					<Grid item xs={6}>
-						<Typography component="p">
-							To use a controller, either select it from the list below or
-							connect it to your device and then press any button on it.
-						</Typography>
-						<Autocomplete
-							className={classes.inputMethodSelect}
-							id="input-method"
-							openOnFocus
-							disableClearable
-							value={this.state.inputMethod}
-							options={this.state.inputMethodOptions || []}
-							getOptionLabel={(option: any) => option.getName()}
-							onChange={this.handleInputMethodSelection}
-							renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
-						/>
-					</Grid>
+			<Grid className={classes.connectionSection} container spacing={3}>
+				<Grid item xs={12} sm={6}>
+					<TextField className={classes.serverAddressInput} label="Server Address" name="serverAddress" value={this.state.serverAddress} onChange={this.handleChange} />
+					<Button variant="contained" onClick={this.toggleConnect}
+						style={{ backgroundColor: this.state.socket ? red[500] : green[500] }}>
+						{this.state.connectButtonText}
+					</Button>
+					<Typography component="p">
+						{this.state.connectionStatus}
+					</Typography>
 				</Grid>
-			</div>
-			{this.renderVideo()}
-			{/* TODO Use Controller from https://github.com/nuiofrd/switch-remoteplay/tree/master/switch-rp-client/src */}
+				<Grid item xs={12} sm={6}>
+					<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
+						style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
+						{this.state.sendCommandsButtonText}
+					</Button>
+					<Typography component="p">{this.state.sendModeStatus}</Typography>
+					<Typography component="p">{this.state.status}</Typography>
+				</Grid>
+			</Grid>
+
+			<Typography component="p">
+				To use a controller, either select it from the list below or
+				connect it to this device and then press any button on it.
+			</Typography>
+			<Autocomplete
+				className={classes.inputMethodSelect}
+				id="input-method"
+				openOnFocus
+				disableClearable
+				value={this.state.inputMethod}
+				options={this.state.inputMethodOptions || []}
+				getOptionLabel={(option: any) => option.getName()}
+				onChange={this.handleInputMethodSelection}
+				renderInput={(params) => <TextField {...params} label="Input Method" variant="outlined" />}
+			/>
 
 			<div className={classes.controller}>
 				{this.state.inputMethod.getName() === 'Keyboard' &&
@@ -313,12 +306,12 @@ class PlayGame extends React.Component<any, any> {
 							</Grid>
 						</Grid>
 					</div>}
-
-				<img width="941px" height="800px"
-					src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo_Switch_Joy-Con_Grip_Controller.png"
-					alt="Nintendo Switch Controller" />
+				<Controller controllerState={this.state.controllerState}
+					videoStreamProps={{
+						mixerChannel: this.state.mixerChannel,
+					}} />
 			</div>
-			<div>
+			<div className={classes.urlParamsInfo}>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
 				<Typography component="p">
 					a: The server address of the host that will send commands to the Switch.
@@ -336,20 +329,6 @@ class PlayGame extends React.Component<any, any> {
 				</Typography>
 			</div>
 		</Container >)
-	}
-
-	private renderVideo(): React.ReactNode {
-		if (this.state.mixerChannel) {
-			// Mixer docs: https://mixer.com/dashboard/channel/customize
-			// The Mixer stream seems to start muted, and there does seem to be a way that works to unmute it by default.
-			const { classes } = this.props
-			return (<div className={classes.mixerDiv}>
-				<iframe className={classes.mixerIframe} title="Mixer Stream" id="mixer-stream" src={`https://mixer.com/embed/player/${this.state.mixerChannel}`}>
-				</iframe>
-			</div>)
-		} else {
-			return undefined
-		}
 	}
 }
 

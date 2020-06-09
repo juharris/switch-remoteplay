@@ -18,8 +18,8 @@ export default class GamepadBinding extends KeyBinding {
 		actions.zr,
 		actions.minus,
 		actions.plus,
-		actions.l_stick,
-		actions.r_stick,
+		actions.leftStick,
+		actions.rightStick,
 		actions.arrowUp,
 		actions.arrowDown,
 		actions.arrowLeft,
@@ -29,10 +29,10 @@ export default class GamepadBinding extends KeyBinding {
 
 	axisDeltaThreshold = 0.01
 	axisToAction = [
-		's l h ',
-		's l v ',
-		's r h ',
-		's r v ',
+		{ name: 'leftStick', dirName: 'horizontalValue', command: 's l h ', },
+		{ name: 'leftStick', dirName: 'verticalValue', command: 's l v ', },
+		{ name: 'rightStick', dirName: 'horizontalValue', command: 's r h ', },
+		{ name: 'rightStick', dirName: 'verticalValue', command: 's r v ', },
 	]
 
 	gamepad: Gamepad
@@ -46,16 +46,22 @@ export default class GamepadBinding extends KeyBinding {
 	}
 
 	loop(): void {
-		const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : [])
-		if (this.gamepad.index < gamepads.length) {
-			const gamepad = gamepads[this.gamepad.index]
-			const command = this.getCommand(gamepad)
-			if (command) {
-				this.sendCommand(command)
+		try {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads : [])
+			if (this.gamepad.index < gamepads.length) {
+				const gamepad = gamepads[this.gamepad.index]
+				const command = this.getCommand(gamepad)
+				if (command) {
+					this.sendCommand(command, this.controllerState)
+				}
+				this.gamepad = gamepad
 			}
-			this.gamepad = gamepad
+			this.animationRequest = requestAnimationFrame(this.loop)
+		} catch (err) {
+			// Sometimes a gamepad disconnecting can cause an error.
+			console.warn(err)
+			this.stop()
 		}
-		this.animationRequest = requestAnimationFrame(this.loop)
 	}
 
 	getCommand(gamepad: Gamepad): string {
@@ -64,13 +70,17 @@ export default class GamepadBinding extends KeyBinding {
 			const button = gamepad.buttons[i]
 			const isPressed = button.pressed || button.value > this.buttonValueThreshold
 			if (isPressed !== this.gamepad.buttons[i].pressed) {
-				commands.push(isPressed ? this.buttonToAction[i].down : this.buttonToAction[i].up)
+				const action = this.buttonToAction[i]
+				commands.push(isPressed ? action.down : action.up);
+				(this.controllerState as any)[action.name].isPressed = isPressed
 			}
 		}
 		for (let i = 0; i < gamepad.axes.length && i < this.axisToAction.length; ++i) {
 			const axisValue = gamepad.axes[i]
 			if (Math.abs(axisValue - this.gamepad.axes[i]) > this.axisDeltaThreshold) {
-				commands.push(this.axisToAction[i] + axisValue.toFixed(2))
+				const action = this.axisToAction[i]
+				commands.push(action.command + axisValue.toFixed(2));
+				(this.controllerState as any)[action.name][action.dirName] = axisValue
 			}
 		}
 		return commands.join('&')
@@ -81,12 +91,12 @@ export default class GamepadBinding extends KeyBinding {
 	}
 
 	start(): void {
-		console.debug(`${this.getName()}: Starting`)
+		super.start()
 		this.loop()
 	}
 
 	stop(): void {
-		console.debug(`${this.getName()}: Stopping`)
+		super.stop()
 		if (this.animationRequest !== undefined) {
 			cancelAnimationFrame(this.animationRequest)
 		}
