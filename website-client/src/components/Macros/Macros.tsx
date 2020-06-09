@@ -1,12 +1,11 @@
-import { createStyles, withStyles } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import React from 'react';
-import { SendCommand } from '../../key-binding/KeyBinding';
-import { ControllerState } from '../Controller/ControllerState';
-import MacroRecorder from './MacroRecorder';
+import { createStyles, withStyles } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import Tooltip from '@material-ui/core/Tooltip'
+import Typography from '@material-ui/core/Typography'
+import React from 'react'
+import { SendCommand } from '../../key-binding/KeyBinding'
+import MacroRecorder from './MacroRecorder'
 
 const styles = () => createStyles({
 })
@@ -39,7 +38,7 @@ class Macros extends React.Component<{
 	}
 
 	async sleep(sleepMillis: number) {
-		return new Promise(resolve => setTimeout(resolve, sleepMillis));
+		return new Promise(resolve => setTimeout(resolve, sleepMillis))
 	}
 
 	async playLastRecordedMacro(): Promise<void> {
@@ -48,8 +47,7 @@ class Macros extends React.Component<{
 			const m = /wait (\d+)/.exec(command)
 			if (m) {
 				const sleepMillis = parseInt(m[1])
-				if (sleepMillis > 100) {
-					const s = Date.now()
+				if (sleepMillis > 5) {
 					await this.sleep(sleepMillis)
 				}
 			} else {
