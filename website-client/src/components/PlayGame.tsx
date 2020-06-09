@@ -13,6 +13,8 @@ import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
 import Controller from './Controller/Controller'
 import { ControllerState } from './Controller/ControllerState'
+import MacroRecorder from './Macros/MacroRecorder'
+import Macros from './Macros/Macros'
 
 // Can take a Theme as input.
 const styles = () => createStyles({
@@ -45,6 +47,8 @@ const styles = () => createStyles({
 const setupMixedContent = " You may have to enable \"mixed content\" or \"insecure content\" for this connection in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https). Warning! This is insecure."
 
 class PlayGame extends React.Component<any, any> {
+	macroRecorder = new MacroRecorder()
+
 	constructor(props: Readonly<any>) {
 		super(props)
 
@@ -215,6 +219,11 @@ class PlayGame extends React.Component<any, any> {
 		this.setState({
 			controllerState,
 		})
+		// TODO Find a more compact way to store controller state changes.
+		// Maybe they shouldn't be stored at all and we can just re-parse the command.
+		// That would save weird logic in other places but still keep redundancies trying to make a compact command but they rebuilding it.
+		// Although the rebuilding can be limited to be doing just when saving a macro.
+		this.macroRecorder.add(command, JSON.parse(JSON.stringify(controllerState)))
 	}
 
 	private toggleSendMode() {
@@ -311,6 +320,7 @@ class PlayGame extends React.Component<any, any> {
 						mixerChannel: this.state.mixerChannel,
 					}} />
 			</div>
+			<Macros macroRecorder={this.macroRecorder} sendCommand={this.sendCommand} />
 			<div className={classes.urlParamsInfo}>
 				<Typography variant="h3" >URL Parameters for this page</Typography>
 				<Typography component="p">

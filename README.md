@@ -17,14 +17,20 @@ You <===> Website <=====> Server <--Bluetooth--> Switch
             '------------------------------ Streaming Server
 ```                                           
 
-Example [video](https://youtu.be/EIofCEfQA1E) of someone playing my Switch from another city.
+Example [video](https://youtu.be/EIofCEfQA1E) of someone playing my Switch **from another city**.
 
-Example [video](https://youtu.be/TJlWK2HU8Do) of me using an Xbox controller (that does not have Bluetooth) to play my Switch.
+Example [video](https://youtu.be/TJlWK2HU8Do) of me using an **Xbox controller (that does not have Bluetooth)** to play my Switch.
+
+Example [video](https://youtu.be/viv-B_A-A2o) of recording and running a **macro**.
 
 # Status
 One keyboard layout or gaming controller layout is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.
 This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller.
+
+You can record and run **macros**.
+You do not need your Switch's video going through your PC to record and run macros.
+Just setting up the server to send commands via Bluetooth is enough.
 
 # Requirements
 The host (person setting this up) needs:
@@ -38,9 +44,8 @@ The client (your friend) needs:
 * A keyboard or gaming controller
 
 # Plans
-* Support gaming controllers.
 * Support custom key bindings.
-* **Support recording and running macros**.
+* Improve macro support: naming, sharing, selecting, editing, etc.
 * Default layout options for common controllers.
 * Default key binding options for keyboard/mouse for certain games.
 * Loadable and exportable key binding configurations.
