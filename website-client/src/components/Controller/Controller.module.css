@@ -1,16 +1,16 @@
 /* TODO Use lower-case for the names. */
 
 .Left {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .Middle {
-    /* Some of the settings were used before the video was in between the controls. */
-    /* display: flex; */
-    /* flex-direction: column; */
-    /* flex-grow: 1; */
-    min-width: 23rem;
+	/* Some of the settings were used before the video was in between the controls. */
+	/* display: flex; */
+	/* flex-direction: column; */
+	/* flex-grow: 1; */
+	min-width: 23rem;
 }
 
 .Right {
@@ -18,60 +18,80 @@
 }
 
 .LargeButton {
-    background-color: #111;
-    margin: 1rem;
-    border-radius: 10%;
-    display: flex;
-    justify-content: center;
+	background-color: #111;
+	margin: 1rem;
+	border-radius: 10%;
+	display: flex;
+	justify-content: center;
 }
 
 .LargeButton p {
-    color: white;
-    font-weight: 700;
-    font-size: 30px;
-    margin: 0;
-    user-select: none;
+	color: white;
+	font-weight: 700;
+	font-size: 30px;
+	margin: 0;
+	user-select: none;
 }
 
 .SmallButton {
-    background-color: #111;
-    margin: 0;
-    border-radius: 10%;
-    display: flex;
-    justify-content: center;
-    flex-grow: 1;
+	background-color: #111;
+	margin: 0;
+	border-radius: 10%;
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
 }
 
 .SmallButton p {
-    color: white;
-    font-weight: 700;
-    font-size: 20px;
-    margin: 0;
-    user-select: none;
+	color: white;
+	font-weight: 700;
+	font-size: 20px;
+	margin: 0;
+	user-select: none;
 }
 
 .Row {
-    display: flex;
-    padding: 0 1rem 2rem
+	display: flex;
+	padding: 0 1rem 2rem
 }
 
 .Symbol {
-    margin: 0;
+	margin: 0;
 }
 
 .Symbol p {
-    margin: 0 1rem;
-    color: #111;
-    font-weight: 900;
-    font-size: 24px;
-    user-select: none;
+	margin: 0 1rem;
+	color: #111;
+	font-weight: 900;
+	font-size: 32px;
+	user-select: none;
 }
 
 .Pressed {
-    background-color: #999;
-    color: #111;
+	background-color: #999;
+	color: #111;
 }
 
 .PressedAlt p {
-    color: #999;
+	color: #999;
+}
+
+.capture {
+	position: relative;
+	top: -40px;	
+	margin-left: 140px;
+}
+
+.capture p {
+	font-size: 70px;
+}
+
+.home {
+	position: relative;
+	top: -40px;	
+	margin-left: 40px;
+}
+
+.home p {
+	font-size: 70px;
 }

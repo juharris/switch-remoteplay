@@ -46,7 +46,8 @@ class Controller extends React.Component<any> {
 									(controllerState.minus.isPressed ? " " + cssClasses.PressedAlt : "")
 								}
 							>
-								<p>-</p>
+								{/* Slightly wider than a typical minus. */}
+								<p>–</p>
 							</div>
 						</div>
 					</div>
@@ -63,6 +64,14 @@ class Controller extends React.Component<any> {
 							{ symbol: "◀", pressed: controllerState.arrowLeft.isPressed },
 						]}
 					/>
+					<div
+						className={
+							cssClasses.Symbol + " " + cssClasses.capture +
+							(controllerState.capture.isPressed ? " " + cssClasses.PressedAlt : "")
+						}
+					>
+						<p>■</p>
+					</div>
 				</div>
 				<div className={cssClasses.Middle}>
 					<VideoStream {...this.props.videoStreamProps} />
@@ -109,6 +118,14 @@ class Controller extends React.Component<any> {
 						y={controllerState.rightStick.verticalValue}
 						pressed={controllerState.rightStick.isPressed}
 					/>
+					<div
+						className={
+							cssClasses.Symbol + " " + cssClasses.home +
+							(controllerState.home.isPressed ? " " + cssClasses.PressedAlt : "")
+						}
+					>
+						<p>●</p>
+					</div>
 				</div>
 			</div>
 		)
