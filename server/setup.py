@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 install_requires = [
 	'eventlet',
-	'joycontrol @ git+https://git@github.com/mart1nro/joycontrol.git@721646a7ec10231490bcf788b3bdde10d8c2007f',
+	'joycontrol @ git+https://github.com/mart1nro/joycontrol.git@721646a7ec10231490bcf788b3bdde10d8c2007f',
 	'flask-socketio',
 ]
 

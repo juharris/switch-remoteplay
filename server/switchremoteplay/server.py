@@ -19,6 +19,8 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'asdasdasdf'
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 controller: Optional[SwitchController] = None
+switch_mac_address: Optional[str] = None
+controller_type: Optional[str] = None
 
 
 @socketio.on('connect')
@@ -35,7 +37,7 @@ def disconnect():
 # Handle unnamed events.
 @socketio.on('message')
 def handle_message(message):
-	logger.debug("received message: " + message)
+	logger.debug("received message: \"%s\"", message)
 
 
 # Handle unnamed events with JSON.
@@ -49,6 +51,20 @@ def handle_press(command):
 	logger.debug("Got command: `%s`", command)
 	controller.run(command)
 	return "DONE `{}`".format(command)
+
+
+@socketio.on('reconnectController')
+def handle_reconnect_controller():
+	logger.debug("Reconnecting controller.")
+	# TODO Check permissions.
+	_handle_reset_controller()
+
+
+async def _handle_reset_controller():
+	global controller
+	logger.info("Attempting to connect the controller.")
+	controller = await SwitchController.get_controller(logger, switch_mac_address,
+													   controller=controller_type)
 
 
 async def _main():
@@ -69,6 +85,7 @@ async def _main():
 	SwitchController.configure_log(logger.level)
 
 	logger.info("Starting")
+	global switch_mac_address, controller_type
 	switch_mac_address = args.switch_mac_address
 	controller_type = args.controller_type
 	port = args.service_port
@@ -80,9 +97,7 @@ async def _main():
 		# There must be a better way to do this but this seems to work fine for now.
 		while True:
 			if controller is None or not controller.is_connected():
-				logger.info("Attempting to connect the controller.")
-				controller = await SwitchController.get_controller(logger, switch_mac_address,
-																   controller=controller_type)
+				await _handle_reset_controller()
 			await asyncio.sleep(10)
 	finally:
 		logger.info('Stopping the service...')
