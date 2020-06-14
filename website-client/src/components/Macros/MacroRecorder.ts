@@ -1,9 +1,7 @@
-import { ControllerState } from "../Controller/ControllerState"
-
 export default class MacroRecorder {
 	isRecording = false
 	lastCommandTime = Date.now()
-	currentRecording: { command: string, controllerState: any }[] = []
+	currentRecording: string[] = []
 
 	start(): void {
 		this.currentRecording = []
@@ -17,14 +15,13 @@ export default class MacroRecorder {
 		console.debug(this.currentRecording)
 	}
 
-	add(command: string, controllerState: ControllerState): void {
+	add(command: string): void {
 		if (this.isRecording) {
 			const commandTime = Date.now()
-			this.currentRecording.push({
-				command: `wait ${commandTime - this.lastCommandTime}`,
-				controllerState
-			})
-			this.currentRecording.push({ command, controllerState })
+			this.currentRecording.push(
+				`wait ${commandTime - this.lastCommandTime}`,
+			)
+			this.currentRecording.push(command)
 			this.lastCommandTime = commandTime
 		}
 	}

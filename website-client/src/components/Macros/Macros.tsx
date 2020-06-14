@@ -42,8 +42,7 @@ class Macros extends React.Component<{
 	}
 
 	async playLastRecordedMacro(): Promise<void> {
-		for (const c of this.props.macroRecorder.currentRecording) {
-			const { command, controllerState } = c
+		for (const command of this.props.macroRecorder.currentRecording) {
 			const m = /wait (\d+)/.exec(command)
 			if (m) {
 				const sleepMillis = parseInt(m[1])
@@ -51,7 +50,7 @@ class Macros extends React.Component<{
 					await this.sleep(sleepMillis)
 				}
 			} else {
-				this.props.sendCommand(command, controllerState)
+				this.props.sendCommand(command)
 			}
 		}
 	}
