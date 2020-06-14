@@ -76,7 +76,9 @@ class Macros extends React.Component<{
 				</Grid>
 				<Grid item hidden={!this.state.macroExists}>
 					<Tooltip title="Play the last macro recorded" placement="top" >
-						<Button onClick={this.playLastRecordedMacro}>
+						<Button
+							// The id is not used but it's helpful for writing meta-macros and loops to press in the browser's console.
+							id="play-macro" onClick={this.playLastRecordedMacro}>
 							<span role='img' aria-label="Play the last macro recorded">▶</span>
 						</Button>
 					</Tooltip>

@@ -22,6 +22,8 @@ controller: Optional[SwitchController] = None
 switch_mac_address: Optional[str] = None
 controller_type: Optional[str] = None
 
+reconnect_lock = asyncio.Lock()
+
 
 @socketio.on('connect')
 def connect():
@@ -49,22 +51,33 @@ def handle_json(json):
 @socketio.on('p')
 def handle_press(command):
 	logger.debug("Got command: `%s`", command)
-	controller.run(command)
-	return "DONE `{}`".format(command)
+	if controller is not None:
+		controller.run(command)
+		return "DONE `{}`".format(command)
+	else:
+		logger.debug("Not connected to the Switch.")
 
 
+# This endpoint doesn't actually work to reset the connection.
+# There is an error setting up a new connection:
+# ConnectionRefusedError: [Errno 111] Connection refused
+# joycontrol.protocol connection_made::112 DEBUG - Connection established.
 @socketio.on('reconnectController')
 def handle_reconnect_controller():
 	logger.debug("Reconnecting controller.")
 	# TODO Check permissions.
-	_handle_reset_controller()
+	asyncio.ensure_future(_handle_reset_controller())
 
 
 async def _handle_reset_controller():
-	global controller
-	logger.info("Attempting to connect the controller.")
-	controller = await SwitchController.get_controller(logger, switch_mac_address,
-													   controller=controller_type)
+	async with reconnect_lock:
+		global controller
+		logger.info("Attempting to connect the controller.")
+		del controller
+		controller = None
+		controller = await SwitchController.get_controller(logger, switch_mac_address,
+														   controller=controller_type)
+		logger.info("Done attempting to connect the controller.")
 
 
 async def _main():
@@ -96,9 +109,14 @@ async def _main():
 		# Keep the server running and attempt to reconnect the controller.
 		# There must be a better way to do this but this seems to work fine for now.
 		while True:
-			if controller is None or not controller.is_connected():
-				await _handle_reset_controller()
-			await asyncio.sleep(10)
+			try:
+				if controller is None or not controller.is_connected():
+					await _handle_reset_controller()
+				await asyncio.sleep(100)
+			except:
+				logger.exception("Error reconnecting the controller.")
+	except:
+		logger.exception("Error while starting the service.")
 	finally:
 		logger.info('Stopping the service...')
 
