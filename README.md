@@ -23,6 +23,8 @@ Example [video](https://youtu.be/TJlWK2HU8Do) of me using an **Xbox controller (
 
 Example [video](https://youtu.be/viv-B_A-A2o) of recording and running a **macro**.
 
+For more videos, check out this [playlist](https://www.youtube.com/playlist?list=PLfC95bU1D4gpJEM3SYfzaI2e5vD0q7v0z).
+
 # Status
 One keyboard layout or gaming controller layout is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.

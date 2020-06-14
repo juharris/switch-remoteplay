@@ -54,10 +54,11 @@ class PlayGame extends React.Component<any, any> {
 
 		this.checkSendMode = this.checkSendMode.bind(this)
 		this.handleChange = this.handleChange.bind(this)
-		this.handleInputMethodSelection = this.handleInputMethodSelection.bind(this)
 		this.handleGamepadConnected = this.handleGamepadConnected.bind(this)
 		this.handleGamepadDisconnected = this.handleGamepadDisconnected.bind(this)
+		this.handleInputMethodSelection = this.handleInputMethodSelection.bind(this)
 		this.onDisconnect = this.onDisconnect.bind(this)
+		this.reconnectSwitch = this.reconnectSwitch.bind(this)
 		this.sendCommand = this.sendCommand.bind(this)
 		this.toggleConnect = this.toggleConnect.bind(this)
 		this.toggleSendMode = this.toggleSendMode.bind(this)
@@ -250,6 +251,14 @@ class PlayGame extends React.Component<any, any> {
 		}
 	}
 
+	private reconnectSwitch() {
+		if (!this.state.socket || !this.state.socket.connected) {
+			// Should not be possible to get in here since the UI should check it.
+			return
+		}
+		this.state.socket.emit('reconnectController')
+	}
+
 	render(): React.ReactNode {
 		const { classes } = this.props
 
@@ -266,12 +275,20 @@ class PlayGame extends React.Component<any, any> {
 					</Typography>
 				</Grid>
 				<Grid item xs={12} sm={6}>
-					<Button name="send-mode-toggle" variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
+					<Button variant="contained" onClick={this.toggleSendMode} disabled={!this.state.socket || !this.state.socket.connected}
 						style={{ backgroundColor: this.state.isInSendMode ? red[500] : green[500] }}>
 						{this.state.sendCommandsButtonText}
 					</Button>
 					<Typography component="p">{this.state.sendModeStatus}</Typography>
 					<Typography component="p">{this.state.status}</Typography>
+				</Grid>
+				{/* The server code for reconnecting doesn't work yet.
+				There are details in server.py. */}
+				<Grid item xs={12} sm={6} hidden>
+					<Typography component="p">Click this button if you want to attempt to redo the pairing of the simulated controller and the Switch.</Typography>
+					<Button variant="contained" onClick={this.reconnectSwitch} disabled={!this.state.socket || !this.state.socket.connected}>
+						Reconnect Switch
+					</Button>
 				</Grid>
 			</Grid>
 
