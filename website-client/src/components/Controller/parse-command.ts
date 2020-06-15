@@ -1,7 +1,7 @@
 import { ControllerState } from "./ControllerState"
 
-function parseCommand(command: string): ControllerState {
-	const result = new ControllerState()
+function parseCommand(command: string): ControllerState[] {
+	const result = []
 	// TODO
 	return result
 }

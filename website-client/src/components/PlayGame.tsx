@@ -218,12 +218,14 @@ class PlayGame extends React.Component<any, any> {
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}
-		if (controllerState === undefined) {
-			controllerState = parseCommand(command)
-		}
-		this.setState({
-			controllerState,
-		})
+		if (controllerState !== undefined) {
+			this.setState({
+				controllerState,
+			})
+		} else {
+			// TODO Run through list of states
+			const controllerStates = parseCommand(command)
+		} 
 		// TODO Remove/Move/Update these comments.
 		// TODO Find a more compact way to store controller state changes.
 		// Maybe they shouldn't be stored at all and we can just re-parse the command.
