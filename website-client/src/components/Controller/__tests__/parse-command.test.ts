@@ -177,4 +177,15 @@ describe('parseCommand', () => {
 		c.rightStick.verticalValue = 1
 		expect(parseCommand(`s r hv -0.5 1`)).toStrictEqual([c])
 	})
+
+
+	it('unrecognized', () => {
+		expect(parseCommand('junk')).toStrictEqual([new ControllerState()])
+	})
+
+	it('combined', () => {
+		const c = new ControllerState()
+		c.a.isPressed = c.b.isPressed = true
+		expect(parseCommand('a d&b d')).toStrictEqual([c])
+	})
 })
