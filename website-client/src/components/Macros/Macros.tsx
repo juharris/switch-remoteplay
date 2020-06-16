@@ -39,6 +39,8 @@ class Macros extends React.Component<{
 
 			macroName: "",
 			editMacro: "",
+
+			savedMacros: [],
 		}
 
 		this.addMacro = this.addMacro.bind(this)
@@ -50,6 +52,9 @@ class Macros extends React.Component<{
 		this.stopRecording = this.stopRecording.bind(this)
 	}
 
+	componentDidMount() {
+		// TODO Load saved macros.
+	}
 
 	private handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
 		this.setState({ [event.target.name]: event.target.value })
@@ -57,6 +62,7 @@ class Macros extends React.Component<{
 
 	addMacro(): void {
 		this.setState({
+			macroName: "",
 			editMacro: "[]"
 		})
 	}
@@ -64,9 +70,41 @@ class Macros extends React.Component<{
 	saveMacro(): void {
 		// TODO Validate name and macro
 		// TODO Save this.state.editMacro
-		this.setState({
-			editMacro: ""
-		})
+		// See https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+
+		// TODO Handle names for other browsers (from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)
+		const indexedDB = window.indexedDB
+		const IDBTransaction = window.IDBTransaction
+		const IDBKeyRange = window.IDBKeyRange
+
+		const request = indexedDB.open('macros', 1);
+		request.onerror = function (event: Event) {
+			console.error("Could not open the macro database.")
+			console.error(event)
+		}
+		const macro = JSON.parse(this.state.editMacro)
+		request.onsuccess = (event: Event) => {
+			const db: IDBDatabase = (event?.target as any).result
+			const transaction = db.transaction('macro', 'readwrite')
+			// TODO
+			// transaction.onerror = reject
+			const dataStore = transaction.objectStore('macro')
+			const request = dataStore.add({
+				id: 'TODO Make new id',
+				macro: JSON.parse(macro)
+			})
+			// request.onerror = reject
+			request.onsuccess = () => {
+				this.setState({
+					editMacro: ""
+				})
+			}
+		}
+
+		request.onupgradeneeded = function (event: Event) {
+			const db: IDBDatabase = (event?.target as any).result
+			db.createObjectStore('macro', { keyPath: 'id' })
+		}
 	}
 
 	cancelEditMacro(): void {
