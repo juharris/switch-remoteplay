@@ -1,5 +1,7 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import CancelIcon from '@material-ui/icons/Cancel'
 import Grid from '@material-ui/core/Grid'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -11,11 +13,22 @@ import { SendCommand } from '../../key-binding/KeyBinding'
 import MacroRecorder from './MacroRecorder'
 
 const styles = () => createStyles({
+	macroName: {
+		marginLeft: '20px',
+		marginBottom: '1em',
+	},
+	macroText: {
+		backgroundColor: '#222',
+		color: '#ddd',
+		width: '90%',
+		marginLeft: '20px',
+	},
 })
 
 class Macros extends React.Component<{
 	macroRecorder: MacroRecorder,
 	sendCommand: SendCommand,
+	classes: any,
 }, any> {
 	constructor(props: any) {
 		super(props)
@@ -24,10 +37,12 @@ class Macros extends React.Component<{
 			isRecording: false,
 			macroExists: false,
 
+			macroName: "",
 			editMacro: "",
 		}
 
 		this.addMacro = this.addMacro.bind(this)
+		this.cancelEditMacro = this.cancelEditMacro.bind(this)
 		this.handleChange = this.handleChange.bind(this)
 		this.playLastRecordedMacro = this.playLastRecordedMacro.bind(this)
 		this.saveMacro = this.saveMacro.bind(this)
@@ -36,7 +51,7 @@ class Macros extends React.Component<{
 	}
 
 
-	private handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+	private handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
@@ -47,7 +62,14 @@ class Macros extends React.Component<{
 	}
 
 	saveMacro(): void {
+		// TODO Validate name and macro
 		// TODO Save this.state.editMacro
+		this.setState({
+			editMacro: ""
+		})
+	}
+
+	cancelEditMacro(): void {
 		this.setState({
 			editMacro: ""
 		})
@@ -82,17 +104,19 @@ class Macros extends React.Component<{
 	}
 
 	render(): React.ReactNode {
+		const { classes } = this.props
+
 		return <div>
 			<Typography variant="h3">Macros</Typography>
-			<Grid item hidden={!this.state.macroExists}>
-				<Tooltip title="Create a new macro" placement="top" >
-					<Button
-						id="add-macro" onClick={this.addMacro}>
-						<AddIcon />
-					</Button>
-				</Tooltip>
-			</Grid>
 			<Grid container>
+				<Grid item >
+					<Tooltip title="Create a new macro" placement="top" >
+						<Button
+							id="add-macro" onClick={this.addMacro}>
+							<AddIcon />
+						</Button>
+					</Tooltip>
+				</Grid>
 				<Grid item hidden={this.state.isRecording}>
 					<Tooltip title="Start recording a macro" placement="top">
 						<Button onClick={this.startRecording}>
@@ -118,14 +142,30 @@ class Macros extends React.Component<{
 				</Grid>
 			</Grid>
 			<div hidden={this.state.editMacro === ""}>
-				{/* TODO Get Macro name */}
-				<TextareaAutosize name="editMacro" value={this.state.editMacro} aria-label="Macro" onChange={this.handleChange} />
-				<Tooltip title="Save macro" placement="top" >
-					<Button
-						id="save-macro" onClick={this.saveMacro}>
-						<SaveIcon />
-					</Button>
-				</Tooltip>
+				<div>
+					<TextField className={classes.macroName} label="Macro Name" name="macroName" value={this.state.macroName} onChange={this.handleChange} />
+				</div>
+				<div>
+					<TextareaAutosize className={classes.macroText} name="editMacro" value={this.state.editMacro} aria-label="Macro" onChange={this.handleChange} />
+				</div>
+				<Grid container>
+					<Grid item>
+						<Tooltip title="Cancel editting macro" placement="top" >
+							<Button
+								id="cancel-edit-macro" onClick={this.cancelEditMacro}>
+								<CancelIcon />
+							</Button>
+						</Tooltip>
+					</Grid>
+					<Grid item>
+						<Tooltip title="Save macro" placement="top" >
+							<Button
+								id="save-macro" onClick={this.saveMacro}>
+								<SaveIcon />
+							</Button>
+						</Tooltip>
+					</Grid>
+				</Grid>
 			</div>
 			{/* TODO List saved macros. */}
 		</div>
