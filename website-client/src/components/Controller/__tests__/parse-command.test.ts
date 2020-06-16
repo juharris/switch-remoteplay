@@ -39,12 +39,12 @@ describe('parseCommand', () => {
 		expect(parseCommand(`up`)).toStrictEqual([c1, c2])
 
 		c1 = new ControllerState()
-		c1.rightStick.isPressed = true
+		c1.arrowRight.isPressed = true
 		c2 = new ControllerState()
 		expect(parseCommand(`right`)).toStrictEqual([c1, c2])
 
 		c1 = new ControllerState()
-		c1.leftStick.isPressed = true
+		c1.arrowLeft.isPressed = true
 		c2 = new ControllerState()
 		expect(parseCommand(`left`)).toStrictEqual([c1, c2])
 	})
@@ -88,12 +88,12 @@ describe('parseCommand', () => {
 		c = new ControllerState()
 		expect(parseCommand(`up u`)).toStrictEqual([c])
 
-		c.rightStick.isPressed = true
+		c.arrowRight.isPressed = true
 		expect(parseCommand(`right d`)).toStrictEqual([c])
 		c = new ControllerState()
 		expect(parseCommand(`right u`)).toStrictEqual([c])
 
-		c.leftStick.isPressed = true
+		c.arrowLeft.isPressed = true
 		expect(parseCommand(`left d`)).toStrictEqual([c])
 		c = new ControllerState()
 		expect(parseCommand(`left u`)).toStrictEqual([c])
@@ -153,6 +153,7 @@ describe('parseCommand', () => {
 		expect(parseCommand(`s r up`)).toStrictEqual([c])
 		c.rightStick.verticalValue = 1
 		expect(parseCommand(`s r down`)).toStrictEqual([c])
+		c.rightStick.verticalValue = 0
 		c.rightStick.horizontalValue = -1
 		expect(parseCommand(`s r left`)).toStrictEqual([c])
 		c.rightStick.horizontalValue = 1

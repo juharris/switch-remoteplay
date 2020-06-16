@@ -1,4 +1,4 @@
-import { ControllerState } from "./ControllerState"
+import { ControllerState } from './ControllerState'
 
 const buttonNames = new Set([
 	'l', 'zl',
@@ -9,25 +9,34 @@ const buttonNames = new Set([
 	'home', 'capture',
 	'down', 'up', 'left', 'right'])
 
-const buttonNameToStateMember: any = {
+const buttonNameToStateMember: { [buttonName: string]: string } = {
 	l_stick: 'leftStick',
 	r_stick: 'rightStick',
-	down: 'rightStick',
-	up: 'rightStick',
-	left: 'rightStick',
-	right: 'rightStick',
+	down: 'arrowDown',
+	up: 'arrowUp',
+	left: 'arrowLeft',
+	right: 'arrowRight',
 }
 
+/**
+ * This should mainly be used for macros.
+ *
+ * @param command The command to run.
+ * @returns The controller states for running the command.
+ */
 function parseCommand(command: string): ControllerState[] {
 	const result = []
 
 	const controllerState = new ControllerState()
+	let hasTap = false
 	for (let singleCommand of command.split('&')) {
 		singleCommand = singleCommand.trim()
 		if (buttonNames.has(singleCommand)) {
-			(controllerState as any)[buttonNameToStateMember[singleCommand] || singleCommand].isPressed = true
+			const member: string = buttonNameToStateMember[singleCommand] || singleCommand;
+			(controllerState as any)[member].isPressed = true
+			hasTap = true
 		} else {
-			const commandParts = singleCommand.split(/\s*/)
+			const commandParts = singleCommand.split(/\s+/)
 			if (commandParts.length < 2) {
 				console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, command)
 			} else {
@@ -43,11 +52,35 @@ function parseCommand(command: string): ControllerState[] {
 					if (stickState) {
 						if (commandParts.length === 3) {
 							const direction = commandParts[2]
-							// TODO
+							switch (direction) {
+								case 'up':
+									stickState.verticalValue = -1
+									break
+								case 'down':
+									stickState.verticalValue = 1
+									break
+								case 'left':
+									stickState.horizontalValue = -1
+									break
+								case 'right':
+									stickState.horizontalValue = 1
+									break
+								case 'center':
+									stickState.horizontalValue = stickState.verticalValue = 0
+									break
+								default:
+									console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, command)
+							}
 						} else if (commandParts.length === 4) {
 							const direction = commandParts[2]
-							const amount = commandParts[3]
-							// TODO
+							const amount = parseFloat(commandParts[3])
+							if (direction === 'h') {
+								stickState.horizontalValue = amount
+							} else if (direction === 'v') {
+								stickState.verticalValue = amount
+							} else {
+								console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, command)
+							}
 						} else if (commandParts.length === 5 && commandParts[2] === 'hv') {
 							const horizontalAmount = commandParts[3]
 							const verticalAmount = commandParts[4]
@@ -72,6 +105,9 @@ function parseCommand(command: string): ControllerState[] {
 
 	}
 	result.push(controllerState)
+	if (hasTap) {
+		result.push(new ControllerState())
+	}
 
 	return result
 }

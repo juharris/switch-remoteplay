@@ -218,19 +218,23 @@ class PlayGame extends React.Component<any, any> {
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}
+
+		// Controller and key bindings should send the state since it should be easy for them to compute it.
+		// Running commands from a macro might not send the state.
 		if (controllerState !== undefined) {
 			this.setState({
 				controllerState,
 			})
 		} else {
-			// TODO Run through list of states
 			const controllerStates = parseCommand(command)
-		} 
-		// TODO Remove/Move/Update these comments.
-		// TODO Find a more compact way to store controller state changes.
-		// Maybe they shouldn't be stored at all and we can just re-parse the command.
-		// That would save weird logic in other places but still keep redundancies trying to make a compact command but they rebuilding it.
-		// Although the rebuilding can be limited to be doing just when saving a macro.
+			for (let i = 0; i < controllerStates.length; ++i) {
+				setTimeout(() => {
+					this.setState({
+						controllerState: controllerStates[i],
+					})
+				}, i * 100)
+			}
+		}
 		this.macroRecorder.add(command)
 	}
 

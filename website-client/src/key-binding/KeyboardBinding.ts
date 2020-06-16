@@ -140,18 +140,18 @@ export default class KeyboardBinding extends KeyBinding {
 				const stick = controllerState[action.name]
 				if (stick) {
 					switch (action.dirName) {
-					case 'left':
-						stick.horizontalValue = keyDirection === 'down' ? -1 : 0
-						break
-					case 'right':
-						stick.horizontalValue = keyDirection === 'down' ? +1 : 0
-						break
-					case 'up':
-						stick.verticalValue = keyDirection === 'down' ? -1 : 0
-						break
-					case 'down':
-						stick.verticalValue = keyDirection === 'down' ? +1 : 0
-						break
+						case 'left':
+							stick.horizontalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'right':
+							stick.horizontalValue = keyDirection === 'down' ? +1 : 0
+							break
+						case 'up':
+							stick.verticalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'down':
+							stick.verticalValue = keyDirection === 'down' ? +1 : 0
+							break
 					}
 				}
 			} else {
