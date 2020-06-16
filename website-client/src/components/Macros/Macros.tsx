@@ -1,8 +1,11 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
+import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
+import AddIcon from '@material-ui/icons/Add'
+import SaveIcon from '@material-ui/icons/Save'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import MacroRecorder from './MacroRecorder'
@@ -20,11 +23,34 @@ class Macros extends React.Component<{
 		this.state = {
 			isRecording: false,
 			macroExists: false,
+
+			editMacro: "",
 		}
 
+		this.addMacro = this.addMacro.bind(this)
+		this.handleChange = this.handleChange.bind(this)
 		this.playLastRecordedMacro = this.playLastRecordedMacro.bind(this)
+		this.saveMacro = this.saveMacro.bind(this)
 		this.startRecording = this.startRecording.bind(this)
 		this.stopRecording = this.stopRecording.bind(this)
+	}
+
+
+	private handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		this.setState({ [event.target.name]: event.target.value })
+	}
+
+	addMacro(): void {
+		this.setState({
+			editMacro: "[]"
+		})
+	}
+
+	saveMacro(): void {
+		// TODO Save this.state.editMacro
+		this.setState({
+			editMacro: ""
+		})
 	}
 
 	startRecording(): void {
@@ -58,6 +84,14 @@ class Macros extends React.Component<{
 	render(): React.ReactNode {
 		return <div>
 			<Typography variant="h3">Macros</Typography>
+			<Grid item hidden={!this.state.macroExists}>
+				<Tooltip title="Create a new macro" placement="top" >
+					<Button
+						id="add-macro" onClick={this.addMacro}>
+						<AddIcon />
+					</Button>
+				</Tooltip>
+			</Grid>
 			<Grid container>
 				<Grid item hidden={this.state.isRecording}>
 					<Tooltip title="Start recording a macro" placement="top">
@@ -83,6 +117,17 @@ class Macros extends React.Component<{
 					</Tooltip>
 				</Grid>
 			</Grid>
+			<div hidden={this.state.editMacro === ""}>
+				{/* TODO Get Macro name */}
+				<TextareaAutosize name="editMacro" value={this.state.editMacro} aria-label="Macro" onChange={this.handleChange} />
+				<Tooltip title="Save macro" placement="top" >
+					<Button
+						id="save-macro" onClick={this.saveMacro}>
+						<SaveIcon />
+					</Button>
+				</Tooltip>
+			</div>
+			{/* TODO List saved macros. */}
 		</div>
 	}
 }
