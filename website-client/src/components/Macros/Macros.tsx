@@ -1,5 +1,9 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions'
+import CardContent from '@material-ui/core/CardContent'
+import green from '@material-ui/core/colors/green'
 import Grid from '@material-ui/core/Grid'
 import Link from '@material-ui/core/Link'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
@@ -8,11 +12,11 @@ import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import CancelIcon from '@material-ui/icons/Cancel'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SaveIcon from '@material-ui/icons/Save'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import MacroRecorder from './MacroRecorder'
-
 const styles = () => createStyles({
 	macroName: {
 		marginLeft: '20px',
@@ -27,6 +31,12 @@ const styles = () => createStyles({
 		color: '#ddd',
 		width: '90%',
 		marginLeft: '20px',
+	},
+	macroItem: {
+	},
+	macroCard: {
+		minHeight: 200,
+		mindWidth: 275,
 	},
 })
 
@@ -60,6 +70,7 @@ class Macros extends React.Component<{
 		this.addMacro = this.addMacro.bind(this)
 		this.cancelEditMacro = this.cancelEditMacro.bind(this)
 		this.handleChange = this.handleChange.bind(this)
+		this.playMacro = this.playMacro.bind(this)
 		this.playLastRecordedMacro = this.playLastRecordedMacro.bind(this)
 		this.saveMacro = this.saveMacro.bind(this)
 		this.startRecording = this.startRecording.bind(this)
@@ -106,11 +117,15 @@ class Macros extends React.Component<{
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
-	addMacro(): void {
+	startingEditingMacro(name: string, macro: string) {
 		this.setState({
-			macroName: "",
-			editMacro: "[\"a d\", \"wait 350\", \"a u\"]",
+			macroName: name,
+			editMacro: macro,
 		})
+	}
+
+	addMacro(): void {
+		this.startingEditingMacro("", "[\"a d\", \"wait 350\", \"a u\"]")
 	}
 
 	parseMacro(macro: string): string[] {
@@ -166,6 +181,7 @@ class Macros extends React.Component<{
 
 	stopRecording(): void {
 		this.props.macroRecorder.stop()
+		this.startingEditingMacro("", JSON.stringify(this.props.macroRecorder.currentRecording, null, 4))
 		this.setState({ isRecording: false, macroExists: true, })
 	}
 
@@ -173,8 +189,8 @@ class Macros extends React.Component<{
 		return new Promise(resolve => setTimeout(resolve, sleepMillis))
 	}
 
-	async playLastRecordedMacro(): Promise<void> {
-		for (const command of this.props.macroRecorder.currentRecording) {
+	async playMacro(macro: string[]) {
+		for (const command of macro) {
 			const m = /wait (\d+)/.exec(command)
 			if (m) {
 				const sleepMillis = parseInt(m[1])
@@ -187,13 +203,17 @@ class Macros extends React.Component<{
 		}
 	}
 
+	async playLastRecordedMacro(): Promise<void> {
+		return this.playMacro(this.props.macroRecorder.currentRecording)
+	}
+
 	render(): React.ReactNode {
 		const { classes } = this.props
 
 		return <div>
 			<Typography variant="h3">Macros</Typography>
 			<Grid container>
-				<Grid item >
+				<Grid item>
 					<Tooltip title="Create a new macro" placement="top" >
 						<Button
 							id="add-macro" onClick={this.addMacro}>
@@ -220,7 +240,7 @@ class Macros extends React.Component<{
 						<Button
 							// The id is not used but it's helpful for writing meta-macros and loops to press in the browser's console.
 							id="play-macro" onClick={this.playLastRecordedMacro}>
-							<span role='img' aria-label="Play the last macro recorded">▶</span>
+							<PlayArrowIcon />
 						</Button>
 					</Tooltip>
 				</Grid>
@@ -252,20 +272,49 @@ class Macros extends React.Component<{
 					</Grid>
 					<Grid item>
 						<Tooltip title="Save macro" placement="top" >
-							<Button
+							<Button color="primary"
 								id="save-macro" onClick={this.saveMacro}>
-								<SaveIcon />
+								<SaveIcon style={{ color: green[500] }} />
 							</Button>
 						</Tooltip>
 					</Grid>
 				</Grid>
 			</div>
-			{/* TODO List in cards with a play button. */}
-			{this.state.savedMacros.map((savedMacro: SavedMacro) =>
-				<div key={savedMacro.id}>
-					{savedMacro.name} - {JSON.stringify(savedMacro.macro, null, 4).slice(0, 100)}
-				</div>
-			)}
+			<Grid container spacing={1}>
+				{this.state.savedMacros.map((savedMacro: SavedMacro) => {
+					const maxLength = 120
+					let macroText = JSON.stringify(savedMacro.macro, null, 4)
+					if (macroText.length > maxLength) {
+						macroText = macroText.slice(0, maxLength - 10) + "..."
+					}
+					return <Grid item key={savedMacro.id}
+						className={classes.macroItem}
+						xs={12} sm={4} md={3}>
+						<Card className={classes.macroCard}>
+							<CardContent>
+								<Typography variant="h5" component="h5">
+									{savedMacro.name}
+								</Typography>
+								<Typography component="p" color="textSecondary">
+									{macroText}
+								</Typography>
+							</CardContent>
+							<CardActions>
+								<Tooltip title="Play macro" placement="top" >
+									<Button
+										// The id is not used but it's helpful for writing
+										// meta-macros and loops to press in the browser's console.
+										id={`play-${savedMacro.id}`} onClick={() => this.playMacro(savedMacro.macro)}>
+										<PlayArrowIcon />
+									</Button>
+								</Tooltip>
+								{/* TODO Add edit button which will set up to edit this macro and allow to delete it. */}
+							</CardActions>
+						</Card>
+					</Grid>
+				}
+				)}
+			</Grid>
 		</div>
 	}
 }
