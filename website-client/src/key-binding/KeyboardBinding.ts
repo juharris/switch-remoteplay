@@ -122,6 +122,9 @@ export default class KeyboardBinding extends KeyBinding {
 	// }
 
 	private handleKey(e: KeyboardEvent | MouseEvent, keyName: string, keyDirection: string) {
+		if ((e!.target as any).name === 'editMacro') {
+			return
+		}
 		let keyMapping = this.keyMap
 
 		if (keyName in keyMapping) {

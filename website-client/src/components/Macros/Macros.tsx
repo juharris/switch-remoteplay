@@ -1,12 +1,13 @@
 import { createStyles, withStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import CancelIcon from '@material-ui/icons/Cancel'
 import Grid from '@material-ui/core/Grid'
+import Link from '@material-ui/core/Link'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
+import TextField from '@material-ui/core/TextField'
 import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
+import CancelIcon from '@material-ui/icons/Cancel'
 import SaveIcon from '@material-ui/icons/Save'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
@@ -17,6 +18,10 @@ const styles = () => createStyles({
 		marginLeft: '20px',
 		marginBottom: '1em',
 	},
+	macroExample: {
+		whiteSpace: 'pre-wrap',
+		wordWrap: 'break-word',
+	},
 	macroText: {
 		backgroundColor: '#222',
 		color: '#ddd',
@@ -25,11 +30,20 @@ const styles = () => createStyles({
 	},
 })
 
+class SavedMacro {
+	constructor(
+		public id: string,
+		public name: string,
+		public macro: string[]) { }
+}
+
 class Macros extends React.Component<{
 	macroRecorder: MacroRecorder,
 	sendCommand: SendCommand,
 	classes: any,
 }, any> {
+	private db?: IDBDatabase
+
 	constructor(props: any) {
 		super(props)
 
@@ -53,7 +67,39 @@ class Macros extends React.Component<{
 	}
 
 	componentDidMount() {
-		// TODO Load saved macros.
+		// TODO Handle names for other browsers (from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)
+		const indexedDB = window.indexedDB
+
+		const request = indexedDB.open('macros', 1);
+		request.onerror = function (event: Event) {
+			// TODO Give feedback.
+			console.error("Could not open the macro database.")
+			console.error(event)
+		}
+
+		request.onupgradeneeded = function (event: Event) {
+			const db: IDBDatabase = (event?.target as any).result
+			db.createObjectStore('macro', { keyPath: 'id', autoIncrement: true, })
+		}
+
+		request.onsuccess = (event: Event) => {
+			this.db = (event?.target as any).result
+
+			this.loadSavedMacros()
+		}
+	}
+
+	private loadSavedMacros() {
+		const transaction = this.db!.transaction('macro', 'readonly')
+		// transaction.onerror = reject
+		const dataStore = transaction.objectStore('macro')
+		const getRequest = dataStore.getAll()
+		// addRequest.onerror = reject
+		getRequest.onsuccess = () => {
+			this.setState({
+				savedMacros: getRequest.result,
+			})
+		}
 	}
 
 	private handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -63,47 +109,47 @@ class Macros extends React.Component<{
 	addMacro(): void {
 		this.setState({
 			macroName: "",
-			editMacro: "[]"
+			editMacro: "[\"a d\", \"wait 350\", \"a u\"]",
 		})
 	}
 
+	parseMacro(macro: string): string[] {
+		// TODO Validate better.
+		macro = macro.replace(/'/g, "\"")
+		return JSON.parse(macro)
+	}
+
 	saveMacro(): void {
-		// TODO Validate name and macro
-		// TODO Save this.state.editMacro
-		// See https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
-
-		// TODO Handle names for other browsers (from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)
-		const indexedDB = window.indexedDB
-		const IDBTransaction = window.IDBTransaction
-		const IDBKeyRange = window.IDBKeyRange
-
-		const request = indexedDB.open('macros', 1);
-		request.onerror = function (event: Event) {
-			console.error("Could not open the macro database.")
-			console.error(event)
+		let macro: string[]
+		try {
+			macro = this.parseMacro(this.state.editMacro)
+		} catch (err) {
+			// TODO Give feedback that the macro is not valid.
+			console.error("Invalid macro:")
+			console.error(err)
+			return
 		}
-		const macro = JSON.parse(this.state.editMacro)
-		request.onsuccess = (event: Event) => {
-			const db: IDBDatabase = (event?.target as any).result
-			const transaction = db.transaction('macro', 'readwrite')
-			// TODO
-			// transaction.onerror = reject
-			const dataStore = transaction.objectStore('macro')
-			const request = dataStore.add({
-				id: 'TODO Make new id',
-				macro: JSON.parse(macro)
+		const name = this.state.macroName
+
+		if (this.db === undefined) {
+			console.error("The macro database has not been loaded yet. Please try again.")
+			return
+		}
+
+		const transaction = this.db.transaction('macro', 'readwrite')
+		// transaction.onerror = reject
+		const dataStore = transaction.objectStore('macro')
+		const addRequest = dataStore.add({
+			name,
+			macro,
+		})
+		// addRequest.onerror = reject
+		addRequest.onsuccess = () => {
+			this.loadSavedMacros()
+			this.setState({
+				macroName: "",
+				editMacro: "",
 			})
-			// request.onerror = reject
-			request.onsuccess = () => {
-				this.setState({
-					editMacro: ""
-				})
-			}
-		}
-
-		request.onupgradeneeded = function (event: Event) {
-			const db: IDBDatabase = (event?.target as any).result
-			db.createObjectStore('macro', { keyPath: 'id' })
 		}
 	}
 
@@ -183,6 +229,15 @@ class Macros extends React.Component<{
 				<div>
 					<TextField className={classes.macroName} label="Macro Name" name="macroName" value={this.state.macroName} onChange={this.handleChange} />
 				</div>
+				<Typography component="p">
+					Write a macro below.
+					The latest supported commands can be found <Link target="_blank" href="https://github.com/juharris/switch-remoteplay/blob/master/server/README.md#api">here</Link>.
+				</Typography>
+				<Typography component="p">
+					The macro should be a valid <Link target="_blank" href="https://www.json.org">JSON list</Link>.
+					For example:
+					<pre className={classes.macroExample}>["s l up", "wait 200", "a d", "wait 350", "a u", "wait 200", "s l center"]</pre>
+				</Typography>
 				<div>
 					<TextareaAutosize className={classes.macroText} name="editMacro" value={this.state.editMacro} aria-label="Macro" onChange={this.handleChange} />
 				</div>
@@ -205,7 +260,12 @@ class Macros extends React.Component<{
 					</Grid>
 				</Grid>
 			</div>
-			{/* TODO List saved macros. */}
+			{/* TODO List in cards with a play button. */}
+			{this.state.savedMacros.map((savedMacro: SavedMacro) =>
+				<div key={savedMacro.id}>
+					{savedMacro.name} - {JSON.stringify(savedMacro.macro, null, 4).slice(0, 100)}
+				</div>
+			)}
 		</div>
 	}
 }

@@ -1,3 +1,4 @@
+import blue from '@material-ui/core/colors/blue'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { createMuiTheme, createStyles, ThemeProvider, withStyles, WithStyles } from '@material-ui/core/styles'
 import React from 'react'
@@ -10,6 +11,7 @@ import PlayGame from './components/PlayGame'
 const theme = createMuiTheme({
 	palette: {
 		type: 'dark',
+		primary: blue,
 	},
 })
 
