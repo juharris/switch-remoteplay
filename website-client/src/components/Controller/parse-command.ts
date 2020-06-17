@@ -73,11 +73,25 @@ function parseCommand(command: string): ControllerState[] {
 							}
 						} else if (commandParts.length === 4) {
 							const direction = commandParts[2]
-							const amount = parseFloat(commandParts[3])
+							const amount = commandParts[3]
+							let stickAmount
+							switch (amount) {
+								case 'min':
+									stickAmount = direction === 'h' ? -1 : +1
+									break
+								case 'max':
+									stickAmount = direction === 'h' ? +1 : -1
+									break
+								case 'center':
+									stickAmount = 0
+									break
+								default:
+									stickAmount = parseFloat(amount)
+							}
 							if (direction === 'h') {
-								stickState.horizontalValue = amount
+								stickState.horizontalValue = stickAmount
 							} else if (direction === 'v') {
-								stickState.verticalValue = amount
+								stickState.verticalValue = stickAmount
 							} else {
 								console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, command)
 							}

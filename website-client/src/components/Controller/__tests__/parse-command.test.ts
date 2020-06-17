@@ -113,6 +113,20 @@ describe('parseCommand', () => {
 		expect(parseCommand(`s l right`)).toStrictEqual([c])
 		c.leftStick.horizontalValue = 0
 		expect(parseCommand(`s l center`)).toStrictEqual([c])
+
+		c.leftStick.horizontalValue = -1
+		expect(parseCommand(`s l h min`)).toStrictEqual([c])
+		c.leftStick.horizontalValue = 1
+		expect(parseCommand(`s l h max`)).toStrictEqual([c])
+		c.leftStick.horizontalValue = 0
+		expect(parseCommand(`s l h center`)).toStrictEqual([c])
+		c.leftStick.verticalValue = 1
+		expect(parseCommand(`s l v min`)).toStrictEqual([c])
+		c.leftStick.verticalValue = -1
+		expect(parseCommand(`s l v max`)).toStrictEqual([c])
+		c.leftStick.verticalValue = 0
+		expect(parseCommand(`s l v center`)).toStrictEqual([c])
+
 		c.leftStick.horizontalValue = 0.5
 		expect(parseCommand(`s l h 0.5`)).toStrictEqual([c])
 		c.leftStick.horizontalValue = -0.5
@@ -160,6 +174,20 @@ describe('parseCommand', () => {
 		expect(parseCommand(`s r right`)).toStrictEqual([c])
 		c.rightStick.horizontalValue = 0
 		expect(parseCommand(`s r center`)).toStrictEqual([c])
+
+		c.rightStick.horizontalValue = -1
+		expect(parseCommand(`s r h min`)).toStrictEqual([c])
+		c.rightStick.horizontalValue = 1
+		expect(parseCommand(`s r h max`)).toStrictEqual([c])
+		c.rightStick.horizontalValue = 0
+		expect(parseCommand(`s r h center`)).toStrictEqual([c])
+		c.rightStick.verticalValue = 1
+		expect(parseCommand(`s r v min`)).toStrictEqual([c])
+		c.rightStick.verticalValue = -1
+		expect(parseCommand(`s r v max`)).toStrictEqual([c])
+		c.rightStick.verticalValue = 0
+		expect(parseCommand(`s r v center`)).toStrictEqual([c])
+
 		c.rightStick.horizontalValue = 0.5
 		expect(parseCommand(`s r h 0.5`)).toStrictEqual([c])
 		c.rightStick.horizontalValue = 0
