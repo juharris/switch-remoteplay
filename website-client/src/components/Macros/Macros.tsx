@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import green from '@material-ui/core/colors/green'
+import red from '@material-ui/core/colors/red'
 import Grid from '@material-ui/core/Grid'
 import Link from '@material-ui/core/Link'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
@@ -12,17 +13,23 @@ import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import CancelIcon from '@material-ui/icons/Cancel'
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever'
+import EditIcon from '@material-ui/icons/Edit'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SaveIcon from '@material-ui/icons/Save'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import MacroRecorder from './MacroRecorder'
+
 const styles = () => createStyles({
+	macrosContainer: {
+		alignItems: 'stretch',
+	},
 	macroName: {
 		marginLeft: '20px',
 		marginBottom: '1em',
 	},
-	macroExample: {
+	macroCode: {
 		whiteSpace: 'pre-wrap',
 		wordWrap: 'break-word',
 	},
@@ -35,8 +42,18 @@ const styles = () => createStyles({
 	macroItem: {
 	},
 	macroCard: {
-		minHeight: 200,
-		mindWidth: 275,
+		display: 'flex',
+		flexDirection: 'column',
+		height: '100%',
+	},
+	cardContent: {
+		// To keep the card buttons at the bottom of the card.
+		display: 'flex',
+		flex: '1 0 auto',
+		flexDirection: 'column',
+	},
+	macroCardActions: {
+		display: 'flex',
 	},
 })
 
@@ -69,6 +86,7 @@ class Macros extends React.Component<{
 
 		this.addMacro = this.addMacro.bind(this)
 		this.cancelEditMacro = this.cancelEditMacro.bind(this)
+		this.deleteMacro = this.deleteMacro.bind(this)
 		this.handleChange = this.handleChange.bind(this)
 		this.playMacro = this.playMacro.bind(this)
 		this.playLastRecordedMacro = this.playLastRecordedMacro.bind(this)
@@ -81,14 +99,14 @@ class Macros extends React.Component<{
 		// TODO Handle names for other browsers (from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)
 		const indexedDB = window.indexedDB
 
-		const request = indexedDB.open('macros', 1);
-		request.onerror = function (event: Event) {
+		const request = indexedDB.open('macros', 1)
+		request.onerror = function(event: Event) {
 			// TODO Give feedback.
 			console.error("Could not open the macro database.")
 			console.error(event)
 		}
 
-		request.onupgradeneeded = function (event: Event) {
+		request.onupgradeneeded = function(event: Event) {
 			const db: IDBDatabase = (event?.target as any).result
 			db.createObjectStore('macro', { keyPath: 'id', autoIncrement: true, })
 		}
@@ -101,7 +119,12 @@ class Macros extends React.Component<{
 	}
 
 	private loadSavedMacros() {
-		const transaction = this.db!.transaction('macro', 'readonly')
+		if (this.db === undefined) {
+			// Shouldn't happen.
+			console.error("The macro database has not been loaded yet. Please try again.")
+			return
+		}
+		const transaction = this.db.transaction('macro', 'readonly')
 		// transaction.onerror = reject
 		const dataStore = transaction.objectStore('macro')
 		const getRequest = dataStore.getAll()
@@ -117,15 +140,16 @@ class Macros extends React.Component<{
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
-	startingEditingMacro(name: string, macro: string) {
+	startEditingMacro(id: string | undefined, name: string, macro: string[]) {
 		this.setState({
+			editMacroId: id,
 			macroName: name,
-			editMacro: macro,
+			editMacro: JSON.stringify(macro, null, 4),
 		})
 	}
 
 	addMacro(): void {
-		this.startingEditingMacro("", "[\"a d\", \"wait 350\", \"a u\"]")
+		this.startEditingMacro(undefined, "", ["a d", "wait 350", "a u"])
 	}
 
 	parseMacro(macro: string): string[] {
@@ -151,20 +175,48 @@ class Macros extends React.Component<{
 			return
 		}
 
+		// TODO Add error handling.
 		const transaction = this.db.transaction('macro', 'readwrite')
 		// transaction.onerror = reject
 		const dataStore = transaction.objectStore('macro')
-		const addRequest = dataStore.add({
-			name,
-			macro,
-		})
-		// addRequest.onerror = reject
-		addRequest.onsuccess = () => {
+		let request
+		if (this.state.editMacroId !== undefined) {
+			request = dataStore.put({
+				id: this.state.editMacroId,
+				name,
+				macro,
+			})
+		} else {
+			request = dataStore.add({
+				name,
+				macro,
+			})
+		}
+		// request.onerror = reject
+		request.onsuccess = () => {
 			this.loadSavedMacros()
 			this.setState({
 				macroName: "",
 				editMacro: "",
 			})
+		}
+	}
+
+	deleteMacro(macroId: string): void {
+		if (this.db === undefined) {
+			// Shouldn't happen.
+			console.error("The macro database has not been loaded yet. Please try again.")
+			return
+		}
+
+		const transaction = this.db.transaction('macro', 'readwrite')
+		// transaction.onerror = reject
+		const dataStore = transaction.objectStore('macro')
+		const deleteRequest = dataStore.delete(macroId)
+		// addRequest.onerror = reject
+		deleteRequest.onsuccess = () => {
+			this.loadSavedMacros()
+			this.cancelEditMacro()
 		}
 	}
 
@@ -181,7 +233,7 @@ class Macros extends React.Component<{
 
 	stopRecording(): void {
 		this.props.macroRecorder.stop()
-		this.startingEditingMacro("", JSON.stringify(this.props.macroRecorder.currentRecording, null, 4))
+		this.startEditingMacro(undefined, "", this.props.macroRecorder.currentRecording)
 		this.setState({ isRecording: false, macroExists: true, })
 	}
 
@@ -246,9 +298,6 @@ class Macros extends React.Component<{
 				</Grid>
 			</Grid>
 			<div hidden={this.state.editMacro === ""}>
-				<div>
-					<TextField className={classes.macroName} label="Macro Name" name="macroName" value={this.state.macroName} onChange={this.handleChange} />
-				</div>
 				<Typography component="p">
 					Write a macro below.
 					The latest supported commands can be found <Link target="_blank" href="https://github.com/juharris/switch-remoteplay/blob/master/server/README.md#api">here</Link>.
@@ -256,8 +305,11 @@ class Macros extends React.Component<{
 				<Typography component="p">
 					The macro should be a valid <Link target="_blank" href="https://www.json.org">JSON list</Link>.
 					For example:
-					<pre className={classes.macroExample}>["s l up", "wait 200", "a d", "wait 350", "a u", "wait 200", "s l center"]</pre>
 				</Typography>
+				<pre className={classes.macroCode}>{'["s l up", "wait 200", "a d", "wait 350", "a u", "wait 200", "s l center"]'}</pre>
+				<div>
+					<TextField className={classes.macroName} label="Macro Name" name="macroName" value={this.state.macroName} onChange={this.handleChange} />
+				</div>
 				<div>
 					<TextareaAutosize className={classes.macroText} name="editMacro" value={this.state.editMacro} aria-label="Macro" onChange={this.handleChange} />
 				</div>
@@ -267,6 +319,14 @@ class Macros extends React.Component<{
 							<Button
 								id="cancel-edit-macro" onClick={this.cancelEditMacro}>
 								<CancelIcon />
+							</Button>
+						</Tooltip>
+					</Grid>
+					<Grid item hidden={this.state.editMacroId === undefined}>
+						<Tooltip title="Delete this macro" placement="top" >
+							<Button
+								id="delete-macro" onClick={() => this.deleteMacro(this.state.editMacroId)}>
+								<DeleteForeverIcon style={{ color: red[500] }} />
 							</Button>
 						</Tooltip>
 					</Grid>
@@ -280,10 +340,10 @@ class Macros extends React.Component<{
 					</Grid>
 				</Grid>
 			</div>
-			<Grid container spacing={1}>
+			<Grid container spacing={1} className={classes.macrosContainer}>
 				{this.state.savedMacros.map((savedMacro: SavedMacro) => {
-					const maxLength = 120
-					let macroText = JSON.stringify(savedMacro.macro, null, 4)
+					const maxLength = 90
+					let macroText = JSON.stringify(savedMacro.macro)
 					if (macroText.length > maxLength) {
 						macroText = macroText.slice(0, maxLength - 10) + "..."
 					}
@@ -291,24 +351,31 @@ class Macros extends React.Component<{
 						className={classes.macroItem}
 						xs={12} sm={4} md={3}>
 						<Card className={classes.macroCard}>
-							<CardContent>
+							<CardContent className={classes.cardContent}>
 								<Typography variant="h5" component="h5">
 									{savedMacro.name}
 								</Typography>
-								<Typography component="p" color="textSecondary">
-									{macroText}
-								</Typography>
+								<pre color="textSecondary" className={classes.macroCode}>{macroText}</pre>
+								{/* <Typography component="p" color="textSecondary">
+								</Typography> */}
 							</CardContent>
-							<CardActions>
+							<CardActions className={classes.macroCardActions}>
+								<Tooltip title="Edit macro" placement="top" >
+									<Button
+										id={`edit-${savedMacro.id}`}
+										onClick={() => this.startEditingMacro(savedMacro.id, savedMacro.name, savedMacro.macro)}>
+										<EditIcon />
+									</Button>
+								</Tooltip>
 								<Tooltip title="Play macro" placement="top" >
 									<Button
 										// The id is not used but it's helpful for writing
 										// meta-macros and loops to press in the browser's console.
-										id={`play-${savedMacro.id}`} onClick={() => this.playMacro(savedMacro.macro)}>
+										id={`play-${savedMacro.id}`}
+										onClick={() => this.playMacro(savedMacro.macro)}>
 										<PlayArrowIcon />
 									</Button>
 								</Tooltip>
-								{/* TODO Add edit button which will set up to edit this macro and allow to delete it. */}
 							</CardActions>
 						</Card>
 					</Grid>
