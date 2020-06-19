@@ -14,7 +14,7 @@ test_deps = [
 
 setup(
 	name='switch-remoteplay-server',
-	version='0.4.0',
+	version='0.5.0',
 	packages=find_packages(),
 	url='https://github.com/juharris/switch-remoteplay',
 	license='MIT',

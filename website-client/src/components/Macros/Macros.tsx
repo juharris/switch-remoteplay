@@ -7,6 +7,8 @@ import green from '@material-ui/core/colors/green'
 import red from '@material-ui/core/colors/red'
 import Grid from '@material-ui/core/Grid'
 import Link from '@material-ui/core/Link'
+import Snackbar from '@material-ui/core/Snackbar'
+import { Theme } from '@material-ui/core/styles'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import TextField from '@material-ui/core/TextField'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -17,11 +19,13 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever'
 import EditIcon from '@material-ui/icons/Edit'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SaveIcon from '@material-ui/icons/Save'
+import MuiAlert, { AlertProps, Color as ToastColor } from '@material-ui/lab/Alert'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import MacroRecorder from './MacroRecorder'
 
-const styles = () => createStyles({
+
+const styles = (theme: Theme) => createStyles({
 	macrosContainer: {
 		alignItems: 'stretch',
 	},
@@ -55,7 +59,17 @@ const styles = () => createStyles({
 	macroCardActions: {
 		display: 'flex',
 	},
+	toast: {
+		width: '100%',
+		'& > * + *': {
+			marginTop: theme.spacing(2),
+		},
+	},
 })
+
+function Alert(props: AlertProps) {
+	return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 class SavedMacro {
 	constructor(
@@ -78,6 +92,10 @@ class Macros extends React.Component<{
 			isRecording: false,
 			macroExists: false,
 
+			isToastOpen: false,
+			toastMessage: "",
+			toastSeverity: "",
+
 			macroName: "",
 			editMacro: "",
 
@@ -86,8 +104,10 @@ class Macros extends React.Component<{
 
 		this.addMacro = this.addMacro.bind(this)
 		this.cancelEditMacro = this.cancelEditMacro.bind(this)
+		this.closeToast = this.closeToast.bind(this)
 		this.deleteMacro = this.deleteMacro.bind(this)
 		this.handleChange = this.handleChange.bind(this)
+		this.openToast = this.openToast.bind(this)
 		this.playMacro = this.playMacro.bind(this)
 		this.playLastRecordedMacro = this.playLastRecordedMacro.bind(this)
 		this.saveMacro = this.saveMacro.bind(this)
@@ -96,12 +116,10 @@ class Macros extends React.Component<{
 	}
 
 	componentDidMount() {
-		// TODO Handle names for other browsers (from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)
 		const indexedDB = window.indexedDB
-
 		const request = indexedDB.open('macros', 1)
-		request.onerror = function(event: Event) {
-			// TODO Give feedback.
+		request.onerror = (event: Event) => {
+			this.openToast("Could not open the macro database. See the Console for more details.", 'error')
 			console.error("Could not open the macro database.")
 			console.error(event)
 		}
@@ -118,17 +136,43 @@ class Macros extends React.Component<{
 		}
 	}
 
+	private openToast(toastMessage: string, toastSeverity: ToastColor): void {
+		this.setState({
+			isToastOpen: true,
+			toastMessage,
+			toastSeverity,
+		})
+	}
+
+	private closeToast(event?: React.SyntheticEvent, reason?: string) {
+		if (reason === 'clickaway') {
+			return
+		}
+
+		this.setState({
+			isToastOpen: false,
+		})
+	}
+
 	private loadSavedMacros() {
 		if (this.db === undefined) {
 			// Shouldn't happen.
+			this.openToast("Error loading macros. See the Console for more details.", 'error')
 			console.error("The macro database has not been loaded yet. Please try again.")
 			return
 		}
 		const transaction = this.db.transaction('macro', 'readonly')
-		// transaction.onerror = reject
+		transaction.onerror = (event: Event) => {
+			this.openToast("Error loading macros. See the Console for more details.", 'error')
+			console.error(event)
+		}
 		const dataStore = transaction.objectStore('macro')
 		const getRequest = dataStore.getAll()
-		// addRequest.onerror = reject
+		getRequest.onerror = (event: Event) => {
+			this.openToast("Error loading macros. See the Console for more details.", 'error')
+			console.error(event)
+		}
+
 		getRequest.onsuccess = () => {
 			this.setState({
 				savedMacros: getRequest.result,
@@ -140,7 +184,7 @@ class Macros extends React.Component<{
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
-	startEditingMacro(id: string | undefined, name: string, macro: string[]) {
+	private startEditingMacro(id: string | undefined, name: string, macro: string[]) {
 		this.setState({
 			editMacroId: id,
 			macroName: name,
@@ -148,22 +192,22 @@ class Macros extends React.Component<{
 		})
 	}
 
-	addMacro(): void {
+	private addMacro(): void {
 		this.startEditingMacro(undefined, "", ["a d", "wait 350", "a u"])
 	}
 
-	parseMacro(macro: string): string[] {
-		// TODO Validate better.
+	private parseMacro(macro: string): string[] {
+		// More validation and cleaning can be done here.
 		macro = macro.replace(/'/g, "\"")
 		return JSON.parse(macro)
 	}
 
-	saveMacro(): void {
+	private saveMacro(): void {
 		let macro: string[]
 		try {
 			macro = this.parseMacro(this.state.editMacro)
 		} catch (err) {
-			// TODO Give feedback that the macro is not valid.
+			this.openToast("The macro is invalid. See the Console for more details.", 'error')
 			console.error("Invalid macro:")
 			console.error(err)
 			return
@@ -171,13 +215,16 @@ class Macros extends React.Component<{
 		const name = this.state.macroName
 
 		if (this.db === undefined) {
+			this.openToast("The macro database has not been loaded yet. Please try again.", 'error')
 			console.error("The macro database has not been loaded yet. Please try again.")
 			return
 		}
 
-		// TODO Add error handling.
 		const transaction = this.db.transaction('macro', 'readwrite')
-		// transaction.onerror = reject
+		transaction.onerror = (event: Event) => {
+			this.openToast("Error saving the macro. See the Console for more details.", 'error')
+			console.error(event)
+		}
 		const dataStore = transaction.objectStore('macro')
 		let request
 		if (this.state.editMacroId !== undefined) {
@@ -192,49 +239,62 @@ class Macros extends React.Component<{
 				macro,
 			})
 		}
-		// request.onerror = reject
+		request.onerror = (event: Event) => {
+			this.openToast("Error saving the macro. See the Console for more details.", 'error')
+			console.error(event)
+		}
 		request.onsuccess = () => {
 			this.loadSavedMacros()
 			this.setState({
 				macroName: "",
 				editMacro: "",
 			})
+			this.openToast("Saved", 'success')
 		}
 	}
 
-	deleteMacro(macroId: string): void {
+	private deleteMacro(macroId: string): void {
 		if (this.db === undefined) {
-			// Shouldn't happen.
+			this.openToast("The macro database has not been loaded yet. Please try again.", 'error')
 			console.error("The macro database has not been loaded yet. Please try again.")
 			return
 		}
 
 		const transaction = this.db.transaction('macro', 'readwrite')
-		// transaction.onerror = reject
+		transaction.onerror = (event: Event) => {
+			this.openToast("Error deleting the macro. See the Console for more details.", 'error')
+			console.error(event)
+		}
 		const dataStore = transaction.objectStore('macro')
 		const deleteRequest = dataStore.delete(macroId)
-		// addRequest.onerror = reject
+		deleteRequest.onerror = (event: Event) => {
+			this.openToast("Error deleting the macro. See the Console for more details.", 'error')
+			console.error(event)
+		}
 		deleteRequest.onsuccess = () => {
 			this.loadSavedMacros()
 			this.cancelEditMacro()
+			this.openToast("Deleted the macro", 'info')
 		}
 	}
 
-	cancelEditMacro(): void {
+	private cancelEditMacro(): void {
 		this.setState({
 			editMacro: ""
 		})
 	}
 
-	startRecording(): void {
+	private startRecording(): void {
 		this.setState({ isRecording: true })
 		this.props.macroRecorder.start()
+		this.openToast("Recording macro", 'info')
 	}
 
-	stopRecording(): void {
+	private stopRecording(): void {
 		this.props.macroRecorder.stop()
 		this.startEditingMacro(undefined, "", this.props.macroRecorder.currentRecording)
 		this.setState({ isRecording: false, macroExists: true, })
+		this.openToast("Stopped recording macro", 'info')
 	}
 
 	async sleep(sleepMillis: number) {
@@ -242,6 +302,7 @@ class Macros extends React.Component<{
 	}
 
 	async playMacro(macro: string[]) {
+		this.openToast("Playing macro", 'info')
 		for (const command of macro) {
 			const m = /wait (\d+)/.exec(command)
 			if (m) {
@@ -253,6 +314,7 @@ class Macros extends React.Component<{
 				this.props.sendCommand(command)
 			}
 		}
+		this.openToast("Done playing macro", 'info')
 	}
 
 	async playLastRecordedMacro(): Promise<void> {
@@ -263,6 +325,11 @@ class Macros extends React.Component<{
 		const { classes } = this.props
 
 		return <div>
+			<Snackbar open={this.state.isToastOpen} autoHideDuration={6000} onClose={this.closeToast}>
+				<Alert onClose={this.closeToast} severity={this.state.toastSeverity}>
+					{this.state.toastMessage}
+				</Alert>
+			</Snackbar>
 			<Typography variant="h3">Macros</Typography>
 			<Grid container>
 				<Grid item>

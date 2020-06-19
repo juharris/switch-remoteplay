@@ -65,7 +65,7 @@ export default class KeyboardBinding extends KeyBinding {
 		// It would be tricky to do in general and should probably be specific to the game.
 		// document.addEventListener('mousemove', mouseMoveHandler)
 		// document.addEventListener('mousedown', (e: MouseEvent) => {
-		//     // TODO Allow if clicking on 'send-mode-toggle'
+		//     // Allow if clicking on 'send-mode-toggle'
 		//     // if (e!.target!.name === 'send-mode-toggle') {
 		//     // 	return
 		//     // }
