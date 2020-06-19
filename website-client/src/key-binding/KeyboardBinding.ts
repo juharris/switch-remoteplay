@@ -65,7 +65,7 @@ export default class KeyboardBinding extends KeyBinding {
 		// It would be tricky to do in general and should probably be specific to the game.
 		// document.addEventListener('mousemove', mouseMoveHandler)
 		// document.addEventListener('mousedown', (e: MouseEvent) => {
-		//     // TODO Allow if clicking on 'send-mode-toggle'
+		//     // Allow if clicking on 'send-mode-toggle'
 		//     // if (e!.target!.name === 'send-mode-toggle') {
 		//     // 	return
 		//     // }
@@ -122,6 +122,10 @@ export default class KeyboardBinding extends KeyBinding {
 	// }
 
 	private handleKey(e: KeyboardEvent | MouseEvent, keyName: string, keyDirection: string) {
+		const targetName = (e.target as any).name
+		if (targetName === 'editMacro' || targetName === 'macroName') {
+			return
+		}
 		let keyMapping = this.keyMap
 
 		if (keyName in keyMapping) {
@@ -140,18 +144,18 @@ export default class KeyboardBinding extends KeyBinding {
 				const stick = controllerState[action.name]
 				if (stick) {
 					switch (action.dirName) {
-					case 'left':
-						stick.horizontalValue = keyDirection === 'down' ? -1 : 0
-						break
-					case 'right':
-						stick.horizontalValue = keyDirection === 'down' ? +1 : 0
-						break
-					case 'up':
-						stick.verticalValue = keyDirection === 'down' ? -1 : 0
-						break
-					case 'down':
-						stick.verticalValue = keyDirection === 'down' ? +1 : 0
-						break
+						case 'left':
+							stick.horizontalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'right':
+							stick.horizontalValue = keyDirection === 'down' ? +1 : 0
+							break
+						case 'up':
+							stick.verticalValue = keyDirection === 'down' ? -1 : 0
+							break
+						case 'down':
+							stick.verticalValue = keyDirection === 'down' ? +1 : 0
+							break
 					}
 				}
 			} else {

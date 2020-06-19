@@ -15,7 +15,7 @@ module.exports = {
 	rules: {
 		'comma-dangle': ['off', 'ignore'],
 		'comma-spacing': ["error", { "before": false, "after": true }],
-		indent: ['error', 'tab'],
+		indent: ['error', 'tab', { SwitchCase: 1 }],
 		'no-tabs': 0,
 		'operator-linebreak': ['off'],
 		quotes: ['off'],

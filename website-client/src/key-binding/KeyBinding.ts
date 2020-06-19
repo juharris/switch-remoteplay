@@ -1,7 +1,7 @@
 import { ControllerState } from '../components/Controller/ControllerState'
 
 export interface SendCommand {
-	(command: string, controllerState: ControllerState): void
+	(command: string, controllerState?: ControllerState): void
 }
 
 export abstract class KeyBinding {

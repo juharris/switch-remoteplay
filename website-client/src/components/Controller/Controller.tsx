@@ -17,7 +17,7 @@ const styles = () => createStyles({
 class Controller extends React.Component<any> {
 	render(): React.ReactNode {
 		const { classes } = this.props
-		const controllerState: ControllerState = this.props.controllerState || new ControllerState()
+		const controllerState: ControllerState | undefined = this.props.controllerState
 
 		return (
 			<div className={classes.controller}>
@@ -26,7 +26,7 @@ class Controller extends React.Component<any> {
 						<div
 							className={
 								cssClasses.LargeButton +
-								(controllerState.l.isPressed ? " " + cssClasses.Pressed : "")
+								(controllerState?.l?.isPressed ? " " + cssClasses.Pressed : "")
 							}
 						>
 							<p>L</p>
@@ -35,7 +35,7 @@ class Controller extends React.Component<any> {
 							<div
 								className={
 									cssClasses.SmallButton +
-									(controllerState.zl.isPressed ? " " + cssClasses.Pressed : "")
+									(controllerState?.zl?.isPressed ? " " + cssClasses.Pressed : "")
 								}
 							>
 								<p>ZL</p>
@@ -43,7 +43,7 @@ class Controller extends React.Component<any> {
 							<div
 								className={
 									cssClasses.Symbol +
-									(controllerState.minus.isPressed ? " " + cssClasses.PressedAlt : "")
+									(controllerState?.minus?.isPressed ? " " + cssClasses.PressedAlt : "")
 								}
 							>
 								{/* Slightly wider than a typical minus. */}
@@ -52,22 +52,22 @@ class Controller extends React.Component<any> {
 						</div>
 					</div>
 					<Joystick
-						x={controllerState.leftStick.horizontalValue}
-						y={controllerState.leftStick.verticalValue}
-						pressed={controllerState.leftStick.isPressed}
+						x={controllerState?.leftStick?.horizontalValue || 0}
+						y={controllerState?.leftStick?.verticalValue || 0}
+						pressed={controllerState?.leftStick?.isPressed}
 					/>
 					<Diamond
 						buttons={[
-							{ symbol: "▶", pressed: controllerState.arrowRight.isPressed },
-							{ symbol: "▼", pressed: controllerState.arrowDown.isPressed },
-							{ symbol: "▲", pressed: controllerState.arrowUp.isPressed },
-							{ symbol: "◀", pressed: controllerState.arrowLeft.isPressed },
+							{ symbol: "▶", pressed: controllerState?.arrowRight?.isPressed },
+							{ symbol: "▼", pressed: controllerState?.arrowDown?.isPressed },
+							{ symbol: "▲", pressed: controllerState?.arrowUp?.isPressed },
+							{ symbol: "◀", pressed: controllerState?.arrowLeft?.isPressed },
 						]}
 					/>
 					<div
 						className={
 							cssClasses.Symbol + " " + cssClasses.capture +
-							(controllerState.capture.isPressed ? " " + cssClasses.PressedAlt : "")
+							(controllerState?.capture?.isPressed ? " " + cssClasses.PressedAlt : "")
 						}
 					>
 						<p>■</p>
@@ -81,7 +81,7 @@ class Controller extends React.Component<any> {
 						<div
 							className={
 								cssClasses.LargeButton +
-								(controllerState.r.isPressed ? " " + cssClasses.Pressed : "")
+								(controllerState?.r?.isPressed ? " " + cssClasses.Pressed : "")
 							}
 						>
 							<p>R</p>
@@ -90,7 +90,7 @@ class Controller extends React.Component<any> {
 							<div
 								className={
 									cssClasses.Symbol +
-									(controllerState.plus.isPressed ? " " + cssClasses.PressedAlt : "")
+									(controllerState?.plus?.isPressed ? " " + cssClasses.PressedAlt : "")
 								}
 							>
 								<p>+</p>
@@ -98,7 +98,7 @@ class Controller extends React.Component<any> {
 							<div
 								className={
 									cssClasses.SmallButton +
-									(controllerState.zr.isPressed ? " " + cssClasses.Pressed : "")
+									(controllerState?.zr?.isPressed ? " " + cssClasses.Pressed : "")
 								}
 							>
 								<p>ZR</p>
@@ -107,21 +107,21 @@ class Controller extends React.Component<any> {
 					</div>
 					<Diamond
 						buttons={[
-							{ symbol: "a", pressed: controllerState.a.isPressed },
-							{ symbol: "b", pressed: controllerState.b.isPressed },
-							{ symbol: "x", pressed: controllerState.x.isPressed },
-							{ symbol: "y", pressed: controllerState.y.isPressed },
+							{ symbol: "a", pressed: controllerState?.a?.isPressed },
+							{ symbol: "b", pressed: controllerState?.b?.isPressed },
+							{ symbol: "x", pressed: controllerState?.x?.isPressed },
+							{ symbol: "y", pressed: controllerState?.y?.isPressed },
 						]}
 					/>
 					<Joystick
-						x={controllerState.rightStick.horizontalValue}
-						y={controllerState.rightStick.verticalValue}
-						pressed={controllerState.rightStick.isPressed}
+						x={controllerState?.rightStick?.horizontalValue || 0}
+						y={controllerState?.rightStick?.verticalValue || 0}
+						pressed={controllerState?.rightStick?.isPressed}
 					/>
 					<div
 						className={
 							cssClasses.Symbol + " " + cssClasses.home +
-							(controllerState.home.isPressed ? " " + cssClasses.PressedAlt : "")
+							(controllerState?.home?.isPressed ? " " + cssClasses.PressedAlt : "")
 						}
 					>
 						<p>●</p>

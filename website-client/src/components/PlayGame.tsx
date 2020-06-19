@@ -13,6 +13,7 @@ import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
 import Controller from './Controller/Controller'
 import { ControllerState } from './Controller/ControllerState'
+import { parseCommand } from './Controller/parse-command'
 import MacroRecorder from './Macros/MacroRecorder'
 import Macros from './Macros/Macros'
 
@@ -213,18 +214,28 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private sendCommand(command: string, controllerState: ControllerState) {
+	private sendCommand(command: string, controllerState?: ControllerState) {
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}
-		this.setState({
-			controllerState,
-		})
-		// TODO Find a more compact way to store controller state changes.
-		// Maybe they shouldn't be stored at all and we can just re-parse the command.
-		// That would save weird logic in other places but still keep redundancies trying to make a compact command but they rebuilding it.
-		// Although the rebuilding can be limited to be doing just when saving a macro.
-		this.macroRecorder.add(command, JSON.parse(JSON.stringify(controllerState)))
+
+		// Controller and key bindings should send the state since it should be easy for them to compute it.
+		// Running commands from a macro might not send the state.
+		if (controllerState !== undefined) {
+			this.setState({
+				controllerState,
+			})
+		} else {
+			const controllerStates = parseCommand(command)
+			for (let i = 0; i < controllerStates.length; ++i) {
+				setTimeout(() => {
+					this.setState({
+						controllerState: controllerStates[i],
+					})
+				}, i * 100)
+			}
+		}
+		this.macroRecorder.add(command)
 	}
 
 	private toggleSendMode() {
