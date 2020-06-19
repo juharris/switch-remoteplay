@@ -30,9 +30,13 @@ One keyboard layout or gaming controller layout is supported to map input to the
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.
 This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller.
 
-You can record and run **macros**.
+# Macros
+You can record and run **macros**!
 You do not need your Switch's video going through your PC to record and run macros.
-Just setting up the server to send commands via Bluetooth is enough.
+Just setting up the server (Linux device with Bluetooth) to send commands via Bluetooth to your nearby Switch is enough.
+Then you can record, modify, manage, and **play** your macros from a PC or even your phone.
+
+See the supported commands [here](/server#api).
 
 # Requirements
 The host (person setting this up) needs:
@@ -46,8 +50,9 @@ The client (your friend) needs:
 * A keyboard or gaming controller
 
 # Plans
+* Make controller buttons clickable/tappable.
 * Support custom key bindings.
-* Improve macro support: naming, sharing, selecting, editing, etc.
+* Improve macro support: exporting/importing.
 * Default layout options for common controllers.
 * Default key binding options for keyboard/mouse for certain games.
 * Loadable and exportable key binding configurations.
@@ -58,6 +63,7 @@ The client (your friend) needs:
 I'm looking for help with implementing the above plans. Some more specific things:
 * Add security options to the service: auth, allowed origins, disabling buttons like Home and screen capture, limiting the number of clients connected.
 * Getting the service to run on Windows (hard since the libraries I'm relying on require Linux)
+* Improve macro support: a nicer editor
 * Improving the client UX
 * Mapping controller, keyboards, and mice for game specific controls (once custom bindings are supported)
 * Phone apps to talk to the Switch and host the service instead of the a Linux machine.
