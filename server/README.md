@@ -31,13 +31,28 @@ sudo python3 switchremoteplay/server.py --help
 You can change the controller type, the port used by the socket service, and the log level.
 
 # API
+This sections discusses the format of commands that the server expects.
+This section is useful for developers and people writing macros.
+
+## Macros
+Most of these commands are supported in macros by the client (website).
+
+Note that the examples below use single quotes, `'`, as a convention to emphasize that they are code meant to be interpreted by a machine.
+You can also use double quotes, `"` since macros are [JSON](https://www.json.org) lists.
+It is fine to use single quotes when writing macros since they will be converted to double quotes when saved.
+
+Example macro:
+```json
+["s l up", "wait 200", "a d", "wait 200", "a u", "wait 200", "s l center"]
+```
+
+## Developer Notes
 The service uses a socket to connect to the client.
 Events are emitted as strings to the `'p'` (Press) handler.
 
-Normally I like very clear APIs with verbose objects but I haven't worked directly with sockets much and I think you're supposed to keep requests very short so I've set up requests to be very short.
+Normally I like very clear APIs with verbose objects but I haven't worked directly with sockets much and I think you're supposed to keep requests very short so I've set up requests to be very short strings.
 It will also be easier this way for people to write macros.
 
-Here are the events as strings that the API handles: 
 ## Buttons
 ### Press a single button:
 These single letter command put the button in the pushed state, wait a few milliseconds, and then puts the button in the not pushed state.
@@ -109,8 +124,9 @@ Example: Push the right stick halfway to the right and halfway up: `'s r hv 0.5 
 Example: Push the left stick halfway to the right and halfway down: `'s l hv 0.5 0.5'`.
 
 # Wait
-(not supported yet - in discussion [here](https://github.com/juharris/switch-remoteplay/issues/8))
-This is mainly for macros. It might only be supported by the client and not the server.
+This is mainly for macros.
+This server itself will not recognize `wait` commands.
+There is an ongoing discussion [here](https://github.com/juharris/switch-remoteplay/issues/8).
 
 Format: `wait <time in milliseconds>`
 
@@ -121,7 +137,8 @@ The amount of time must be an integer.
 # Sending Multiple Commands
 
 ## Simultaneous
-To run multiple commands at the same time: join commands with `&`
+To run multiple commands at the same time: join commands with `&`.
+This is supported in macros.
 
 Example: Press A and B down: `'a d&b d'`
 
@@ -129,7 +146,10 @@ Do **not** use single press command like just `'a'`.
 It might seems like it works but the behavior is not guaranteed.
 
 ## Sequence
-Run one command after another: join commands with `,`
+Run one command after another: join commands with `,`.
+This is not guaranteed to work with macros since it is not really needed because you can just split up the command: `["a,b"]` should be: `["a", "b"]`.
+This takes precedence over `&`.
+I.e. first the command is split on `,`, then on `&`.
 
 Example: Press A, then wait, then B, then wait, let them both go: `'a d,wait 200,b d,wait 200,a u&b u'`.
 
