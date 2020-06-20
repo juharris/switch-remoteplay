@@ -1,22 +1,4 @@
 /* TODO Use lower-case for the names. */
-
-.Left {
-	display: flex;
-	align-items: center;
-}
-
-.Middle {
-	/* Some of the settings were used before the video was in between the controls. */
-	/* display: flex; */
-	/* flex-direction: column; */
-	/* flex-grow: 1; */
-	min-width: 23rem;
-}
-
-.Right {
-
-}
-
 .LargeButton {
 	background-color: #111;
 	margin: 1rem;

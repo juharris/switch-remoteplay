@@ -344,6 +344,7 @@ class PlayGame extends React.Component<any, any> {
 						</Grid>
 					</div>}
 				<Controller controllerState={this.state.controllerState}
+					sendCommand={this.sendCommand}
 					videoStreamProps={{
 						mixerChannel: this.state.mixerChannel,
 					}} />
