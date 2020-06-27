@@ -67,7 +67,7 @@ class Controller extends React.Component<{
 							</ControllerButton>
 						</div>
 					</div>
-					<Joystick
+					<Joystick name='l'
 						sendCommand={sendCommand}
 						x={controllerState?.leftStick?.horizontalValue || 0}
 						y={controllerState?.leftStick?.verticalValue || 0}
@@ -163,7 +163,7 @@ class Controller extends React.Component<{
 							},
 						]}
 					/>
-					<Joystick
+					<Joystick name = 'r'
 						sendCommand={sendCommand}
 						x={controllerState?.rightStick?.horizontalValue || 0}
 						y={controllerState?.rightStick?.verticalValue || 0}
