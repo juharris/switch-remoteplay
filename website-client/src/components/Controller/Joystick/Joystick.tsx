@@ -32,10 +32,10 @@ class Joystick extends React.Component<{
 	pressed: boolean,
 	classes: any,
 }> {
-	prevX: number = 0
-	prevY: number = 0
-	prevH: number = 0
-	prevV: number = 0
+	prevX = 0
+	prevY = 0
+	prevH = 0
+	prevV = 0
 
 	constructor(props: any) {
 		super(props)
@@ -50,13 +50,19 @@ class Joystick extends React.Component<{
 		e.preventDefault()
 	}
 
-	private onSelect(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement>) {
+	private onSelect(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		let x, y
 		if (e.type.includes('drag')) {
 			const event = e as React.DragEvent<HTMLDivElement>
 			x = event.clientX
 			y = event.clientY
+		} else if (e.type === 'mousedown') {
+			const event = e as React.MouseEvent<HTMLDivElement, MouseEvent>
+			x = event.screenX
+			y= event.screenY
 
+			document.addEventListener('mousemove', this.onDrag)
+			document.addEventListener('mouseup', this.onUnselect)
 		} else {
 			const event = e as React.TouchEvent<HTMLDivElement>
 
@@ -71,13 +77,16 @@ class Joystick extends React.Component<{
 		e.preventDefault()
 	}
 
-	private onDrag(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement>) {
+	private onDrag(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement> | MouseEvent) {
 		let x, y
 		if (e.type.includes('drag')) {
 			const event = e as React.DragEvent<HTMLDivElement>
 			x = event.clientX
 			y = event.clientY
-
+		} else if (e.type === 'mousemove') {
+			const event = e as MouseEvent
+			x = event.screenX
+			y = event.screenY
 		} else {
 			const event = e as React.TouchEvent<HTMLDivElement>
 
@@ -99,9 +108,10 @@ class Joystick extends React.Component<{
 		// e.preventDefault()
 	}
 
-	private onUnselect(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement>) {
+	private onUnselect(e: React.TouchEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement> | MouseEvent) {
 		this.props.sendCommand(`s ${this.props.name} center`)
 		document.removeEventListener('touchmove', this.preventScroll)
+		document.removeEventListener('mousemove', this.onDrag)
 		e.preventDefault()
 	}
 
@@ -125,6 +135,7 @@ class Joystick extends React.Component<{
 			<div className={joystickClassList} style={styles}
 				onDragStart={this.onSelect}
 				onTouchStart={this.onSelect}
+				onMouseDown={this.onSelect}
 				onDrag={this.onDrag}
 				onTouchMove={this.onDrag}
 				onDragEnd={this.onUnselect}
