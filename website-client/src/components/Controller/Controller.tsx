@@ -20,6 +20,7 @@ const styles = () => createStyles({
 		/* display: flex; */
 		/* flex-direction: column; */
 		/* flex-grow: 1; */
+		// TODO Middle should be small or nothing on mobile devices.
 		minWidth: '23rem',
 	},
 })
@@ -34,12 +35,13 @@ class Controller extends React.Component<{
 	render(): React.ReactNode {
 		const { classes, sendCommand } = this.props
 		const controllerState: ControllerState = this.props.controllerState
-
+		// TODO Pass controllerState to buttons.
 		return (
 			<div className={classes.controller}>
 				<div>
 					<div>
 						<ControllerButton name='l' sendCommand={sendCommand}
+							controllerState={controllerState}
 							className={
 								cssClasses.LargeButton +
 								(controllerState?.l?.isPressed ? " " + cssClasses.Pressed : "")
@@ -49,6 +51,7 @@ class Controller extends React.Component<{
 						</ControllerButton>
 						<div className={cssClasses.Row}>
 							<ControllerButton name='zl' sendCommand={sendCommand}
+								controllerState={controllerState}
 								className={
 									cssClasses.SmallButton +
 									(controllerState?.zl?.isPressed ? " " + cssClasses.Pressed : "")
@@ -57,6 +60,7 @@ class Controller extends React.Component<{
 								<p>ZL</p>
 							</ControllerButton>
 							<ControllerButton name='minus' sendCommand={sendCommand}
+								controllerState={controllerState}
 								className={
 									cssClasses.Symbol +
 									(controllerState?.minus?.isPressed ? " " + cssClasses.PressedAlt : "")
@@ -75,30 +79,36 @@ class Controller extends React.Component<{
 						pressed={controllerState?.leftStick?.isPressed}
 					/>
 					<Diamond
+						controllerState={controllerState}
 						buttons={[
 							{
 								symbol: "▶", name: 'right',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.arrowRight?.isPressed
 							},
 							{
 								symbol: "▼", name: 'down',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.arrowDown?.isPressed
 							},
 							{
 								symbol: "▲", name: 'up',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.arrowUp?.isPressed
 							},
 							{
 								symbol: "◀", name: 'left',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.arrowLeft?.isPressed
 							},
 						]}
 					/>
 					<ControllerButton name='capture' sendCommand={sendCommand}
+						controllerState={controllerState}
 						className={
 							cssClasses.Symbol + " " + cssClasses.capture +
 							(controllerState?.capture?.isPressed ? " " + cssClasses.PressedAlt : "")
@@ -113,6 +123,7 @@ class Controller extends React.Component<{
 				<div>
 					<div>
 						<ControllerButton name='r' sendCommand={sendCommand}
+							controllerState={controllerState}
 							className={
 								cssClasses.LargeButton +
 								(controllerState?.r?.isPressed ? " " + cssClasses.Pressed : "")
@@ -122,6 +133,7 @@ class Controller extends React.Component<{
 						</ControllerButton>
 						<div className={cssClasses.Row}>
 							<ControllerButton name='plus' sendCommand={sendCommand}
+								controllerState={controllerState}
 								className={
 									cssClasses.Symbol +
 									(controllerState?.plus?.isPressed ? " " + cssClasses.PressedAlt : "")
@@ -130,6 +142,7 @@ class Controller extends React.Component<{
 								<p>+</p>
 							</ControllerButton>
 							<ControllerButton name='zr' sendCommand={sendCommand}
+								controllerState={controllerState}
 								className={
 									cssClasses.SmallButton +
 									(controllerState?.zr?.isPressed ? " " + cssClasses.Pressed : "")
@@ -140,31 +153,34 @@ class Controller extends React.Component<{
 						</div>
 					</div>
 					<Diamond
-						sendCommand={sendCommand}
 						buttons={[
 							{
 								symbol: "a", name: 'a',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.a?.isPressed
 							},
 							{
 								symbol: "b", name: 'b',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.b?.isPressed
 							},
 							{
 								symbol: "x", name: 'x',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.x?.isPressed
 							},
 							{
 								symbol: "y", name: 'y',
 								sendCommand,
+								controllerState,
 								pressed: controllerState?.y?.isPressed
 							},
 						]}
 					/>
-					<Joystick name = 'r'
+					<Joystick name='r'
 						sendCommand={sendCommand}
 						controllerState={controllerState}
 						x={controllerState?.rightStick?.horizontalValue || 0}
@@ -172,6 +188,7 @@ class Controller extends React.Component<{
 						pressed={controllerState?.rightStick?.isPressed}
 					/>
 					<ControllerButton name='home' sendCommand={sendCommand}
+						controllerState={controllerState}
 						className={
 							cssClasses.Symbol + " " + cssClasses.home +
 							(controllerState?.home?.isPressed ? " " + cssClasses.PressedAlt : "")

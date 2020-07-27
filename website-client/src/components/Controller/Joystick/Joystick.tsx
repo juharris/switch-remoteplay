@@ -145,7 +145,7 @@ class Joystick extends React.Component<{
 		stickState.horizontalValue = 0
 		stickState.verticalValue = 0
 		stickState.isPressed = false
-		let commands = []
+		const commands = []
 		if (this.pressed) {
 			const stickName = this.props.name === 'l' ? 'l_stick' : 'r_stick'
 			commands.push(`${stickName} u`)
