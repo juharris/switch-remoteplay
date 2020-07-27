@@ -33,7 +33,7 @@ class Controller extends React.Component<{
 }> {
 	render(): React.ReactNode {
 		const { classes, sendCommand } = this.props
-		const controllerState: ControllerState | undefined = this.props.controllerState
+		const controllerState: ControllerState = this.props.controllerState
 
 		return (
 			<div className={classes.controller}>
@@ -69,6 +69,7 @@ class Controller extends React.Component<{
 					</div>
 					<Joystick name='l'
 						sendCommand={sendCommand}
+						controllerState={controllerState}
 						x={controllerState?.leftStick?.horizontalValue || 0}
 						y={controllerState?.leftStick?.verticalValue || 0}
 						pressed={controllerState?.leftStick?.isPressed}
@@ -165,6 +166,7 @@ class Controller extends React.Component<{
 					/>
 					<Joystick name = 'r'
 						sendCommand={sendCommand}
+						controllerState={controllerState}
 						x={controllerState?.rightStick?.horizontalValue || 0}
 						y={controllerState?.rightStick?.verticalValue || 0}
 						pressed={controllerState?.rightStick?.isPressed}

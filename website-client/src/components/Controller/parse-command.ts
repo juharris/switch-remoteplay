@@ -120,6 +120,7 @@ function parseCommand(command: string): ControllerState[] {
 	}
 	result.push(controllerState)
 	if (hasTap) {
+		// TODO It would be better just to undo the button that was tapped.
 		result.push(new ControllerState())
 	}
 
