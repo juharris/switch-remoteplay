@@ -35,7 +35,6 @@ class Controller extends React.Component<{
 	render(): React.ReactNode {
 		const { classes, sendCommand } = this.props
 		const controllerState: ControllerState = this.props.controllerState
-		// TODO Pass controllerState to buttons.
 		return (
 			<div className={classes.controller}>
 				<div>

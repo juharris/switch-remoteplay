@@ -25,8 +25,6 @@ const styles = () => createStyles({
 	}
 })
 
-// TODO Handle pressing inwards.
-
 class Joystick extends React.Component<{
 	name: string,
 	sendCommand: SendCommand,
