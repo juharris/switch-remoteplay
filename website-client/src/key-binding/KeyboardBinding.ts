@@ -165,6 +165,7 @@ export default class KeyboardBinding extends KeyBinding {
 					button.isPressed = keyDirection === 'down'
 				}
 			}
+			// FIXME Do not run if state has not changed.		
 			this.sendCommand(action[keyDirection], this.controllerState)
 			e.preventDefault()
 		} else if (e.type === 'keydown') {

@@ -11,11 +11,9 @@ export interface SendCommand {
 }
 
 export abstract class KeyBinding {
-	sendCommand: SendCommand
-	controllerState = new ControllerState()
-
-	constructor(sendCommand: SendCommand) {
-		this.sendCommand = sendCommand
+	constructor(
+		public sendCommand: SendCommand,
+		public controllerState: ControllerState) {
 	}
 
 	abstract getName(): string

@@ -65,7 +65,8 @@ class PlayGame extends React.Component<any, any> {
 		this.toggleSendMode = this.toggleSendMode.bind(this)
 		this.updateConnectionStatus = this.updateConnectionStatus.bind(this)
 
-		const inputMethod = new KeyboardBinding(this.sendCommand)
+		const controllerState = new ControllerState()
+		const inputMethod = new KeyboardBinding(this.sendCommand, controllerState)
 		const inputMethodOptions = [
 			inputMethod,
 		]
@@ -86,6 +87,8 @@ class PlayGame extends React.Component<any, any> {
 
 			inputMethod,
 			inputMethodOptions,
+
+			controllerState,
 		}
 	}
 
@@ -123,7 +126,7 @@ class PlayGame extends React.Component<any, any> {
 			e.gamepad.index, e.gamepad.id,
 			e.gamepad.buttons.length, e.gamepad.axes.length)
 		this.state.inputMethod.stop()
-		const inputMethod = new GamepadBinding(this.sendCommand, e.gamepad)
+		const inputMethod = new GamepadBinding(this.sendCommand, this.state.controllerState, e.gamepad)
 		const inputMethodOptions = this.state.inputMethodOptions.concat([inputMethod])
 		this.setState({
 			inputMethod,
@@ -353,7 +356,7 @@ class PlayGame extends React.Component<any, any> {
 							</Grid>
 						</Grid>
 					</div>}
-				<Controller controllerState={this.state.controllerState || new ControllerState()}
+				<Controller controllerState={this.state.controllerState}
 					sendCommand={this.sendCommand}
 					videoStreamProps={{
 						mixerChannel: this.state.mixerChannel,
