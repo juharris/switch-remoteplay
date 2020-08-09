@@ -8,8 +8,9 @@ const Button: React.FunctionComponent<any> = (props: any) => {
 		classList += " " + classes.Pressed
 	}
 	return <ControllerButton
-		name={props.button.name} sendCommand={props.button.sendCommand}
-		controllerState={props.controllerState}
+		name={props.button.name}
+		sendCommand={props.button.sendCommand}
+		controllerState={props.button.controllerState}
 		className={classList}>
 		<h1>{props.button.symbol}</h1>
 	</ControllerButton>

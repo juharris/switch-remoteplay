@@ -1,5 +1,5 @@
 import { ControllerState } from '../ControllerState'
-import { parseCommand } from '../parse-command'
+import { updateState, parseCommand } from '../parse-command'
 
 describe('parseCommand', () => {
 	it('tap button', () => {
@@ -61,9 +61,14 @@ describe('parseCommand', () => {
 		]) {
 			(c as any)[buttonName].isPressed = true
 			expect(parseCommand(`${buttonName} d`)).toStrictEqual([c])
+			const updatedState = new ControllerState()
+			updateState(`${buttonName} d`, updatedState);
+			expect(updatedState).toStrictEqual(c)
 
 			c = new ControllerState()
 			expect(parseCommand(`${buttonName} u`)).toStrictEqual([c])
+			updateState(`${buttonName} u`, updatedState)
+			expect(updatedState).toStrictEqual(c)
 		}
 
 		c = new ControllerState()
