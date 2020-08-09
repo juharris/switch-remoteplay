@@ -2,7 +2,6 @@ import { createStyles, withStyles } from '@material-ui/core'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import { ControllerState } from './ControllerState'
-import { updateState } from './parse-command'
 
 const styles = () => createStyles({
 })
@@ -24,16 +23,16 @@ class ControllerButton extends React.Component<{
 	private onSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) {
 		const { name, sendCommand, controllerState } = this.props
 		const singleCommand = `${name} d`
-		updateState(singleCommand, controllerState)
-		sendCommand(singleCommand, controllerState)
+		const updatedGivenState = true
+		sendCommand(singleCommand, controllerState, updatedGivenState)
 		e.preventDefault()
 
 	}
 	private onUnselect(e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) {
 		const { name, sendCommand, controllerState } = this.props
 		const singleCommand = `${name} u`
-		updateState(singleCommand, controllerState)
-		sendCommand(singleCommand, controllerState)
+		const updatedGivenState = true
+		sendCommand(singleCommand, controllerState, updatedGivenState)
 		e.preventDefault()
 	}
 

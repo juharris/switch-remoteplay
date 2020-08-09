@@ -20,11 +20,12 @@ const buttonNameToStateMember: { [buttonName: string]: string } = {
 
 /**
  * Updates `controllerState`.
- * @param command A single command that can be represented by one state such as pressing a button down.
+ * @param command A single command that can be represented by one state such as just pressing a button down or just letting a button back up but not tapping a button (e.g. 'x' which involves pushing down then back up).
  * @param controllerState The current state.
  * @param command The full command that `singleCommand` came from.
  */
 function updateState(singleCommand: string, controllerState: ControllerState, command?: string) {
+	// TODO Handle &.
 	if (command === undefined) {
 		command = singleCommand
 	}
