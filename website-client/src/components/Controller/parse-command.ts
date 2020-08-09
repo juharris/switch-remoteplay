@@ -20,90 +20,93 @@ const buttonNameToStateMember: { [buttonName: string]: string } = {
 
 /**
  * Updates `controllerState`.
- * @param command A single command that can be represented by one state such as just pressing a button down or just letting a button back up but not tapping a button (e.g. 'x' which involves pushing down then back up).
+ * @param command A single command that can be represented by one state such as just pressing a button down or just letting a button back up but not tapping a button (e.g. 'x' which involves pushing down then back up). Can use '&' to combine commands.
  * @param controllerState The current state.
- * @param command The full command that `singleCommand` came from.
+ * @param fullCommand The full command that `singleCommand` came from.
  */
-function updateState(singleCommand: string, controllerState: ControllerState, command?: string) {
-	// TODO Handle &.
-	if (command === undefined) {
-		command = singleCommand
+function updateState(command: string, controllerState: ControllerState, fullCommand?: string): void {
+	if (fullCommand === undefined) {
+		fullCommand = command
 	}
-	const commandParts = singleCommand.split(/\s+/)
-	if (commandParts.length < 2) {
-		console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, command)
-	} else {
-		const button = commandParts[0]
-		if (button === 's') {
-			const stick = commandParts[1]
-			let stickState = undefined
-			if (stick === 'l') {
-				stickState = controllerState.leftStick
-			} else if (stick === 'r') {
-				stickState = controllerState.rightStick
-			}
-			if (stickState) {
-				if (commandParts.length === 3) {
-					const direction = commandParts[2]
-					switch (direction) {
-						case 'up':
-							stickState.verticalValue = -1
-							break
-						case 'down':
-							stickState.verticalValue = 1
-							break
-						case 'left':
-							stickState.horizontalValue = -1
-							break
-						case 'right':
-							stickState.horizontalValue = 1
-							break
-						case 'center':
-							stickState.horizontalValue = stickState.verticalValue = 0
-							break
-						default:
-							console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, command)
-					}
-				} else if (commandParts.length === 4) {
-					const direction = commandParts[2]
-					const amount = commandParts[3]
-					let stickAmount
-					switch (amount) {
-						case 'min':
-							stickAmount = direction === 'h' ? -1 : +1
-							break
-						case 'max':
-							stickAmount = direction === 'h' ? +1 : -1
-							break
-						case 'center':
-							stickAmount = 0
-							break
-						default:
-							stickAmount = parseFloat(amount)
-					}
-					if (direction === 'h') {
-						stickState.horizontalValue = stickAmount
-					} else if (direction === 'v') {
-						stickState.verticalValue = stickAmount
-					} else {
-						console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, command)
-					}
-				} else if (commandParts.length === 5 && commandParts[2] === 'hv') {
-					const horizontalAmount = commandParts[3]
-					const verticalAmount = commandParts[4]
-					stickState.horizontalValue = parseFloat(horizontalAmount)
-					stickState.verticalValue = parseFloat(verticalAmount)
-				} else {
-					console.warn("Ignoring unrecognized stick command in: \"%s\" from \"%s\"", singleCommand, command)
-				}
-			} else {
-				console.warn("Ignoring unrecognized stick in: \"%s\" from \"%s\"", singleCommand, command)
-			}
-		} else if (buttonNames.has(button)) {
-			const isPressed = commandParts[1] === 'd';
-			(controllerState as any)[buttonNameToStateMember[button] || button].isPressed = isPressed
+	for (let singleCommand of command.split('&')) {
+		singleCommand = singleCommand.trim()
+		const commandParts = singleCommand.split(/\s+/)
+		if (commandParts.length < 2) {
+			// A button might be tapped. Not really supported but it should not update the state.
+			console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, fullCommand)
 		} else {
-			console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, command)
+			const button = commandParts[0]
+			if (button === 's') {
+				const stick = commandParts[1]
+				let stickState = undefined
+				if (stick === 'l') {
+					stickState = controllerState.leftStick
+				} else if (stick === 'r') {
+					stickState = controllerState.rightStick
+				}
+				if (stickState) {
+					if (commandParts.length === 3) {
+						const direction = commandParts[2]
+						switch (direction) {
+							case 'up':
+								stickState.verticalValue = -1
+								break
+							case 'down':
+								stickState.verticalValue = 1
+								break
+							case 'left':
+								stickState.horizontalValue = -1
+								break
+							case 'right':
+								stickState.horizontalValue = 1
+								break
+							case 'center':
+								stickState.horizontalValue = stickState.verticalValue = 0
+								break
+							default:
+								console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+						}
+					} else if (commandParts.length === 4) {
+						const direction = commandParts[2]
+						const amount = commandParts[3]
+						let stickAmount
+						switch (amount) {
+							case 'min':
+								stickAmount = direction === 'h' ? -1 : +1
+								break
+							case 'max':
+								stickAmount = direction === 'h' ? +1 : -1
+								break
+							case 'center':
+								stickAmount = 0
+								break
+							default:
+								stickAmount = parseFloat(amount)
+						}
+						if (direction === 'h') {
+							stickState.horizontalValue = stickAmount
+						} else if (direction === 'v') {
+							stickState.verticalValue = stickAmount
+						} else {
+							console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+						}
+					} else if (commandParts.length === 5 && commandParts[2] === 'hv') {
+						const horizontalAmount = commandParts[3]
+						const verticalAmount = commandParts[4]
+						stickState.horizontalValue = parseFloat(horizontalAmount)
+						stickState.verticalValue = parseFloat(verticalAmount)
+					} else {
+						console.warn("Ignoring unrecognized stick command in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+					}
+				} else {
+					console.warn("Ignoring unrecognized stick in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+				}
+			} else if (buttonNames.has(button)) {
+				const isPressed = commandParts[1] === 'd';
+				(controllerState as any)[buttonNameToStateMember[button] || button].isPressed = isPressed
+			} else {
+				console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, fullCommand)
+			}
 		}
 	}
 }

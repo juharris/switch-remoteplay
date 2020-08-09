@@ -221,7 +221,7 @@ class PlayGame extends React.Component<any, any> {
 	 */
 	// Matches the SendCommand interace.
 	private sendCommand(command: string, controllerState?: ControllerState,
-		updateGivenState: boolean = false) {
+		updateGivenState = false) {
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}

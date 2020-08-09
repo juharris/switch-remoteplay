@@ -1,7 +1,7 @@
 import { ControllerState } from '../ControllerState'
 import { updateState, parseCommand } from '../parse-command'
 
-describe('parseCommand', () => {
+describe('parse-command', () => {
 	it('tap button', () => {
 		let c1, c2
 		for (const buttonName of [
@@ -62,7 +62,7 @@ describe('parseCommand', () => {
 			(c as any)[buttonName].isPressed = true
 			expect(parseCommand(`${buttonName} d`)).toStrictEqual([c])
 			const updatedState = new ControllerState()
-			updateState(`${buttonName} d`, updatedState);
+			updateState(`${buttonName} d`, updatedState)
 			expect(updatedState).toStrictEqual(c)
 
 			c = new ControllerState()
@@ -221,5 +221,46 @@ describe('parseCommand', () => {
 		const c = new ControllerState()
 		c.a.isPressed = c.b.isPressed = true
 		expect(parseCommand('a d&b d')).toStrictEqual([c])
+	})
+
+	it('updateState', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('a d', c)
+		expected.a.isPressed = true
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState tap', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('x', c)
+		// Tapping is not really supported but it should not update the state.
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState stick d', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('l_stick d', c)
+		expected.leftStick.isPressed = true
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState stick move', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('s r hv 0.4 -0.5', c)
+		expected.rightStick.horizontalValue = 0.4
+		expected.rightStick.verticalValue = -0.5
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState with &', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('a d&b d', c)
+		expected.a.isPressed = expected.b.isPressed = true
+		expect(c).toStrictEqual(expected)
 	})
 })

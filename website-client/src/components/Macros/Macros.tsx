@@ -124,7 +124,7 @@ class Macros extends React.Component<{
 			console.error(event)
 		}
 
-		request.onupgradeneeded = function (event: Event) {
+		request.onupgradeneeded = (event: Event) => {
 			const db: IDBDatabase = (event?.target as any).result
 			db.createObjectStore('macro', { keyPath: 'id', autoIncrement: true, })
 		}

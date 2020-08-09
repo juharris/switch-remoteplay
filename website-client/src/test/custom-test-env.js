@@ -1,4 +1,4 @@
-const Environment = require('jest-environment-jsdom');
+const Environment = require('jest-environment-jsdom') // eslint-disable-line @typescript-eslint/no-var-requires
 
 // Modified https://github.com/microsoft/0xDeCA10B/blob/master/demo/client/test/custom-test-env.js
 
@@ -7,9 +7,9 @@ const Environment = require('jest-environment-jsdom');
  */
 module.exports = class CustomTestEnvironment extends Environment {
 	async setup() {
-		await super.setup();
+		await super.setup()
 		if (typeof this.global.indexedDB === 'undefined') {
-			this.global.indexedDB = require('fake-indexeddb');
+			this.global.indexedDB = require('fake-indexeddb')
 		}
 		if (typeof this.global.IDBKeyRange === 'undefined') {
 			this.global.IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange")
