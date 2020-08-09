@@ -1,4 +1,5 @@
 import { createStyles, withStyles } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
 import React from 'react'
 import { SendCommand } from '../../key-binding/KeyBinding'
 import Diamond from '../Diamond/Diamond'
@@ -10,18 +11,15 @@ import Joystick from './Joystick/Joystick'
 
 const styles = () => createStyles({
 	controller: {
-		display: 'flex',
-		flexDirection: 'row',
 		justifyContent: 'center',
 	},
 
 	middle: {
-		/* Some of the settings were used before the video was in between the controls. */
-		/* display: flex; */
-		/* flex-direction: column; */
-		/* flex-grow: 1; */
-		// TODO Middle should be small or nothing on mobile devices.
-		minWidth: '23rem',
+		// Some of the settings were used before the video was in between the controls.
+		// display: 'flex',
+		// flexDirection: 'column',
+		// flexGrow: 1,
+		// minWidth: '23rem',
 	},
 })
 
@@ -36,8 +34,8 @@ class Controller extends React.Component<{
 		const { classes, sendCommand } = this.props
 		const controllerState: ControllerState = this.props.controllerState
 		return (
-			<div className={classes.controller}>
-				<div>
+			<Grid container className={classes.controller}>
+				<Grid item xs={6} sm={4} md={3} lg={2}>
 					<div>
 						<ControllerButton name='l' sendCommand={sendCommand}
 							controllerState={controllerState}
@@ -115,11 +113,11 @@ class Controller extends React.Component<{
 					>
 						<p>■</p>
 					</ControllerButton>
-				</div>
-				<div className={classes.middle}>
+				</Grid>
+				<Grid item className={classes.middle} sm={2} md={4} >
 					<VideoStream {...this.props.videoStreamProps} />
-				</div>
-				<div>
+				</Grid>
+				<Grid item xs={6} sm={4} md={3} lg={2}>
 					<div>
 						<ControllerButton name='r' sendCommand={sendCommand}
 							controllerState={controllerState}
@@ -195,8 +193,8 @@ class Controller extends React.Component<{
 					>
 						<p>●</p>
 					</ControllerButton>
-				</div>
-			</div>
+				</Grid>
+			</Grid>
 		)
 	}
 }
