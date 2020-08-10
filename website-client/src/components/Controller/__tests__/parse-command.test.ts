@@ -49,6 +49,29 @@ describe('parse-command', () => {
 		expect(parseCommand(`left`)).toStrictEqual([c1, c2])
 	})
 
+	it('tap with other command', () => {
+		const s1 = new ControllerState()
+		s1.a.isPressed = true
+		s1.b.isPressed = true
+		const s2 = new ControllerState()
+		s2.b.isPressed = true
+		expect(parseCommand(`a&b d`)).toStrictEqual([s1, s2])
+	})
+
+	it('tap with other commands and stick', () => {
+		const s1 = new ControllerState()
+		s1.a.isPressed = true
+		s1.y.isPressed = true
+		s1.b.isPressed = true
+		s1.x.isPressed = true
+		s1.leftStick.horizontalValue = 0.6
+		const s2 = new ControllerState()
+		s2.b.isPressed = true
+		s2.x.isPressed = true
+		s2.leftStick.horizontalValue = 0.6
+		expect(parseCommand(`a&y&b d&x d&s l h 0.6`)).toStrictEqual([s1, s2])
+	})
+
 	it('push button', () => {
 		let c = new ControllerState()
 		for (const buttonName of [

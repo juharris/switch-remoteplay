@@ -121,21 +121,25 @@ function parseCommand(command: string): ControllerState[] {
 	const result = []
 
 	const controllerState = new ControllerState()
-	let hasTap = false
+	const tappedButtons = []
 	for (let singleCommand of command.split('&')) {
 		singleCommand = singleCommand.trim()
 		if (buttonNames.has(singleCommand)) {
 			const member: string = buttonNameToStateMember[singleCommand] || singleCommand;
 			(controllerState as any)[member].isPressed = true
-			hasTap = true
+			tappedButtons.push(singleCommand)
 		} else {
 			updateState(singleCommand, controllerState, command)
 		}
 	}
 	result.push(controllerState)
-	if (hasTap) {
-		// TODO It would be better just to undo the button that was tapped.
-		result.push(new ControllerState())
+	if (tappedButtons.length > 0) {
+		// Undo the tapped buttons.
+		const nextState = new ControllerState(controllerState)
+		for (const tappedButton of tappedButtons) {
+			updateState(`${tappedButton} u`, nextState)
+		}
+		result.push(nextState)
 	}
 
 	return result
