@@ -124,7 +124,7 @@ class Macros extends React.Component<{
 			console.error(event)
 		}
 
-		request.onupgradeneeded = function(event: Event) {
+		request.onupgradeneeded = (event: Event) => {
 			const db: IDBDatabase = (event?.target as any).result
 			db.createObjectStore('macro', { keyPath: 'id', autoIncrement: true, })
 		}
@@ -303,6 +303,8 @@ class Macros extends React.Component<{
 
 	async playMacro(macro: string[]) {
 		this.openToast("Playing macro", 'info')
+		// TODO Keep a controller state and update it.
+		// Can't just call `updateState` since a macro could have a putton tap that `updateState` does not handle.
 		for (const command of macro) {
 			const m = /wait (\d+)/.exec(command)
 			if (m) {

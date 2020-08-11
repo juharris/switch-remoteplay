@@ -1,7 +1,7 @@
 import { ControllerState } from '../ControllerState'
-import { parseCommand } from '../parse-command'
+import { updateState, parseCommand } from '../parse-command'
 
-describe('parseCommand', () => {
+describe('parse-command', () => {
 	it('tap button', () => {
 		let c1, c2
 		for (const buttonName of [
@@ -49,6 +49,29 @@ describe('parseCommand', () => {
 		expect(parseCommand(`left`)).toStrictEqual([c1, c2])
 	})
 
+	it('tap with other command', () => {
+		const s1 = new ControllerState()
+		s1.a.isPressed = true
+		s1.b.isPressed = true
+		const s2 = new ControllerState()
+		s2.b.isPressed = true
+		expect(parseCommand(`a&b d`)).toStrictEqual([s1, s2])
+	})
+
+	it('tap with other commands and stick', () => {
+		const s1 = new ControllerState()
+		s1.a.isPressed = true
+		s1.y.isPressed = true
+		s1.b.isPressed = true
+		s1.x.isPressed = true
+		s1.leftStick.horizontalValue = 0.6
+		const s2 = new ControllerState()
+		s2.b.isPressed = true
+		s2.x.isPressed = true
+		s2.leftStick.horizontalValue = 0.6
+		expect(parseCommand(`a&y&b d&x d&s l h 0.6`)).toStrictEqual([s1, s2])
+	})
+
 	it('push button', () => {
 		let c = new ControllerState()
 		for (const buttonName of [
@@ -61,9 +84,14 @@ describe('parseCommand', () => {
 		]) {
 			(c as any)[buttonName].isPressed = true
 			expect(parseCommand(`${buttonName} d`)).toStrictEqual([c])
+			const updatedState = new ControllerState()
+			updateState(`${buttonName} d`, updatedState)
+			expect(updatedState).toStrictEqual(c)
 
 			c = new ControllerState()
 			expect(parseCommand(`${buttonName} u`)).toStrictEqual([c])
+			updateState(`${buttonName} u`, updatedState)
+			expect(updatedState).toStrictEqual(c)
 		}
 
 		c = new ControllerState()
@@ -216,5 +244,46 @@ describe('parseCommand', () => {
 		const c = new ControllerState()
 		c.a.isPressed = c.b.isPressed = true
 		expect(parseCommand('a d&b d')).toStrictEqual([c])
+	})
+
+	it('updateState', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('a d', c)
+		expected.a.isPressed = true
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState tap', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('x', c)
+		// Tapping is not really supported but it should not update the state.
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState stick d', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('l_stick d', c)
+		expected.leftStick.isPressed = true
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState stick move', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('s r hv 0.4 -0.5', c)
+		expected.rightStick.horizontalValue = 0.4
+		expected.rightStick.verticalValue = -0.5
+		expect(c).toStrictEqual(expected)
+	})
+
+	it('updateState with &', () => {
+		const c = new ControllerState()
+		const expected = new ControllerState()
+		updateState('a d&b d', c)
+		expected.a.isPressed = expected.b.isPressed = true
+		expect(c).toStrictEqual(expected)
 	})
 })

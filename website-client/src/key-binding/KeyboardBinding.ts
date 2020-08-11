@@ -1,5 +1,6 @@
+import { ControllerState } from '../components/Controller/ControllerState'
 import actions from './actions'
-import { KeyBinding } from './KeyBinding'
+import { KeyBinding, SendCommand } from './KeyBinding'
 
 /**
  * Keyboard bindings. No mouse control.
@@ -52,6 +53,14 @@ export default class KeyboardBinding extends KeyBinding {
 		ArrowRight: actions.rightStickFullRight,
 	}
 
+	constructor(
+		sendCommand: SendCommand,
+		controllerState: ControllerState) {
+		super(sendCommand, controllerState)
+		this.handleKeyDown = this.handleKeyDown.bind(this)
+		this.handleKeyUp = this.handleKeyUp.bind(this)
+	}
+
 	getName(): string {
 		return "Keyboard"
 	}
@@ -84,12 +93,22 @@ export default class KeyboardBinding extends KeyBinding {
 		document.removeEventListener('keyup', this.handleKeyUp)
 	}
 
-	handleKeyDown: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
-		this.handleKey(e, e.code, 'down')
+	private handleKeyDown(e: KeyboardEvent): void {
+		if (!e.repeat) {
+			// Only run the comment once per press.
+			this.handleKey(e, e.code, 'down')
+		} else {
+			e.preventDefault()
+		}
 	}
 
-	handleKeyUp: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
-		this.handleKey(e, e.code, 'up')
+	private handleKeyUp(e: KeyboardEvent): void {
+		if (!e.repeat) {
+			// Only run the comment once per press.
+			this.handleKey(e, e.code, 'up')
+		} else {
+			e.preventDefault()
+		}
 	}
 
 

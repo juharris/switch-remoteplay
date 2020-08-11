@@ -26,9 +26,9 @@ Example [video](https://youtu.be/viv-B_A-A2o) of recording and running a **macro
 For more videos, check out this [playlist](https://www.youtube.com/playlist?list=PLfC95bU1D4gpJEM3SYfzaI2e5vD0q7v0z).
 
 # Status
-One keyboard layout or gaming controller layout is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
+One keyboard layout, gaming controller layout, using you mouse, or touchscreen is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.
-This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller.
+This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller/mouse/touchscreen.
 
 # Macros
 You can record and run **macros**!
@@ -47,10 +47,9 @@ The host (person setting this up) needs:
 The client (your friend) needs:
 * A web browser to open the client and send commands
   * You can use the already [hosted client][client] but you may have to enable mixed content for that site in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https).
-* A keyboard or gaming controller
+* A keyboard or **gaming controller** is recommended or just use your mouse/touchscreen for simple stuff
 
 # Plans
-* Make controller buttons clickable/tappable.
 * Support custom key bindings.
 * Improve macro support: exporting/importing.
 * Default layout options for common controllers.

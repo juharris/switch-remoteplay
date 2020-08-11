@@ -1,6 +1,6 @@
 {
 	"name": "switch-rp-client",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"private": true,
 	"dependencies": {
 		"@material-ui/core": "^4.10.0",
@@ -25,9 +25,9 @@
 	},
 	"scripts": {
 		"start": "react-scripts start",
-		"start-prod": "serve --single build",		
+		"start-prod": "serve --single build",
 		"build": "react-scripts build",
-		"test": "react-scripts test",
+		"test": "react-scripts test --env='./src/test/custom-test-env.js'",
 		"eject": "react-scripts eject",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"lint-fix": "eslint  . --fix --ext .js,.jsx,.ts,.tsx"
@@ -51,6 +51,7 @@
 		"@types/react-router-dom": "^5.1.5",
 		"@typescript-eslint/eslint-plugin": "^3.0.0",
 		"@typescript-eslint/parser": "^3.0.0",
-		"eslint-plugin-react": "^7.20.0"
+		"eslint-plugin-react": "^7.20.0",
+		"fake-indexeddb": "^3.1.2"
 	}
 }

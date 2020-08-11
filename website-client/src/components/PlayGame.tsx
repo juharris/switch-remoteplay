@@ -13,7 +13,7 @@ import GamepadBinding from '../key-binding/GamepadBinding'
 import KeyboardBinding from '../key-binding/KeyboardBinding'
 import Controller from './Controller/Controller'
 import { ControllerState } from './Controller/ControllerState'
-import { parseCommand } from './Controller/parse-command'
+import { updateState, parseCommand } from './Controller/parse-command'
 import MacroRecorder from './Macros/MacroRecorder'
 import Macros from './Macros/Macros'
 
@@ -65,7 +65,8 @@ class PlayGame extends React.Component<any, any> {
 		this.toggleSendMode = this.toggleSendMode.bind(this)
 		this.updateConnectionStatus = this.updateConnectionStatus.bind(this)
 
-		const inputMethod = new KeyboardBinding(this.sendCommand)
+		const controllerState = new ControllerState()
+		const inputMethod = new KeyboardBinding(this.sendCommand, controllerState)
 		const inputMethodOptions = [
 			inputMethod,
 		]
@@ -86,6 +87,8 @@ class PlayGame extends React.Component<any, any> {
 
 			inputMethod,
 			inputMethodOptions,
+
+			controllerState,
 		}
 	}
 
@@ -123,7 +126,7 @@ class PlayGame extends React.Component<any, any> {
 			e.gamepad.index, e.gamepad.id,
 			e.gamepad.buttons.length, e.gamepad.axes.length)
 		this.state.inputMethod.stop()
-		const inputMethod = new GamepadBinding(this.sendCommand, e.gamepad)
+		const inputMethod = new GamepadBinding(this.sendCommand, this.state.controllerState, e.gamepad)
 		const inputMethodOptions = this.state.inputMethodOptions.concat([inputMethod])
 		this.setState({
 			inputMethod,
@@ -214,7 +217,14 @@ class PlayGame extends React.Component<any, any> {
 		})
 	}
 
-	private sendCommand(command: string, controllerState?: ControllerState) {
+	/**
+	 * @param command The command the execute.
+	 * @param controllerState The current state of the controller. If `undefined`, then the states for the `command` will be automatically determined but the UI might not look right if this method is called concurrently.
+	 * @param updateGivenState If `true`, then the passed in state should be updated. Defaults to `false`.
+	 */
+	// Matches the SendCommand interace.
+	private sendCommand(command: string, controllerState?: ControllerState,
+		updateGivenState = false) {
 		if (command && this.state.socket && this.state.isInSendMode) {
 			this.state.socket.emit('p', command)
 		}
@@ -222,6 +232,9 @@ class PlayGame extends React.Component<any, any> {
 		// Controller and key bindings should send the state since it should be easy for them to compute it.
 		// Running commands from a macro might not send the state.
 		if (controllerState !== undefined) {
+			if (updateGivenState) {
+				updateState(command, controllerState)
+			}
 			this.setState({
 				controllerState,
 			})
@@ -344,6 +357,7 @@ class PlayGame extends React.Component<any, any> {
 						</Grid>
 					</div>}
 				<Controller controllerState={this.state.controllerState}
+					sendCommand={this.sendCommand}
 					videoStreamProps={{
 						mixerChannel: this.state.mixerChannel,
 					}} />

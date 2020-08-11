@@ -1,5 +1,6 @@
-import { KeyBinding, SendCommand } from "./KeyBinding"
+import { ControllerState } from "../components/Controller/ControllerState"
 import actions from "./actions"
+import { KeyBinding, SendCommand } from "./KeyBinding"
 
 /**
  * Bindings for a single Gamepad.
@@ -38,8 +39,10 @@ export default class GamepadBinding extends KeyBinding {
 	gamepad: Gamepad
 	animationRequest?: number
 
-	constructor(sendCommand: SendCommand, gamepad: Gamepad) {
-		super(sendCommand)
+	constructor(sendCommand: SendCommand,
+		controllerState: ControllerState,
+		gamepad: Gamepad) {
+		super(sendCommand, controllerState)
 		this.gamepad = gamepad
 
 		this.loop = this.loop.bind(this)

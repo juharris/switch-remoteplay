@@ -32,7 +32,7 @@ docker run --rm -d -p 5000:5000 --name switch-remoteplay-client switch-remotepla
 
 #### Updating the Public Image
 You will need permission to push a new image to Docker Hub.
-```
+```bash
 docker login
 docker tag switch-remoteplay-client juharris/switch-remoteplay-client:latest
 docker push juharris/switch-remoteplay-client:latest
