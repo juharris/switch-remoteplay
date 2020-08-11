@@ -37,7 +37,7 @@ class Joystick extends React.Component<{
 	// if another class creates a new state.
 	/** Indicates if the stick has been moved since it has been selected. */
 	moved = false
-	/** Indicates if the stick have been pressed inwards. */
+	/** Indicates if the stick has been pressed inwards. */
 	pressed = false
 	pressCheck?: any
 

@@ -33,7 +33,7 @@ function updateState(command: string, controllerState: ControllerState, fullComm
 		const commandParts = singleCommand.split(/\s+/)
 		if (commandParts.length < 2) {
 			// A button might be tapped. Not really supported but it should not update the state.
-			console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, fullCommand)
+			console.warn("updateState: Ignoring unrecognized part of command (when updating the state for the UI): \"%s\" from \"%s\"", singleCommand, fullCommand)
 		} else {
 			const button = commandParts[0]
 			if (button === 's') {
@@ -64,7 +64,7 @@ function updateState(command: string, controllerState: ControllerState, fullComm
 								stickState.horizontalValue = stickState.verticalValue = 0
 								break
 							default:
-								console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+								console.warn("updateState: Ignoring unrecognized direction (when updating the state for the UI) in: \"%s\" from \"%s\"", singleCommand, fullCommand)
 						}
 					} else if (commandParts.length === 4) {
 						const direction = commandParts[2]
@@ -88,7 +88,7 @@ function updateState(command: string, controllerState: ControllerState, fullComm
 						} else if (direction === 'v') {
 							stickState.verticalValue = stickAmount
 						} else {
-							console.warn("Ignoring unrecognized direction in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+							console.warn("updateState: Ignoring unrecognized direction (when updating the state for the UI) in: \"%s\" from \"%s\"", singleCommand, fullCommand)
 						}
 					} else if (commandParts.length === 5 && commandParts[2] === 'hv') {
 						const horizontalAmount = commandParts[3]
@@ -96,16 +96,16 @@ function updateState(command: string, controllerState: ControllerState, fullComm
 						stickState.horizontalValue = parseFloat(horizontalAmount)
 						stickState.verticalValue = parseFloat(verticalAmount)
 					} else {
-						console.warn("Ignoring unrecognized stick command in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+						console.warn("updateState: Ignoring unrecognized stick command (when updating the state for the UI) in: \"%s\" from \"%s\"", singleCommand, fullCommand)
 					}
 				} else {
-					console.warn("Ignoring unrecognized stick in: \"%s\" from \"%s\"", singleCommand, fullCommand)
+					console.warn("updateState: Ignoring unrecognized stick (when updating the state for the UI) in: \"%s\" from \"%s\"", singleCommand, fullCommand)
 				}
 			} else if (buttonNames.has(button)) {
 				const isPressed = commandParts[1] === 'd';
 				(controllerState as any)[buttonNameToStateMember[button] || button].isPressed = isPressed
 			} else {
-				console.warn("Ignoring unrecognized part of command: \"%s\" from \"%s\"", singleCommand, fullCommand)
+				console.warn("updateState: Ignoring unrecognized part of command (when updating the state for the UI): \"%s\" from \"%s\"", singleCommand, fullCommand)
 			}
 		}
 	}
