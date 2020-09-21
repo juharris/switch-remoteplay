@@ -91,7 +91,7 @@ async def _main():
 	parser.add_argument('--service_port', type=int, default=5000,
 						help="The port that the socket service should use for connections.\n Default: 5000.")
 	parser.add_argument('-d', '--device_id', type=str, default=None,
-						help='ID of the bluetooth adapter. Integer matching the digit in the hci* notation\n(e.g. hci0, hci1, ...) or Bluetooth mac address of the adapter in string\nnotation (e.g. "FF:FF:FF:FF:FF:FF").')
+						help="ID of the Bluetooth adapter. Integer matching the digit in the hci* notation (e.g. hci0, hci1, ...) or Bluetooth MAC address of the adapter in string notation (e.g. \"FF:FF:FF:FF:FF:FF\").")
 
 	parser.add_argument('--log_level', type=str, default=logging.INFO,
 						help="The log level. Options are Python log level names. Default: INFO.")
