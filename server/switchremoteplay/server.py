@@ -21,6 +21,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 controller: Optional[SwitchController] = None
 switch_mac_address: Optional[str] = None
 controller_type: Optional[str] = None
+device_id: Optional[str] = None
 
 reconnect_lock = asyncio.Lock()
 
@@ -76,7 +77,8 @@ async def _handle_reset_controller():
 		del controller
 		controller = None
 		controller = await SwitchController.get_controller(logger, switch_mac_address,
-														   controller=controller_type)
+														   controller=controller_type,
+														   device_id=device_id)
 		logger.info("Done attempting to connect the controller.")
 
 
@@ -88,6 +90,8 @@ async def _main():
 						help="The type of controller to simulate. Either PRO_CONTROLLER, JOYCON_L, or JOYCON_R. Default: PRO_CONTROLLER.")
 	parser.add_argument('--service_port', type=int, default=5000,
 						help="The port that the socket service should use for connections.\n Default: 5000.")
+	parser.add_argument('-d', '--device_id', type=str, default=None,
+						help="ID of the Bluetooth adapter. Integer matching the digit in the hci* notation (e.g. hci0, hci1, ...) or Bluetooth MAC address of the adapter in string notation (e.g. \"FF:FF:FF:FF:FF:FF\").")
 
 	parser.add_argument('--log_level', type=str, default=logging.INFO,
 						help="The log level. Options are Python log level names. Default: INFO.")
@@ -98,10 +102,11 @@ async def _main():
 	SwitchController.configure_log(logger.level)
 
 	logger.info("Starting")
-	global switch_mac_address, controller_type
+	global switch_mac_address, controller_type, device_id
 	switch_mac_address = args.switch_mac_address
 	controller_type = args.controller_type
 	port = args.service_port
+	device_id = args.device_id
 
 	global controller
 	try:
