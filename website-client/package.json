@@ -1,6 +1,6 @@
 {
 	"name": "switch-rp-client",
-	"version": "0.6.0",
+	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
 		"@material-ui/core": "^4.10.0",
