@@ -22,7 +22,7 @@ module.exports = {
 		semi: ['error', 'never'],
 		'space-before-function-paren': [2, {
 			named: 'never',
-			anonymous: 'never',
+			anonymous: 'always',
 			asyncArrow: 'always'
 		}],
 		'@typescript-eslint/no-explicit-any': 'off',
