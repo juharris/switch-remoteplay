@@ -28,7 +28,11 @@ export default class GamepadBinding extends KeyBinding {
 		actions.home,
 	]
 
-	axisDeltaThreshold = 0.01
+	private axisDeltaThreshold = 0.01
+	private deadzoneThresholds: { [stick: string]: number } = {
+		leftStick: 0,
+		rightStick: 0,
+	}
 	axisToAction = [
 		{ name: 'leftStick', dirName: 'horizontalValue', command: 's l h ', },
 		{ name: 'leftStick', dirName: 'verticalValue', command: 's l v ', },
@@ -44,6 +48,10 @@ export default class GamepadBinding extends KeyBinding {
 		gamepad: Gamepad) {
 		super(sendCommand, controllerState)
 		this.gamepad = gamepad
+
+		const urlParams = new URLSearchParams(window.location.search)
+		this.deadzoneThresholds.leftStick = parseFloat(urlParams.get('leftStickDeadzone') || '0')
+		this.deadzoneThresholds.rightStick = parseFloat(urlParams.get('rightStickDeadzone') || '0')
 
 		this.loop = this.loop.bind(this)
 	}
@@ -79,9 +87,13 @@ export default class GamepadBinding extends KeyBinding {
 			}
 		}
 		for (let i = 0; i < gamepad.axes.length && i < this.axisToAction.length; ++i) {
-			const axisValue = gamepad.axes[i]
-			if (Math.abs(axisValue - this.gamepad.axes[i]) > this.axisDeltaThreshold) {
-				const action = this.axisToAction[i]
+			const action = this.axisToAction[i]
+			let axisValue = gamepad.axes[i]
+			if (Math.abs(axisValue) < this.deadzoneThresholds[action.name]) {
+				axisValue = 0
+				commands.push(action.command + axisValue);
+				(this.controllerState as any)[action.name][action.dirName] = axisValue
+			} else if (Math.abs(axisValue - this.gamepad.axes[i]) > this.axisDeltaThreshold) {
 				commands.push(action.command + axisValue.toFixed(2));
 				(this.controllerState as any)[action.name][action.dirName] = axisValue
 			}
