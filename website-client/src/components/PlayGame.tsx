@@ -97,11 +97,8 @@ class PlayGame extends React.Component<any, any> {
 		const urlParams = new URLSearchParams(queryString)
 
 		const serverAddress = urlParams.get('a') || 'http://127.0.0.1:5000'
-
 		const connectNow = urlParams.get('c') === 'true'
-
 		const isInSendMode = urlParams.get('s') === 'true'
-
 		const mixerChannel = urlParams.get('mixerChannel')
 
 		this.setState({
@@ -375,6 +372,12 @@ class PlayGame extends React.Component<any, any> {
 				<Typography component="p">
 					{"s: Use \"s=true\" to enable sending commands automatically."}
 					{"Defaults to \"s=false\" to not automatically send commands."}
+				</Typography>
+				<Typography component="p">
+					{"leftStickDeadzone/rightStickDeadzone: Use \"leftStickDeadzone=0.1\" and/or \"rightStickDeadzone=0.1\"to configure size of the deadzone when using a gaming controller."}
+					{"This helps prevent drift."}
+					{"0 means no deadzone. 1 means the entire space is a deadzone."}
+					{"Defaults to 0."}
 				</Typography>
 				<Typography component="p">
 					mixerChannel: The channel name for a Mixer stream to start playing.
