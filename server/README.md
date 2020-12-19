@@ -1,7 +1,7 @@
 # Server
 
 # Setup
-This code relies a lot on [joycontrol][joycontrol] for sending commands via Bluetooth to your Switch.
+This code relies on [joycontrol][joycontrol] for sending commands via Bluetooth to your Switch.
 For information and troubleshooting on pairing controllers: see [joycontrol][joycontrol].
 
 Install dependencies required by [joycontrol][joycontrol]:
