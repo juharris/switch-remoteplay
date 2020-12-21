@@ -1,4 +1,4 @@
-name: Test Server
+name: Server Test
 
 on:
   push:
