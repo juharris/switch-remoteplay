@@ -4,6 +4,9 @@ This is an independent project.
 
 # Switch Remote Play
 
+| Tests | ![Server](https://github.com/juharris/switch-remoteplay/workflows/Server%20Test/badge.svg) | ![Client](https://github.com/juharris/switch-remoteplay/workflows/Client%20Test/badge.svg) |
+| - | - | - |
+
 The goal of this project is to support **easily** playing your Nintendo Switch remotely or locally via another device with a keyboard/mouse/controller/touchscreen.
 No hacking of your Switch is required.
 
