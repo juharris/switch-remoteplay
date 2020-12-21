@@ -1,0 +1,32 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - website-client/**
+      - .github/workflows/client/**
+  pull_request:
+    branches:
+    - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Change to ubuntu-20.04 when it is fully supported.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: |
+          pushd website-client
+          yarn install
+          test_fail="false"
+          lint_fail="false"
+          yarn test || test_fail="true"
+          yarn lint || lint_fail="true"
+          [ "${test_fail}" == "false" ] && [ "${lint_fail}" == "false" ]
