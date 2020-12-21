@@ -30,6 +30,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        pushd server
         sudo apt install python3-dbus libhidapi-hidraw0
         python -m pip install --upgrade pip
         # python -m pip install flake8
@@ -43,4 +44,5 @@ jobs:
         # flake8 . --count --exit-zero --max-complexity=10 --max-line-length=139 --statistics
     - name: Test
       run: |
+        pwd
         pytest
