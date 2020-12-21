@@ -3,16 +3,16 @@ name: Test
 on:
   push:
     branches:
-      - main
+    - main
     paths:
-      - 'website-client/**'
-      - '.github/workflows/client/**'
+    - 'website-client/**'
+    - '.github/workflows/client/**'
   pull_request:
     branches:
-      - main
-    paths:
-      - 'website-client/**'
-      - '.github/workflows/client/**'
+    - main
+#     paths:
+#     - 'website-client/**'
+#     - '.github/workflows/client/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
