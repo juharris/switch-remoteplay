@@ -23,6 +23,5 @@ jobs:
           pushd website-client
           docker build -t juharris/switch-remoteplay-client:latest .
           docker run --rm -e CI=true --name switch-remoteplay-client juharris/switch-remoteplay-client:latest yarn test
-          docker run --rm -e CI=true --name switch-remoteplay-client juharris/switch-remoteplay-client:latest yarn lint
           docker login --username juharris --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           docker push juharris/switch-remoteplay-client:latest
