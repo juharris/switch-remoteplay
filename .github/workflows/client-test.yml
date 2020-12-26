@@ -1,12 +1,6 @@
 name: Client Test
 
 on:
-  push:
-    branches:
-    - main
-    paths:
-    - 'website-client/**'
-    - '.github/workflows/client-**'
   pull_request:
     branches:
     - main

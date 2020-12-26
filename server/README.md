@@ -30,6 +30,25 @@ sudo python3 switchremoteplay/server.py --help
 
 You can change the controller type, the port used by the socket service, and the log level.
 
+# Networking Setup
+The client webpage in your browser will need to know the address of the server.
+
+## Same Network
+You will need the local IP address or hostname of your device running the server.
+Your public IP address will likely not work.
+On linux, you can run `hostname` and you should get what you need.
+For example, on a Rapsberry Pi, it my just be "raspberrypi".
+Once the server has started, you can enter http://raspberrypi:5000 (5000 for the default port) as the "Server Address" on the client page.
+If you just have the local network IP address (usually starts with `192.168`), then enter that as the server address, for example: `http://192.168.2.17:5000`.
+
+## Over the Internet
+Do this if you are connecting to a server on another network, for example, your friend's Switch and server device at their house.
+The person with the Switch and running the server will need to find their public IP address.
+One way to do this is for this person to open https://ifconfig.me and check what is says for "IP Address".
+They will also have to make sure to set up "port forwarding" in their router settings so that requests from outside of their local network get mapped to the server.
+
+You might be able to avoid port forwarding if you use [ngrok](https://ngrok.com/) but it might not be as secure and will likely reduce speed.
+
 # API
 This sections discusses the format of commands that the server expects.
 This section is useful for developers and people writing macros.
@@ -123,7 +142,7 @@ Example: Push the right stick halfway to the right and halfway up: `'s r hv 0.5 
 
 Example: Push the left stick halfway to the right and halfway down: `'s l hv 0.5 0.5'`.
 
-# Wait
+## Wait
 This is mainly for macros.
 This server itself will not recognize `wait` commands.
 There is an ongoing discussion [here](https://github.com/juharris/switch-remoteplay/issues/8).
@@ -134,9 +153,9 @@ Example: Do not send any input for 300ms: `'wait 300'`.
 
 The amount of time must be an integer.
 
-# Sending Multiple Commands
+## Sending Multiple Commands
 
-## Simultaneous
+### Simultaneous
 To run multiple commands at the same time: join commands with `&`.
 This is supported in macros.
 
@@ -145,7 +164,7 @@ Example: Press A and B down: `'a d&b d'`
 Do **not** use single press command like just `'a'`. 
 It might seems like it works but the behavior is not guaranteed.
 
-## Sequence
+### Sequence
 Run one command after another: join commands with `,`.
 This is not guaranteed to work with macros since it is not really needed because you can just split up the command: `["a,b"]` should be: `["a", "b"]`.
 This takes precedence over `&`.

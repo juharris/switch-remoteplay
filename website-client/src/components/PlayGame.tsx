@@ -335,6 +335,9 @@ class PlayGame extends React.Component<any, any> {
 						<Typography component="p">
 							Keyboard Controls
 						</Typography>
+						<Typography component="p">
+							{"You can click/tap/drag the buttons/sticks below or use these mapped keys:"}
+						</Typography>
 						<Grid container>
 							<Grid className={classes.leftButtons} item container direction="column" xs={4}>
 								<Grid item>L: Q, ZL: Shift+Q</Grid>

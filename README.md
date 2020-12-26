@@ -31,7 +31,6 @@ For more videos, check out this [playlist](https://www.youtube.com/playlist?list
 # Status
 One keyboard layout, gaming controller layout, using you mouse, or touchscreen is supported to map input to the control sticks and the buttons on a Nintendo Switch controller.
 I've mainly tested this with Animal Crossing and Mixer - FTL low latency streaming.
-This is very much a work in progress right now but you can indeed play your Switch remotely using a keyboard/controller/mouse/touchscreen.
 
 # Macros
 You can record and run **macros**!
@@ -44,13 +43,14 @@ See the supported commands [here](/server#api).
 # Requirements
 The host (person setting this up) needs:
 * A Nintendo Switch
-* A **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch via Bluetooth: [joycontrol][joycontrol])
+* A **Linux** machine to host the service and connect via Bluetooth to the Switch (tested with a Raspberry Pi 4B) (a Linux machine is required by the code that actually connects to the Switch via Bluetooth: [joycontrol][joycontrol]). See the [server page](/server) to learn how to set this up.
 * (optional) A video capture card to see the video (or just have bad quality and lag by pointing your camera at your Switch and use a video chat app)
 
 The client (your friend) needs:
 * A web browser to open the client and send commands
-  * You can use the already [hosted client][client] but you may have to enable mixed content for that site in your browser's settings if the server your friend is hosting does not have SSL (a link that starts with https).
+  * You can use the already [hosted client][client] but you may have to enable mixed content for that site in your browser's settings if the server your friend is hosting to connect to their Switch does not use SSL (a link that starts with https).
 * A keyboard or **gaming controller** is recommended or just use your mouse/touchscreen for simple stuff
+* (optional) See [this folder](/website-client) if you want to customize or run your own client
 
 # Plans
 * Support custom key bindings.
@@ -69,11 +69,6 @@ I'm looking for help with implementing the above plans. Some more specific thing
 * Improving the client UX
 * Mapping controller, keyboards, and mice for game specific controls (once custom bindings are supported)
 * Phone apps to talk to the Switch and host the service instead of the a Linux machine.
-
-# Setup
-See:
-* [server](/server): a service to run on a device near your Switch (full API docs are there)
-* [client](/website-client): a website for your friends to "connect" to your Switch
 
 # Acknowledgements
 A very special thank you to [joycontrol][joycontrol] for the very conveninent and full API and the acknowledgements there as well for so much of the great research into how to communicate with the Switch.
