@@ -1,6 +1,13 @@
 name: Client Test
 
 on:
+  # Run on push to check linting (might not be need if merge with main happens before build).
+  push:
+    branches:
+    - main
+    paths:
+    - 'website-client/**'
+    - '.github/workflows/client-**'
   pull_request:
     branches:
     - main
