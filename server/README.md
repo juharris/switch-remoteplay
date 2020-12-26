@@ -153,9 +153,9 @@ Example: Do not send any input for 300ms: `'wait 300'`.
 
 The amount of time must be an integer.
 
-# Sending Multiple Commands
+## Sending Multiple Commands
 
-## Simultaneous
+### Simultaneous
 To run multiple commands at the same time: join commands with `&`.
 This is supported in macros.
 
@@ -164,7 +164,7 @@ Example: Press A and B down: `'a d&b d'`
 Do **not** use single press command like just `'a'`. 
 It might seems like it works but the behavior is not guaranteed.
 
-## Sequence
+### Sequence
 Run one command after another: join commands with `,`.
 This is not guaranteed to work with macros since it is not really needed because you can just split up the command: `["a,b"]` should be: `["a", "b"]`.
 This takes precedence over `&`.
