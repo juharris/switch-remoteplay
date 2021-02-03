@@ -4,6 +4,7 @@ import green from '@material-ui/core/colors/green'
 import red from '@material-ui/core/colors/red'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
+import Link from '@material-ui/core/Link'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Autocomplete from '@material-ui/lab/Autocomplete'
@@ -40,8 +41,11 @@ const styles = () => createStyles({
 		maxWidth: '100%',
 	},
 	urlParamsInfo: {
-		paddingTop: 20,
-		paddingBottom: 10,
+		marginTop: 20,
+		marginBottom: 10,
+	},
+	infoSection: {
+		marginTop: '10px',
 	},
 })
 
@@ -384,6 +388,11 @@ class PlayGame extends React.Component<any, any> {
 				</Typography>
 				<Typography component="p">
 					mixerChannel: The channel name for a Mixer stream to start playing.
+				</Typography>
+			</div>
+			<div className={classes.infoSection}>
+				<Typography component="p">
+					The original source code for this site can be found at <Link href="https://github.com/juharris/switch-remoteplay" target="_blank">https://github.com/juharris/switch-remoteplay</Link>.
 				</Typography>
 			</div>
 		</Container >)
